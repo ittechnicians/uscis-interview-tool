@@ -1,0 +1,272 @@
+[
+  {
+    "id": 1,
+    "question_en": "What is the supreme law of the land?",
+    "answer_en": "The Constitution",
+    "question_es": "¿Cuál es la ley suprema de la nación?",
+    "answer_es": "La Constitución",
+    "topic": "american_government",
+    "type": "principles_of_democracy"
+  },
+  {
+    "id": 2,
+    "question_en": "What does the Constitution do?",
+    "answer_en": "Sets up the government; Defines the government; Protects basic rights of Americans",
+    "question_es": "¿Qué hace la Constitución?",
+    "answer_es": "Establece el gobierno; Define el gobierno; Protege los derechos básicos de los estadounidenses",
+    "topic": "american_government",
+    "type": "principles_of_democracy"
+  },
+  {
+    "id": 3,
+    "question_en": "The idea of self-government is in the first three words of the Constitution. What are these words?",
+    "answer_en": "We the People",
+    "question_es": "La idea del autogobierno está en las primeras tres palabras de la Constitución. ¿Cuáles son estas palabras?",
+    "answer_es": "Nosotros el Pueblo",
+    "topic": "american_government",
+    "type": "principles_of_democracy"
+  },
+  {
+    "id": 4,
+    "question_en": "What is an amendment?",
+    "answer_en": "A change (to the Constitution); An addition (to the Constitution)",
+    "question_es": "¿Qué es una enmienda?",
+    "answer_es": "Un cambio (a la Constitución); Una adición (a la Constitución)",
+    "topic": "american_government",
+    "type": "principles_of_democracy"
+  },
+  {
+    "id": 5,
+    "question_en": "What do we call the first ten amendments to the Constitution?",
+    "answer_en": "The Bill of Rights",
+    "question_es": "¿Cómo llamamos a las primeras diez enmiendas a la Constitución?",
+    "answer_es": "La Carta de Derechos",
+    "topic": "american_government",
+    "type": "principles_of_democracy"
+  },
+  {
+    "id": 6,
+    "question_en": "What is one right or freedom from the First Amendment?",
+    "answer_en": "Speech; Religion; Assembly; Press; Petition the government",
+    "question_es": "¿Cuál es un derecho o libertad de la Primera Enmienda?",
+    "answer_es": "Expresión; Religión; Reunión; Prensa; Peticionar al gobierno",
+    "topic": "american_government",
+    "type": "principles_of_democracy"
+  },
+  {
+    "id": 7,
+    "question_en": "How many amendments does the Constitution have?",
+    "answer_en": "Twenty-seven (27)",
+    "question_es": "¿Cuántas enmiendas tiene la Constitución?",
+    "answer_es": "Veintisiete (27)",
+    "topic": "american_government",
+    "type": "principles_of_democracy"
+  },
+  {
+    "id": 8,
+    "question_en": "What did the Declaration of Independence do?",
+    "answer_en": "Announced our independence (from Great Britain); Declared our independence (from Great Britain); Said that the United States is free (from Great Britain)",
+    "question_es": "¿Qué hizo la Declaración de Independencia?",
+    "answer_es": "Anunció nuestra independencia (de Gran Bretaña); Declaró nuestra independencia (de Gran Bretaña); Dijo que los Estados Unidos es libre (de Gran Bretaña)",
+    "topic": "american_government",
+    "type": "principles_of_democracy"
+  },
+  {
+    "id": 9,
+    "question_en": "What are two rights in the Declaration of Independence?",
+    "answer_en": "Life; Liberty; Pursuit of happiness",
+    "question_es": "¿Cuáles son dos derechos en la Declaración de Independencia?",
+    "answer_es": "Vida; Libertad; La búsqueda de la felicidad",
+    "topic": "american_government",
+    "type": "principles_of_democracy"
+  },
+  {
+    "id": 10,
+    "question_en": "What is freedom of religion?",
+    "answer_en": "You can practice any religion, or not practice a religion",
+    "question_es": "¿Qué es la libertad de religión?",
+    "answer_es": "Puedes practicar cualquier religión, o no practicar una religión",
+    "topic": "american_government",
+    "type": "principles_of_democracy"
+  },
+  {
+    "id": 11,
+    "question_en": "What is the economic system in the United States?",
+    "answer_en": "Capitalist economy; Market economy",
+    "question_es": "¿Cuál es el sistema económico en los Estados Unidos?",
+    "answer_es": "Economía capitalista; Economía de mercado",
+    "topic": "american_government",
+    "type": "principles_of_democracy"
+  },
+  {
+    "id": 12,
+    "question_en": "What is the \"rule of law\"?",
+    "answer_en": "Everyone must follow the law; Leaders must obey the law; Government must obey the law; No one is above the law",
+    "question_es": "¿Qué es el \"estado de derecho\"?",
+    "answer_es": "Todos deben seguir la ley; Los líderes deben obedecer la ley; El gobierno debe obedecer la ley; Nadie está por encima de la ley",
+    "topic": "american_government",
+    "type": "principles_of_democracy"
+  },
+  {
+    "id": 13,
+    "question_en": "Name one branch or part of the government.",
+    "answer_en": "Congress; Legislative; President; Executive; The courts; Judicial",
+    "question_es": "Nombra una rama o parte del gobierno.",
+    "answer_es": "Congreso; Legislativo; Presidente; Ejecutivo; Las cortes; Judicial",
+    "topic": "american_government",
+    "type": "system_of_government"
+  },
+  {
+    "id": 14,
+    "question_en": "What stops one branch of government from becoming too powerful?",
+    "answer_en": "Checks and balances; Separation of powers",
+    "question_es": "¿Qué evita que una rama del gobierno se vuelva demasiado poderosa?",
+    "answer_es": "Frenos y contrapesos; Separación de poderes",
+    "topic": "american_government",
+    "type": "system_of_government"
+  },
+  {
+    "id": 15,
+    "question_en": "Who is in charge of the executive branch?",
+    "answer_en": "The President",
+    "question_es": "¿Quién está a cargo de la rama ejecutiva?",
+    "answer_es": "El Presidente",
+    "topic": "american_government",
+    "type": "system_of_government"
+  },
+  {
+    "id": 16,
+    "question_en": "Who makes federal laws?",
+    "answer_en": "Congress; Senate and House (of Representatives); (U.S. or national) legislature",
+    "question_es": "¿Quién hace las leyes federales?",
+    "answer_es": "El Congreso; El Senado y la Cámara (de Representantes); La legislatura (estadounidense o nacional)",
+    "topic": "american_government",
+    "type": "system_of_government"
+  },
+  {
+    "id": 17,
+    "question_en": "What are the two parts of the U.S. Congress?",
+    "answer_en": "The Senate and House (of Representatives)",
+    "question_es": "¿Cuáles son las dos partes del Congreso de los Estados Unidos?",
+    "answer_es": "El Senado y la Cámara (de Representantes)",
+    "topic": "american_government",
+    "type": "system_of_government"
+  },
+  {
+    "id": 18,
+    "question_en": "How many U.S. Senators are there?",
+    "answer_en": "One hundred (100)",
+    "question_es": "¿Cuántos senadores estadounidenses hay?",
+    "answer_es": "Cien (100)",
+    "topic": "american_government",
+    "type": "system_of_government"
+  },
+  {
+    "id": 19,
+    "question_en": "We elect a U.S. Senator for how many years?",
+    "answer_en": "Six (6)",
+    "question_es": "¿Por cuántos años elegimos a un senador estadounidense?",
+    "answer_es": "Seis (6)",
+    "topic": "american_government",
+    "type": "system_of_government"
+  },
+  {
+    "id": 20,
+    "question_en": "Who is one of your state's U.S. Senators now?",
+    "answer_en": "Answers will vary. [District of Columbia residents and residents of U.S. territories should answer that D.C. (or the territory where the applicant lives) has no U.S. Senators.]",
+    "question_es": "¿Quién es uno de los senadores estadounidenses de su estado ahora?",
+    "answer_es": "Las respuestas varían. [Los residentes del Distrito de Columbia y de los territorios de EE.UU. deben responder que D.C. (o el territorio donde vive el solicitante) no tiene senadores estadounidenses.]",
+    "topic": "american_government",
+    "type": "system_of_government"
+  },
+  {
+    "id": 91,
+    "question_en": "Name one American Indian tribe in the United States.",
+    "answer_en": "Cherokee; Navajo; Sioux; Chippewa; Choctaw; Pueblo; Apache; Iroquois; Creek; Blackfeet; Seminole; Cheyenne; Arawak; Shawnee; Mohegan; Huron; Oneida; Lakota; Crow; Teton; Hopi; Inuit",
+    "question_es": "Nombra una tribu de indios americanos en los Estados Unidos.",
+    "answer_es": "Cherokee; Navajo; Sioux; Chippewa; Choctaw; Pueblo; Apache; Iroquois; Creek; Blackfeet; Seminole; Cheyenne; Arawak; Shawnee; Mohegan; Huron; Oneida; Lakota; Crow; Teton; Hopi; Inuit",
+    "topic": "american_history",
+    "type": "colonial_period"
+  },
+  {
+    "id": 92,
+    "question_en": "Name one of the two longest rivers in the United States.",
+    "answer_en": "Missouri (River); Mississippi (River)",
+    "question_es": "Nombra uno de los dos ríos más largos en los Estados Unidos.",
+    "answer_es": "Missouri (Río); Mississippi (Río)",
+    "topic": "geography",
+    "type": "rivers_mountains"
+  },
+  {
+    "id": 93,
+    "question_en": "What ocean is on the West Coast of the United States?",
+    "answer_en": "Pacific (Ocean)",
+    "question_es": "¿Qué océano está en la costa oeste de los Estados Unidos?",
+    "answer_es": "Pacífico (Océano)",
+    "topic": "geography",
+    "type": "borders_location"
+  },
+  {
+    "id": 94,
+    "question_en": "What ocean is on the East Coast of the United States?",
+    "answer_en": "Atlantic (Ocean)",
+    "question_es": "¿Qué océano está en la costa este de los Estados Unidos?",
+    "answer_es": "Atlántico (Océano)",
+    "topic": "geography",
+    "type": "borders_location"
+  },
+  {
+    "id": 95,
+    "question_en": "Name one U.S. territory.",
+    "answer_en": "Puerto Rico; U.S. Virgin Islands; American Samoa; Northern Mariana Islands; Guam",
+    "question_es": "Nombra un territorio estadounidense.",
+    "answer_es": "Puerto Rico; Islas Vírgenes de EE.UU.; Samoa Americana; Islas Marianas del Norte; Guam",
+    "topic": "geography",
+    "type": "borders_location"
+  },
+  {
+    "id": 96,
+    "question_en": "Name one state that borders Canada.",
+    "answer_en": "Maine; New Hampshire; Vermont; New York; Pennsylvania; Ohio; Michigan; Minnesota; North Dakota; Montana; Idaho; Washington; Alaska",
+    "question_es": "Nombra un estado que limita con Canadá.",
+    "answer_es": "Maine; New Hampshire; Vermont; New York; Pennsylvania; Ohio; Michigan; Minnesota; North Dakota; Montana; Idaho; Washington; Alaska",
+    "topic": "geography",
+    "type": "borders_location"
+  },
+  {
+    "id": 97,
+    "question_en": "Name one state that borders Mexico.",
+    "answer_en": "California; Arizona; New Mexico; Texas",
+    "question_es": "Nombra un estado que limita con México.",
+    "answer_es": "California; Arizona; New Mexico; Texas",
+    "topic": "geography",
+    "type": "borders_location"
+  },
+  {
+    "id": 98,
+    "question_en": "What is the capital of the United States?",
+    "answer_en": "Washington, D.C.",
+    "question_es": "¿Cuál es la capital de los Estados Unidos?",
+    "answer_es": "Washington, D.C.",
+    "topic": "geography",
+    "type": "capitals"
+  },
+  {
+    "id": 99,
+    "question_en": "Where is the Statue of Liberty?",
+    "answer_en": "New York (Harbor); Liberty Island; [Also acceptable are New Jersey, near New York City, and on the Hudson (River).]",
+    "question_es": "¿Dónde está la Estatua de la Libertad?",
+    "answer_es": "New York (Puerto); Isla de la Libertad; [También se aceptan New Jersey, cerca de la ciudad de New York, y en el río Hudson.]",
+    "topic": "geography",
+    "type": "symbols"
+  },
+  {
+    "id": 100,
+    "question_en": "Why does the flag have 13 stripes?",
+    "answer_en": "Because there were 13 original colonies; Because the stripes represent the original colonies",
+    "question_es": "¿Por qué la bandera tiene 13 franjas?",
+    "answer_es": "Porque había 13 colonias originales; Porque las franjas representan las colonias originales",
+    "topic": "geography",
+    "type": "symbols"
+  }
+]

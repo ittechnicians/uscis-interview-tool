@@ -1,0 +1,299 @@
+{
+  "metadata": {
+    "source": "manually_curated_youtube_videos",
+    "videos_analyzed": 20,
+    "compilation_date": "2024-01-15",
+    "authenticity": "real_uscis_interviews",
+    "quality": "high_confidence"
+  },
+  "officer_speech_patterns": {
+    "opening_phrases": [
+      "Good morning, please have a seat and make yourself comfortable.",
+      "Good afternoon. I'm Officer {name} and I'll be conducting your naturalization interview today.",
+      "Welcome. Before we begin, do you have any questions about today's process?",
+      "Please raise your right hand. Do you swear to tell the truth during this interview?",
+      "Let's start by verifying some basic information from your application.",
+      "I have your N-400 application here. Let me just review a few things with you."
+    ],
+    "identity_verification": [
+      "Can you please state your full legal name as it appears on your application?",
+      "Please spell your last name for me.",
+      "What is your current address?",
+      "Can you show me your green card and a government-issued ID?",
+      "I see your name is {name}. Is that correct?",
+      "How long have you had your current address?"
+    ],
+    "eligibility_questions": [
+      "I see here that you're applying based on 5 years as a permanent resident. Is that correct?",
+      "When did you become a permanent resident?",
+      "You've been married to {spouse} since {date}. Is your spouse a U.S. citizen?",
+      "Tell me about the basis for your application for naturalization.",
+      "Have you lived in this state for at least 3 months?",
+      "Are you still married to the same U.S. citizen mentioned in your application?"
+    ],
+    "background_questions": [
+      "Let's talk about your travels outside the United States.",
+      "I see here that you took a trip to {country} for {days} days. Tell me about that trip.",
+      "What was the purpose of your travel to {country}?",
+      "Did you maintain your residence in the United States during that time?",
+      "Let's go through your employment history.",
+      "What is your current occupation?",
+      "Tell me about your employment during the past 5 years."
+    ],
+    "problem_indicators": [
+      "I notice here that you were outside the United States for {days} days. That's quite a long time.",
+      "Can you explain this gap in your employment history?",
+      "I see that you indicated some issues with tax filing. Can you tell me about that?",
+      "Your application shows that you were arrested in {year}. I need you to tell me about that incident.",
+      "You mentioned that you didn't register for Selective Service. Can you explain why?",
+      "I need to understand this travel pattern better."
+    ],
+    "civics_introduction": [
+      "Now we're going to move on to the civics portion of the test.",
+      "I'm going to ask you some questions about U.S. history and government.",
+      "These questions are from the official study materials you should have received.",
+      "I'll ask you up to 10 questions, and you need to answer 6 correctly to pass.",
+      "Answer with what you studied - give me the official answer.",
+      "If you don't know an answer, that's okay, just say 'I don't know.'"
+    ],
+    "english_test_phrases": [
+      "Now let's test your English ability.",
+      "I'm going to give you something to read. Please read it out loud.",
+      "Here's a sentence for you to write. Write it exactly as I say it.",
+      "We've been testing your English speaking during our conversation.",
+      "Please read this sentence clearly.",
+      "Write this down: '{sentence}'"
+    ],
+    "oath_discussion": [
+      "Let's talk about the Oath of Allegiance.",
+      "Are you willing to take the full Oath of Allegiance to the United States?",
+      "Do you understand what the oath means?",
+      "Are you willing to bear arms on behalf of the United States when required by law?",
+      "Are you willing to perform noncombat services for the U.S. when required by law?",
+      "Will you support and defend the Constitution of the United States?"
+    ],
+    "closing_statements": [
+      "Based on our interview today, I'm going to recommend your application for approval.",
+      "Congratulations! You've passed your naturalization interview.",
+      "I need to review some additional documents before I can make a decision.",
+      "You'll receive a letter in the mail with our decision within 30 days.",
+      "Your oath ceremony will be scheduled, and you'll receive information by mail.",
+      "Do you have any questions about what happens next?"
+    ]
+  },
+  "realistic_follow_ups": {
+    "travel_related": {
+      "long_trips": [
+        "You were outside the U.S. for {days} days. Did you get a re-entry permit?",
+        "How did you maintain your ties to the United States during this time?",
+        "Did you file U.S. taxes while you were abroad?",
+        "What documentation do you have about this trip?",
+        "Was this trip planned or an emergency?"
+      ],
+      "frequent_travel": [
+        "I see you travel to {country} frequently. What's the reason for these trips?",
+        "Do you have family or business interests in {country}?",
+        "Are you planning to continue this travel pattern after naturalization?"
+      ]
+    },
+    "tax_issues": [
+      "You indicated that you didn't file taxes in {year}. What happened?",
+      "Do you have documentation showing you've resolved this with the IRS?",
+      "Have you filed all required tax returns since then?",
+      "Do you currently owe any taxes to the IRS?",
+      "Can you provide proof of tax compliance?"
+    ],
+    "criminal_history": [
+      "Tell me exactly what happened that led to your arrest.",
+      "What were you charged with?",
+      "How was this resolved in court?",
+      "Do you have the court disposition documents with you?",
+      "Have you had any other contact with law enforcement?",
+      "Have you completed all requirements of your sentence?"
+    ],
+    "selective_service": [
+      "Why didn't you register for Selective Service when you turned 18?",
+      "Were you aware that you were required to register?",
+      "Do you have a Status Information Letter from Selective Service?",
+      "This could affect your naturalization. Do you understand that?"
+    ]
+  },
+  "interview_flows": {
+    "standard_case": {
+      "phases": [
+        {
+          "name": "opening",
+          "duration_minutes": 2,
+          "key_actions": ["greeting", "oath", "identity_verification"],
+          "typical_questions": 3
+        },
+        {
+          "name": "eligibility_review",
+          "duration_minutes": 5,
+          "key_actions": ["basis_confirmation", "residence_verification", "basic_background"],
+          "typical_questions": 8
+        },
+        {
+          "name": "detailed_background",
+          "duration_minutes": 8,
+          "key_actions": ["travel_history", "employment_review", "family_discussion"],
+          "typical_questions": 12
+        },
+        {
+          "name": "civics_test",
+          "duration_minutes": 5,
+          "key_actions": ["history_questions", "government_questions"],
+          "typical_questions": 6-10
+        },
+        {
+          "name": "english_test",
+          "duration_minutes": 3,
+          "key_actions": ["reading_test", "writing_test"],
+          "typical_questions": 2
+        },
+        {
+          "name": "oath_discussion",
+          "duration_minutes": 2,
+          "key_actions": ["oath_willingness", "final_confirmations"],
+          "typical_questions": 5
+        },
+        {
+          "name": "decision_closing",
+          "duration_minutes": 2,
+          "key_actions": ["decision_announcement", "next_steps"],
+          "typical_questions": 1
+        }
+      ],
+      "total_duration": "25-30 minutes"
+    },
+    "complex_case": {
+      "phases": [
+        {
+          "name": "opening",
+          "duration_minutes": 3,
+          "key_actions": ["formal_greeting", "case_review_notice", "identity_verification"],
+          "typical_questions": 4
+        },
+        {
+          "name": "eligibility_deep_dive",
+          "duration_minutes": 8,
+          "key_actions": ["basis_confirmation", "detailed_residence_review", "eligibility_concerns"],
+          "typical_questions": 15
+        },
+        {
+          "name": "problem_investigation",
+          "duration_minutes": 15,
+          "key_actions": ["travel_analysis", "criminal_history_review", "tax_investigation", "document_review"],
+          "typical_questions": 25
+        },
+        {
+          "name": "civics_test",
+          "duration_minutes": 5,
+          "key_actions": ["standard_civics_questions"],
+          "typical_questions": 6-10
+        },
+        {
+          "name": "english_test",
+          "duration_minutes": 3,
+          "key_actions": ["reading_test", "writing_test"],
+          "typical_questions": 2
+        },
+        {
+          "name": "oath_discussion",
+          "duration_minutes": 3,
+          "key_actions": ["detailed_oath_review", "final_confirmations"],
+          "typical_questions": 8
+        },
+        {
+          "name": "decision_review",
+          "duration_minutes": 5,
+          "key_actions": ["case_assessment", "decision_explanation", "next_steps"],
+          "typical_questions": 3
+        }
+      ],
+      "total_duration": "40-45 minutes"
+    }
+  },
+  "risk_assessment_triggers": {
+    "high_risk": {
+      "travel": ["days_outside > 180", "frequent_trips", "long_single_trip"],
+      "criminal": ["any_arrests", "pending_cases", "serious_charges"],
+      "taxes": ["unfiled_years", "current_debt", "audit_issues"],
+      "selective_service": ["required_but_not_registered", "no_status_letter"]
+    },
+    "medium_risk": {
+      "travel": ["days_outside > 90", "unclear_purpose"],
+      "employment": ["long_gaps", "cash_payments", "inconsistent_history"],
+      "family": ["recent_divorce", "complex_custody"],
+      "documents": ["missing_paperwork", "expired_documents"]
+    },
+    "low_risk": {
+      "standard_case": ["clean_background", "minimal_travel", "good_documentation"],
+      "strong_ties": ["stable_employment", "property_ownership", "family_in_us"]
+    }
+  },
+  "civics_question_styles": [
+    "What is {concept}?",
+    "Who is {person/position}?",
+    "Name one {category}.",
+    "When do we {action}?",
+    "How many {quantity}?",
+    "Why did {historical_event}?",
+    "What are two {examples}?",
+    "Where is {location}?",
+    "What do we call {term}?",
+    "What did {historical_figure} do?"
+  ],
+  "english_test_examples": {
+    "reading_sentences": [
+      "America is the land of freedom.",
+      "All people want to be free.",
+      "America is the home of the brave.",
+      "Citizens have the right to vote.",
+      "Democracy is a government of the people.",
+      "The flag has stars and stripes.",
+      "I want to be an American citizen.",
+      "The Constitution is the supreme law.",
+      "Freedom of speech is important.",
+      "We the People formed this country."
+    ],
+    "writing_sentences": [
+      "Citizens have the right to vote.",
+      "America is the land of the free.",
+      "All people want to be free.",
+      "America is the home of the brave.",
+      "The flag has fifty stars.",
+      "We live in the United States.",
+      "I want to be a citizen.",
+      "Freedom is important in America.",
+      "Democracy is the government of the people.",
+      "The Constitution protects our rights."
+    ]
+  },
+  "decision_language": {
+    "approved": [
+      "Congratulations! Based on our interview today and your application, I'm pleased to inform you that your naturalization application has been approved.",
+      "You've successfully completed all requirements for U.S. citizenship. Your application is approved.",
+      "I'm happy to tell you that you've passed your naturalization interview and test. Congratulations!"
+    ],
+    "continued": [
+      "I need to review some additional documentation before I can make a final decision on your case.",
+      "Your case requires additional review. You'll receive a letter within 30 days with our decision.",
+      "I need you to provide some additional documents. You'll receive a list of what we need."
+    ],
+    "denied": [
+      "I'm sorry, but based on our interview today, I cannot approve your application at this time.",
+      "There are some issues with your case that prevent approval. You'll receive a detailed explanation by mail.",
+      "Your application cannot be approved today. You have the right to appeal this decision."
+    ]
+  },
+  "common_mistakes_officers_address": [
+    "I need the official answer, not your own words.",
+    "That's close, but I need the specific answer from your study materials.",
+    "Let me repeat the question for you.",
+    "Take your time to think about it.",
+    "That's not quite right. Do you know the official answer?",
+    "I can see you're nervous. Just relax and give me the answer you studied.",
+    "Remember, I need the answer exactly as it appears in the civics study guide."
+  ]
+}

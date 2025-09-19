@@ -1,0 +1,219 @@
+{
+  "metadata": {
+    "form_version": "N-400",
+    "created_at": "2024-01-15T10:30:00Z",
+    "updated_at": "2024-01-15T10:30:00Z",
+    "source": "manual"
+  },
+  "part1_eligibility": {
+    "basis_for_naturalization": "general",
+    "details": "5+ years as permanent resident"
+  },
+  "part2_personal_info": {
+    "current_legal_name": {
+      "family_name": "Rodriguez",
+      "given_name": "Maria",
+      "middle_name": "Elena"
+    },
+    "name_change": {
+      "requested": false,
+      "new_name": {
+        "family_name": "",
+        "given_name": "",
+        "middle_name": ""
+      }
+    },
+    "other_names_used": [
+      {
+        "family_name": "Gonzalez",
+        "given_name": "Maria",
+        "middle_name": "Elena"
+      }
+    ]
+  },
+  "part3_biographic_info": {
+    "date_of_birth": "1985-03-22",
+    "country_of_birth": "Mexico",
+    "country_of_citizenship": "Mexico"
+  },
+  "part4_contact_info": {
+    "home_address": {
+      "street": "1234 Main Street, Apt 5B",
+      "city": "Houston",
+      "state": "TX",
+      "zip": "77001"
+    },
+    "phone": "(713) 555-0123",
+    "email": "maria.rodriguez@email.com"
+  },
+  "part8_trips": {
+    "total_days_outside_us": 45,
+    "trips": [
+      {
+        "departure_date": "2019-12-20",
+        "return_date": "2020-01-05",
+        "destination_country": "Mexico",
+        "purpose": "Visit family for holidays",
+        "days_outside": 16
+      },
+      {
+        "departure_date": "2021-07-10",
+        "return_date": "2021-07-25",
+        "destination_country": "Mexico",
+        "purpose": "Family wedding",
+        "days_outside": 15
+      },
+      {
+        "departure_date": "2022-11-24",
+        "return_date": "2022-12-08",
+        "destination_country": "Mexico",
+        "purpose": "Visit sick relative",
+        "days_outside": 14
+      }
+    ]
+  },
+  "part9_marital_history": {
+    "current_marital_status": "married",
+    "number_of_times_married": 1,
+    "current_spouse": {
+      "name": "Carlos Rodriguez",
+      "date_of_birth": "1982-08-15",
+      "country_of_birth": "United States",
+      "is_us_citizen": true,
+      "marriage_date": "2010-06-12"
+    },
+    "prior_spouses": []
+  },
+  "part10_children": {
+    "number_of_children": 2,
+    "children": [
+      {
+        "name": "Sofia Rodriguez",
+        "date_of_birth": "2012-09-03",
+        "country_of_birth": "United States",
+        "current_address": "Same as applicant",
+        "is_us_citizen": true
+      },
+      {
+        "name": "Diego Rodriguez",
+        "date_of_birth": "2015-04-18",
+        "country_of_birth": "United States",
+        "current_address": "Same as applicant",
+        "is_us_citizen": true
+      }
+    ]
+  },
+  "part11_residence_employment": {
+    "addresses_last_5_years": [
+      {
+        "street": "1234 Main Street, Apt 5B",
+        "city": "Houston",
+        "state": "TX",
+        "zip": "77001",
+        "start_date": "2018-03-01",
+        "end_date": "2024-01-15"
+      },
+      {
+        "street": "5678 Oak Avenue",
+        "city": "Houston",
+        "state": "TX",
+        "zip": "77002",
+        "start_date": "2015-08-15",
+        "end_date": "2018-02-28"
+      }
+    ],
+    "employment_last_5_years": [
+      {
+        "employer_name": "Houston Medical Center",
+        "occupation": "Registered Nurse",
+        "start_date": "2020-01-15",
+        "end_date": "2024-01-15",
+        "employer_address": {
+          "street": "1515 Holcombe Blvd",
+          "city": "Houston",
+          "state": "TX",
+          "zip": "77030"
+        }
+      },
+      {
+        "employer_name": "Community Health Clinic",
+        "occupation": "Licensed Practical Nurse",
+        "start_date": "2018-06-01",
+        "end_date": "2019-12-31",
+        "employer_address": {
+          "street": "2020 Smith Street",
+          "city": "Houston",
+          "state": "TX",
+          "zip": "77002"
+        }
+      }
+    ]
+  },
+  "part12_background_info": {
+    "general_questions": {
+      "claimed_us_citizenship": false,
+      "registered_to_vote": false,
+      "voted_illegally": false,
+      "hereditary_title": false
+    },
+    "affiliations": {
+      "communist_party": false,
+      "totalitarian_party": false,
+      "terrorist_organization": false,
+      "organization_details": ""
+    },
+    "continuous_residence": {
+      "left_us_to_avoid_military": false,
+      "left_us_to_avoid_taxes": false,
+      "claimed_nonresident_taxes": false
+    },
+    "good_moral_character": {
+      "committed_crime": false,
+      "arrested_cited_charged": false,
+      "convicted_crime": false,
+      "served_prison_jail": false,
+      "probation_parole": false,
+      "crime_details": []
+    },
+    "arrests": [],
+    "taxes": {
+      "filed_continuously": true,
+      "years_not_filed": [],
+      "owe_taxes": false,
+      "amount_owed": 0
+    },
+    "selective_service": {
+      "required": false,
+      "registered": false,
+      "reason_not_registered": "Female applicant - not required"
+    },
+    "military_service": {
+      "served_us_military": false,
+      "served_foreign_military": false,
+      "conscientious_objector": false,
+      "deserted_military": false,
+      "military_details": []
+    },
+    "support_constitution": {
+      "support_constitution": true,
+      "take_oath_allegiance": true,
+      "bear_arms_military": true,
+      "perform_noncombat_military": true,
+      "perform_civilian_service": true
+    }
+  },
+  "part13_oath_requirements": {
+    "understand_oath": true,
+    "willing_take_oath": true,
+    "language_accommodations": ""
+  },
+  "interview_flags": {
+    "continuous_residence_risk": false,
+    "physical_presence_risk": false,
+    "good_moral_character_risk": false,
+    "selective_service_risk": false,
+    "tax_compliance_risk": false,
+    "criminal_history_risk": false,
+    "travel_pattern_risk": false
+  }
+}
