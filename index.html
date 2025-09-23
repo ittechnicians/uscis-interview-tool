@@ -12,6 +12,7 @@
     main { max-width:1100px; margin:0 auto; padding:20px; }
     #status { margin: 10px 0 20px; font-weight: 600; }
     #app { min-height: 65vh; display:flex; align-items:center; justify-content:center; font-size:18px; }
+    .ok { color: #22c55e; } .err { color:#ef4444; } .muted{opacity:.8}
   </style>
 </head>
 <body>
@@ -20,52 +21,71 @@
   </header>
 
   <main>
-    <div id="status">Inicializando…</div>
+    <div id="status" class="muted">Inicializando…</div>
     <div id="app">Loading…</div>
   </main>
 
-  <!-- 1) Carga clásica: si el script define QuickAIEngine en el global, esto lo hace disponible -->
+  <!-- Carga clásica (por si el script expone QuickAIEngine como global) -->
   <script src="./modules/quick-ai-engine.js"></script>
 
-  <!-- 2) Inicialización con autodetección (global o ES module) -->
+  <!-- Autodetección + Fallback si initialize() falla -->
   <script>
     (async () => {
       const status = document.getElementById('status');
       const mount  = document.getElementById('app');
-      const bust   = 'v=' + Date.now(); // cache-buster para pruebas
+      const bust   = 'v=' + Date.now();
 
       try {
+        // 1) Detectar clase del motor (global o módulo ES)
         let Engine = (typeof QuickAIEngine !== 'undefined') ? QuickAIEngine : null;
-
-        // Si no quedó global, intentamos importarlo como módulo
         if (!Engine) {
           const mod = await import('./modules/quick-ai-engine.js?' + bust);
           Engine = mod.default || mod.QuickAIEngine || window.QuickAIEngine || null;
         }
-
         if (!Engine) throw new Error('QuickAIEngine no encontrado (global ni como módulo)');
 
+        // 2) Crear instancia
         const engine = new Engine();
 
-        // initialize() ya carga ./data/curated_interview_patterns.json dentro del motor
-        const ok = await engine.initialize();
-        if (!ok) throw new Error('initialize() devolvió false');
-
-        // (Opcional) si el motor expone más métodos, los llamas aquí:
-        if (typeof engine.loadCivics === 'function') {
-          await engine.loadCivics('./data/civics_2008.json?' + bust);
+        // 3) Intentar initialize() normal
+        let ok = false;
+        try {
+          ok = await engine.initialize(); // dentro intenta fetch('./data/curated_interview_patterns.json')
+        } catch (e) {
+          console.warn('initialize() lanzó excepción:', e);
         }
+
+        // 4) Fallback: si initialize() devolvió false o falló, cargamos el JSON manualmente
+        if (!ok) {
+          const res = await fetch('./data/curated_interview_patterns.json?' + bust);
+          if (!res.ok) throw new Error('No se pudo obtener curated_interview_patterns.json (' + res.status + ')');
+          const patterns = await res.json();
+          // Asignamos en la forma más común que usan estos motores:
+          engine.patterns = patterns;
+          engine.initialized = true;
+          ok = true;
+          console.log('Inicializado por fallback. patterns keys:', Object.keys(patterns || {}));
+        }
+
+        // 5) (Opcional) Cargar civics y montar UI si tu motor lo soporta
+        try {
+          if (typeof engine.loadCivics === 'function') {
+            await engine.loadCivics('./data/civics_2008.json?' + bust);
+          }
+        } catch (e) { console.warn('loadCivics fallo (opcional):', e); }
+
         if (typeof engine.mountUI === 'function') {
-          engine.mountUI(mount);  // Pintar UI propia del motor
+          engine.mountUI(mount);
+          status.innerHTML = '<span class="ok">✅ Listo</span>';
         } else {
+          // Si aún no hay UI integrada en el motor, dejamos un mensaje claro
           mount.textContent = '✅ Motor inicializado. (UI por montar)';
+          status.innerHTML = '<span class="ok">✅ Listo</span>';
         }
-
-        status.textContent = '✅ Listo';
       } catch (err) {
         console.error('init error →', err);
-        status.textContent = '❌ Error inicializando';
-        mount.textContent  = (err && err.message) ? err.message : String(err);
+        status.innerHTML = '<span class="err">❌ Error inicializando</span>';
+        mount.textContent = (err && err.message) ? err.message : String(err);
       }
     })();
   </script>
@@ -73,6 +93,3 @@
   <noscript>Activa JavaScript para usar esta herramienta.</noscript>
 </body>
 </html>
-
-
-
