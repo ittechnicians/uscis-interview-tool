@@ -143,8 +143,7 @@
           "name": "civics_test",
           "duration_minutes": 5,
           "key_actions": ["history_questions", "government_questions"],
-          "typical_questions": 6
-          "typical_questions_max": 10
+          "typical_questions": [6, 10]
         },
         {
           "name": "english_test",
@@ -298,4 +297,5 @@
     "Remember, I need the answer exactly as it appears in the civics study guide."
   ]
 }
+
 
