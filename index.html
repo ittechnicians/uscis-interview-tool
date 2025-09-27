@@ -10,86 +10,58 @@
     body { margin:0; font-family: system-ui, Arial, sans-serif; }
     header { padding:16px 20px; border-bottom:1px solid #e5e5e5; }
     main { max-width:1100px; margin:0 auto; padding:20px; }
-    #status { margin: 10px 0 20px; font-weight: 600; }
-    #app { min-height: 65vh; display:flex; align-items:center; justify-content:center; font-size:18px; }
-    .ok { color: #22c55e; } .err { color:#ef4444; } .muted{opacity:.8}
+    #status { margin:10px 0 20px; font-weight:600; }
+    #app { min-height:65vh; display:flex; align-items:center; justify-content:center; font-size:18px; }
+    .ok{color:#22c55e}.err{color:#ef4444}.muted{opacity:.8}
   </style>
 </head>
 <body>
-  <header>
-    <h1>Citizenship AI Interview Practice</h1>
-  </header>
-
+  <header><h1>Citizenship AI Interview Practice</h1></header>
   <main>
     <div id="status" class="muted">Inicializando…</div>
     <div id="app">Loading…</div>
   </main>
 
-  <!-- Carga clásica (por si el script expone QuickAIEngine como global) -->
-  <script src="./modules/quick-ai-engine.js"></script>
+  <!-- IMPORTA COMO MÓDULO (NO agregues <script src=...> clásico) -->
+  <script type="module">
+    import QuickAIEngine from './modules/quick-ai-engine.js'; // asegúrate que el archivo tenga: export default QuickAIEngine;
 
-  <!-- Autodetección + Fallback si initialize() falla -->
-  <script>
-    (async () => {
-      const status = document.getElementById('status');
-      const mount  = document.getElementById('app');
-      const bust   = 'v=' + Date.now();
+    const status = document.getElementById('status');
+    const mount  = document.getElementById('app');
+    const bust   = 'v=' + Date.now();
 
-      try {
-        // 1) Detectar clase del motor (global o módulo ES)
-        let Engine = (typeof QuickAIEngine !== 'undefined') ? QuickAIEngine : null;
-        if (!Engine) {
-          const mod = await import('./modules/quick-ai-engine.js?' + bust);
-          Engine = mod.default || mod.QuickAIEngine || window.QuickAIEngine || null;
-        }
-        if (!Engine) throw new Error('QuickAIEngine no encontrado (global ni como módulo)');
+    try {
+      const engine = new QuickAIEngine();
 
-        // 2) Crear instancia
-        const engine = new Engine();
+      // Carga directa de JSON (evitamos initialize() hasta reparar el JSON)
+      const [patRes, civRes] = await Promise.all([
+        fetch('./data/curated_interview_patterns.json?' + bust),
+        fetch('./data/civics_2008.json?' + bust),
+      ]);
+      if (!patRes.ok) throw new Error('No se pudo cargar curated_interview_patterns.json ('+patRes.status+')');
+      if (!civRes.ok) throw new Error('No se pudo cargar civics_2008.json ('+civRes.status+')');
 
-        // 3) Intentar initialize() normal
-        let ok = false;
-        try {
-          ok = await engine.initialize(); // dentro intenta fetch('./data/curated_interview_patterns.json')
-        } catch (e) {
-          console.warn('initialize() lanzó excepción:', e);
-        }
+      engine.patterns = await patRes.json(); // <- Aquí falla si tu JSON está mal
+      engine.civics   = await civRes.json();
+      engine.initialized = true;
 
-        // 4) Fallback: si initialize() devolvió false o falló, cargamos el JSON manualmente
-        if (!ok) {
-          const res = await fetch('./data/curated_interview_patterns.json?' + bust);
-          if (!res.ok) throw new Error('No se pudo obtener curated_interview_patterns.json (' + res.status + ')');
-          const patterns = await res.json();
-          // Asignamos en la forma más común que usan estos motores:
-          engine.patterns = patterns;
-          engine.initialized = true;
-          ok = true;
-          console.log('Inicializado por fallback. patterns keys:', Object.keys(patterns || {}));
-        }
-
-        // 5) (Opcional) Cargar civics y montar UI si tu motor lo soporta
-        try {
-          if (typeof engine.loadCivics === 'function') {
-            await engine.loadCivics('./data/civics_2008.json?' + bust);
-          }
-        } catch (e) { console.warn('loadCivics fallo (opcional):', e); }
-
-        if (typeof engine.mountUI === 'function') {
-          engine.mountUI(mount);
-          status.innerHTML = '<span class="ok">✅ Listo</span>';
-        } else {
-          // Si aún no hay UI integrada en el motor, dejamos un mensaje claro
-          mount.textContent = '✅ Motor inicializado. (UI por montar)';
-          status.innerHTML = '<span class="ok">✅ Listo</span>';
-        }
-      } catch (err) {
-        console.error('init error →', err);
-        status.innerHTML = '<span class="err">❌ Error inicializando</span>';
-        mount.textContent = (err && err.message) ? err.message : String(err);
+      if (typeof engine.mountUI === 'function') {
+        engine.mountUI(mount);
+      } else {
+        mount.textContent = '✅ Motor listo. (UI por montar)';
       }
-    })();
+      status.innerHTML = '<span class="ok">✅ Listo</span>';
+    } catch (e) {
+      console.error('init error →', e);
+      status.innerHTML = '<span class="err">❌ Error inicializando</span>';
+      mount.textContent = (e && e.message) ? e.message : String(e);
+    }
   </script>
 
   <noscript>Activa JavaScript para usar esta herramienta.</noscript>
 </body>
 </html>
+
+</body>
+</html>
+
