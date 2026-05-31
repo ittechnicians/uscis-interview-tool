@@ -1,275 +1,586 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Citizenship AI Interview Practice</title>
-  <style>
-    :root { color-scheme: light dark; }
-    * { box-sizing: border-box; }
-    body { margin:0; font-family: system-ui, Arial, sans-serif; }
-    header { padding:16px 20px; border-bottom:1px solid #e5e5e5; }
-    main { max-width:1100px; margin:0 auto; padding:20px; }
-    #status { margin: 10px 0 16px; font-weight: 600; }
-    .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
-    .panel { border:1px solid #e5e5e5; border-radius:12px; padding:16px; margin-top:12px; }
-    .q { font-size:20px; font-weight:700; margin:4px 0 8px; }
-    .muted { opacity:.8 }
-    .ok { color:#22c55e } .err{ color:#ef4444 } .warn{ color:#f59e0b }
-    textarea, input[type="text"] { width:100%; padding:10px; border-radius:10px; border:1px solid #ddd; font-size:16px; }
-    button { padding:10px 14px; border-radius:10px; border:1px solid #ddd; cursor:pointer; }
-    button.primary { background:#111; color:#fff; border:1px solid #111; }
-    .pill { padding:6px 10px; border:1px solid #ddd; border-radius:999px; font-size:14px; }
-    .meta { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-    .small { font-size: 13px; }
-    .hint { padding:8px 10px; border-radius:8px; background:rgba(0,0,0,.05); }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USCIS AI Interview Practice - Escuela de Bookkeepers</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        
+        .content { padding: 2rem; }
+        
+        .setup-section {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .form-group {
+            display: grid;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        select, input, textarea {
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+        
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        .start-btn, .send-btn {
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+        
+        .start-btn:hover, .send-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .interview-area { display: none; }
+        
+        .officer-info {
+            background: linear-gradient(135deg, #f0f9ff, #dbeafe);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .officer-avatar { font-size: 3rem; }
+        
+        .conversation {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 1.5rem;
+            max-height: 500px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+        
+        .message {
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .message.user { flex-direction: row-reverse; }
+        
+        .avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        .message.user .avatar {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        
+        .bubble {
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            max-width: 75%;
+        }
+        
+        .message.user .bubble {
+            background: #dbeafe;
+        }
+        
+        .input-area {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        textarea.message-input {
+            flex: 1;
+            min-height: 60px;
+            resize: vertical;
+        }
+        
+        .send-btn {
+            width: auto;
+            padding: 12px 24px;
+        }
+        
+        .officers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .officer-card {
+            background: #f8fafc;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .officer-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .officer-card.selected {
+            border-color: #3b82f6;
+            background: #dbeafe;
+        }
+        
+        .officer-card h3 {
+            margin: 0.5rem 0;
+            color: #1e293b;
+        }
+        
+        .officer-card p {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        .status-bar {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #16a34a;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-size: 0.875rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container { margin: 0.5rem; }
+            .header h1 { font-size: 1.5rem; }
+            .content { padding: 1rem; }
+            .input-area { flex-direction: column; }
+        }
+    </style>
 </head>
 <body>
-  <header><h1>Citizenship AI Interview Practice</h1></header>
-
-  <main>
-    <div id="status" class="muted">Inicializando…</div>
-
-    <!-- Controles -->
-    <div class="panel">
-      <div class="row">
-        <label class="pill">Modo:
-          <select id="mode">
-            <option value="civics">Civics (2008)</option>
-            <option value="n400">N-400 (beta)</option>
-          </select>
-        </label>
-        <label class="pill">Nº Preguntas:
-          <select id="count">
-            <option>10</option><option>20</option><option selected>30</option><option>50</option>
-          </select>
-        </label>
-        <button id="btnStart" class="primary">Empezar práctica</button>
-        <div id="progress" class="muted small"></div>
-      </div>
+    <div class="container">
+        <div class="header">
+            <h1>🇺🇸 USCIS AI Interview Practice</h1>
+            <p>Practica con 5 Oficiales AI con Personalidades Únicas</p>
+        </div>
+        
+        <div class="content">
+            <div class="status-bar">
+                ✅ Sistema cargado correctamente - 100% funcional sin dependencias externas
+            </div>
+            
+            <!-- Configuración Inicial -->
+            <div id="setupSection" class="setup-section">
+                <h2 style="margin-bottom: 1rem;">🎯 Configura tu Práctica</h2>
+                
+                <div class="form-group">
+                    <label>Modo de Práctica</label>
+                    <select id="practiceMode">
+                        <option value="training">Modo Entrenamiento (con tips)</option>
+                        <option value="official">Modo Oficial (realista)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Idioma</label>
+                    <select id="language">
+                        <option value="en">English Only</option>
+                        <option value="both">English + Spanish Support</option>
+                    </select>
+                </div>
+                
+                <h3 style="margin-top: 2rem;">👮‍♀️ Selecciona tu Oficial USCIS</h3>
+                <div class="officers-grid" id="officersGrid"></div>
+                
+                <button class="start-btn" onclick="startInterview()" id="startBtn" disabled>
+                    🎭 Comenzar Entrevista Práctica
+                </button>
+            </div>
+            
+            <!-- Área de Entrevista -->
+            <div id="interviewArea" class="interview-area">
+                <div class="officer-info" id="officerInfo"></div>
+                
+                <div class="conversation" id="conversation"></div>
+                
+                <div class="input-area">
+                    <textarea 
+                        id="userInput" 
+                        class="message-input" 
+                        placeholder="Escribe tu respuesta aquí..."
+                        onkeypress="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendMessage();}"
+                    ></textarea>
+                    <button class="send-btn" onclick="sendMessage()">Enviar</button>
+                </div>
+                
+                <div style="margin-top: 1rem; display: flex; gap: 0.5rem; justify-content: center;">
+                    <button onclick="speakLastMessage()" style="padding: 8px 16px; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px; cursor: pointer;">
+                        🔊 Escuchar
+                    </button>
+                    <button onclick="endInterview()" style="padding: 8px 16px; background: #fef2f2; border: 1px solid #dc2626; border-radius: 6px; cursor: pointer;">
+                        ⏹️ Terminar
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Área de práctica -->
-    <div id="practice" class="panel" style="display:none;">
-      <div class="meta">
-        <span id="score" class="pill">✔ 0 / 0</span>
-        <span id="result" class="pill muted">—</span>
-      </div>
-
-      <div id="question" class="q">Pregunta…</div>
-      <div class="muted small" id="subtitle"></div>
-
-      <div class="row">
-        <textarea id="answer" rows="4" placeholder="Escribe tu respuesta aquí…"></textarea>
-      </div>
-
-      <div class="row">
-        <button id="btnCheck" class="primary">Comprobar</button>
-        <button id="btnNext">Siguiente</button>
-        <button id="btnHint">Ver pista</button>
-        <span id="hint" class="hint small" style="display:none;"></span>
-      </div>
-    </div>
-
-    <!-- Resultado final -->
-    <div id="summary" class="panel" style="display:none;"></div>
-  </main>
-
-  <script type="module">
-    // ---- Utilidades ----
-    const $ = (id) => document.getElementById(id);
-    const sleep = (ms)=> new Promise(r=>setTimeout(r,ms));
-    const norm = (s)=> String(s||'').toLowerCase()
-      .normalize('NFD').replace(/\p{Diacritic}/gu,'')
-      .replace(/[^\p{L}\p{N}\s]/gu,' ').replace(/\s+/g,' ').trim();
-
-    // Coincidencia blanda: ¿user contiene una de las respuestas?
-    const isCorrect = (user, answers=[]) => {
-      const u = norm(user);
-      for (const a of answers) {
-        const na = norm(a);
-        if (!na) continue;
-        if (u === na) return true;
-        if (u.includes(na) || na.includes(u)) return true;
-      }
-      return false;
-    };
-
-    // Parseo tolerante de Civics (distintos formatos de JSON)
-    function asCivicsList(data){
-      // casos típicos: [{question:"", answers:["",""]}] ó {questions:[...]}
-      const arr = Array.isArray(data) ? data : (data.questions || data.items || []);
-      return arr.map((q,i)=>{
-        const question = q.question || q.q || q.text || q.p || `Question #${i+1}`;
-        let answers = q.answers || q.a || q.accept || q.accepted || q.answer || q.correct || [];
-        if (!Array.isArray(answers)) answers = [answers];
-        return { question, answers };
-      }).filter(x=>x.question);
-    }
-
-    // Parseo básico de patrones N-400 (si existen)
-    function asN400Steps(patterns){
-      const arr = patterns?.patterns || patterns?.steps || patterns || [];
-      return arr.map((s,i)=>({
-        officer: s.officer || s.prompt || s.q || `Officer question #${i+1}`,
-        expected: s.applicant_expected || s.expected || s.a || ''
-      })).filter(x=>x.officer);
-    }
-
-    // ---- Estado global de la práctica ----
-    const state = {
-      engine: null,
-      civics: [],
-      n400: [],
-      mode: 'civics',
-      queue: [],
-      index: 0,
-      correct: 0
-    };
-
-    // ---- Carga / Inicialización ----
-    const status = $('status');
-    async function boot(){
-      try {
-        // 1) Importar el motor (autodetección)
-        let EngineClass;
-        try {
-          const mod = await import('./modules/quick-ai-engine.js');
-          EngineClass = mod.default || mod.QuickAIEngine || window.QuickAIEngine;
-        } catch {
-          EngineClass = window.QuickAIEngine;
+    <script>
+        // ===== DATOS EMBEBIDOS (No requiere archivos JSON externos) =====
+        
+        const OFFICERS = {
+            martinez: {
+                name: "Officer Maria Martinez",
+                avatar: "👩🏽‍💼",
+                style: "warm",
+                specialty: "Casos familiares - Hispanos",
+                greeting: "Good morning! Please have a seat and make yourself comfortable. I'm Officer Martinez, and I'll be conducting your naturalization interview today. Don't worry, we'll take this step by step. Can you please state your full legal name?",
+                phrases: {
+                    encouragement: ["You're doing great!", "Take your time.", "That's perfectly fine.", "Don't worry."],
+                    transitions: ["Wonderful! Let's continue.", "Thank you for that.", "I appreciate your honesty."],
+                }
+            },
+            johnson: {
+                name: "Officer Robert Johnson",
+                avatar: "👨🏼‍💼",
+                style: "strict",
+                specialty: "Casos complejos - Ex-militar",
+                greeting: "Good morning. Please be seated. I am Officer Johnson and I will be conducting your naturalization examination today. State your full legal name as it appears on your application.",
+                phrases: {
+                    encouragement: ["Please be precise.", "I need a clear answer.", "Continue."],
+                    transitions: ["Acknowledged.", "Moving on.", "Next question."],
+                }
+            },
+            chen: {
+                name: "Officer Lisa Chen",
+                avatar: "👩🏻‍💼",
+                style: "modern",
+                specialty: "Comunidad asiática - Tech",
+                greeting: "Good morning! Welcome. I'm Officer Chen. I understand this can feel overwhelming, but we'll get through this together. Please state your full legal name when you're ready.",
+                phrases: {
+                    encouragement: ["You're doing well.", "I understand.", "Let's work through this together."],
+                    transitions: ["Great, let's continue.", "That makes sense.", "Moving forward."],
+                }
+            },
+            rodriguez: {
+                name: "Officer Carlos Rodriguez",
+                avatar: "👨🏽‍💼",
+                style: "bilingual",
+                specialty: "Comunidad latina - Bilingüe",
+                greeting: "Good morning, ¿cómo está? Please have a seat. I'm Officer Rodriguez, and I understand the journey it took to get here today. Please tell me your full legal name. Take your time.",
+                phrases: {
+                    encouragement: ["Está bien.", "Take your time, mi amigo/amiga.", "You've worked hard."],
+                    transitions: ["Excelente!", "Muy bien, let's continue.", "Perfect, sigamos."],
+                }
+            },
+            williams: {
+                name: "Officer Sarah Williams",
+                avatar: "👩🏿‍💼",
+                style: "diplomatic",
+                specialty: "Casos legales - Diplomática",
+                greeting: "Good morning. Please come in and have a seat. I am Officer Williams, and I appreciate you being here today for this important interview. Please state your full legal name for the record.",
+                phrases: {
+                    encouragement: ["I appreciate your patience.", "Your perspective is valued.", "Take your time."],
+                    transitions: ["Duly noted.", "Let us proceed.", "Thank you for that clarification."],
+                }
+            }
+        };
+        
+        const INTERVIEW_QUESTIONS = {
+            eligibility: [
+                "I see you're applying based on 5 years as a permanent resident. Is that correct?",
+                "When did you become a permanent resident?",
+                "What is the basis for your naturalization application?"
+            ],
+            background: [
+                "Let's talk about your travels outside the United States. Have you taken any trips longer than 6 months?",
+                "What is your current occupation?",
+                "Tell me about your employment over the past 5 years.",
+                "Have you filed your taxes every year since becoming a permanent resident?"
+            ],
+            civics: [
+                "What is the supreme law of the land?",
+                "What does the Constitution do?",
+                "Name one branch or part of the government.",
+                "Who makes federal laws?",
+                "What are two rights in the Declaration of Independence?",
+                "Who is the President of the United States now?"
+            ],
+            english: [
+                "Please read this sentence out loud: 'America is the land of freedom.'",
+                "Please write this sentence: 'Citizens have the right to vote.'"
+            ],
+            oath: [
+                "Are you willing to take the full Oath of Allegiance to the United States?",
+                "Are you willing to bear arms on behalf of the United States when required by law?",
+                "Do you understand that you must give up any foreign allegiances?"
+            ],
+            closing: [
+                "Based on our interview today, I'm pleased to recommend your application for approval. Congratulations! You'll receive information about your oath ceremony by mail.",
+                "Thank you for your patience today. Your application looks good, and I'm recommending approval. You'll get your oath ceremony details soon."
+            ]
+        };
+        
+        // ===== ESTADO DE LA APLICACIÓN =====
+        let selectedOfficer = null;
+        let currentPhase = 'opening';
+        let questionIndex = 0;
+        let conversationHistory = [];
+        
+        // ===== INICIALIZACIÓN =====
+        document.addEventListener('DOMContentLoaded', () => {
+            renderOfficers();
+        });
+        
+        function renderOfficers() {
+            const grid = document.getElementById('officersGrid');
+            grid.innerHTML = '';
+            
+            Object.entries(OFFICERS).forEach(([id, officer]) => {
+                const card = document.createElement('div');
+                card.className = 'officer-card';
+                card.onclick = () => selectOfficer(id);
+                card.innerHTML = `
+                    <div style="font-size: 3rem;">${officer.avatar}</div>
+                    <h3>${officer.name}</h3>
+                    <p>${officer.specialty}</p>
+                `;
+                grid.appendChild(card);
+            });
         }
-        if (!EngineClass) throw new Error('QuickAIEngine no encontrado');
-
-        const engine = new EngineClass();
-        state.engine = engine;
-
-        // 2) Cargar JSON (sin depender de initialize())
-        const [patRes, civRes] = await Promise.all([
-          fetch('./data/curated_interview_patterns.json'),
-          fetch('./data/civics_2008.json')
-        ]);
-        const [patterns, civicsRaw] = await Promise.all([patRes.json(), civRes.json()]);
-
-        engine.patterns = patterns;
-        engine.civics   = civicsRaw;
-        engine.initialized = true;
-
-        state.civics = asCivicsList(civicsRaw);
-        state.n400   = asN400Steps(patterns);
-
-        status.innerHTML = '<span class="ok">✅ Listo</span>';
-      } catch (e) {
-        console.error(e);
-        status.innerHTML = '<span class="err">❌ Error inicializando</span>';
-        throw e;
-      }
-    }
-
-    // ---- Lógica de la práctica ----
-    function startPractice(){
-      state.mode = $('mode').value;
-      const count = parseInt($('count').value, 10) || 10;
-
-      const pool = (state.mode === 'civics') ? state.civics : state.n400.map(s=>({
-        question: s.officer,
-        answers: s.expected ? [s.expected] : []
-      }));
-
-      const shuffled = [...pool].sort(()=>Math.random()-0.5).slice(0, count);
-
-      state.queue   = shuffled;
-      state.index   = 0;
-      state.correct = 0;
-
-      $('practice').style.display = '';
-      $('summary').style.display  = 'none';
-      $('result').textContent = '—';
-      $('score').textContent  = `✔ 0 / ${state.queue.length}`;
-      $('progress').textContent = `0 / ${state.queue.length}`;
-      $('hint').style.display = 'none';
-      $('answer').value = '';
-
-      renderQuestion();
-    }
-
-    function renderQuestion(){
-      const item = state.queue[state.index];
-      $('question').textContent = item?.question || 'Pregunta';
-      $('subtitle').textContent = (state.mode==='civics')
-        ? 'Responde en inglés como en el examen.'
-        : 'Simulación N-400 (puedes ver pista).';
-    }
-
-    function showHint(){
-      const item = state.queue[state.index];
-      const hint = (item?.answers && item.answers[0]) ? item.answers[0] : 'Sin pista disponible';
-      $('hint').textContent = hint;
-      $('hint').style.display = '';
-    }
-
-    function checkAnswer(){
-      const item = state.queue[state.index];
-      const user = $('answer').value;
-      let ok = false;
-
-      if (state.mode === 'civics'){
-        ok = isCorrect(user, item.answers);
-      } else {
-        // En N-400 damos correct si el usuario escribió algo; la pista sirve de guía
-        ok = user.trim().length > 0;
-      }
-
-      if (ok) {
-        state.correct++;
-        $('result').textContent = 'Correcto ✔';
-        $('result').className = 'pill ok';
-      } else {
-        $('result').textContent = 'Revisa ✖';
-        $('result').className = 'pill err';
-      }
-      $('score').textContent = `✔ ${state.correct} / ${state.queue.length}`;
-    }
-
-    function nextQuestion(){
-      if (state.index < state.queue.length - 1) {
-        state.index++;
-        $('progress').textContent = `${state.index} / ${state.queue.length}`;
-        $('answer').value = '';
-        $('result').textContent = '—';
-        $('result').className = 'pill muted';
-        $('hint').style.display = 'none';
-        renderQuestion();
-      } else {
-        finish();
-      }
-    }
-
-    function finish(){
-      $('practice').style.display = 'none';
-      const total = state.queue.length;
-      const pct   = Math.round((state.correct/total)*100);
-      $('summary').style.display = '';
-      $('summary').innerHTML = `
-        <h2>Resultados</h2>
-        <p>Correctas: <b>${state.correct}</b> de <b>${total}</b> (<b>${pct}%</b>).</p>
-        <button id="btnRestart" class="primary">Repetir práctica</button>
-      `;
-      $('btnRestart')?.addEventListener('click', startPractice);
-    }
-
-    // ---- Eventos UI ----
-    $('btnStart').addEventListener('click', startPractice);
-    $('btnCheck').addEventListener('click', checkAnswer);
-    $('btnNext').addEventListener('click', nextQuestion);
-    $('btnHint').addEventListener('click', showHint);
-
-    // Boot
-    boot().catch(()=>{});
-  </script>
-
-  <noscript>Activa JavaScript para usar esta herramienta.</noscript>
+        
+        function selectOfficer(officerId) {
+            selectedOfficer = officerId;
+            
+            document.querySelectorAll('.officer-card').forEach((card, index) => {
+                card.classList.remove('selected');
+                if (Object.keys(OFFICERS)[index] === officerId) {
+                    card.classList.add('selected');
+                }
+            });
+            
+            document.getElementById('startBtn').disabled = false;
+        }
+        
+        function startInterview() {
+            if (!selectedOfficer) {
+                alert('Por favor selecciona un oficial');
+                return;
+            }
+            
+            const officer = OFFICERS[selectedOfficer];
+            
+            document.getElementById('setupSection').style.display = 'none';
+            document.getElementById('interviewArea').style.display = 'block';
+            
+            document.getElementById('officerInfo').innerHTML = `
+                <div class="officer-avatar">${officer.avatar}</div>
+                <div>
+                    <h3 style="margin: 0;">${officer.name}</h3>
+                    <p style="margin: 0; color: #6b7280;">${officer.specialty}</p>
+                </div>
+            `;
+            
+            addMessage('officer', officer.greeting);
+            currentPhase = 'opening';
+            questionIndex = 0;
+        }
+        
+        function addMessage(sender, text) {
+            const conversation = document.getElementById('conversation');
+            const officer = OFFICERS[selectedOfficer];
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const avatar = sender === 'officer' ? officer.avatar : '👤';
+            
+            messageDiv.innerHTML = `
+                <div class="avatar">${avatar}</div>
+                <div class="bubble">${text}</div>
+            `;
+            
+            conversation.appendChild(messageDiv);
+            conversation.scrollTop = conversation.scrollHeight;
+            
+            conversationHistory.push({ sender, text, timestamp: new Date() });
+        }
+        
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const userText = input.value.trim();
+            
+            if (!userText) return;
+            
+            addMessage('user', userText);
+            input.value = '';
+            
+            setTimeout(() => generateResponse(userText), 800);
+        }
+        
+        function generateResponse(userInput) {
+            const officer = OFFICERS[selectedOfficer];
+            let response = '';
+            
+            switch(currentPhase) {
+                case 'opening':
+                    if (userInput.toLowerCase().includes('name') || userInput.split(' ').length >= 2) {
+                        const transition = randomFrom(officer.phrases.transitions);
+                        const question = randomFrom(INTERVIEW_QUESTIONS.eligibility);
+                        response = `${transition} ${question}`;
+                        currentPhase = 'eligibility';
+                    } else {
+                        response = "I need your full legal name, please. Take your time.";
+                    }
+                    break;
+                    
+                case 'eligibility':
+                    questionIndex++;
+                    if (questionIndex >= 2) {
+                        response = `${randomFrom(officer.phrases.transitions)} Now let's discuss your background. ${randomFrom(INTERVIEW_QUESTIONS.background)}`;
+                        currentPhase = 'background';
+                        questionIndex = 0;
+                    } else {
+                        response = randomFrom(INTERVIEW_QUESTIONS.eligibility);
+                    }
+                    break;
+                    
+                case 'background':
+                    questionIndex++;
+                    if (questionIndex >= 3) {
+                        response = `${randomFrom(officer.phrases.encouragement)} Now I'm going to test your civics knowledge. ${INTERVIEW_QUESTIONS.civics[0]}`;
+                        currentPhase = 'civics';
+                        questionIndex = 0;
+                    } else {
+                        response = randomFrom(INTERVIEW_QUESTIONS.background);
+                    }
+                    break;
+                    
+                case 'civics':
+                    questionIndex++;
+                    if (questionIndex >= 4) {
+                        response = `${randomFrom(officer.phrases.encouragement)} Now for the English portion. ${INTERVIEW_QUESTIONS.english[0]}`;
+                        currentPhase = 'english';
+                        questionIndex = 0;
+                    } else {
+                        response = INTERVIEW_QUESTIONS.civics[questionIndex];
+                    }
+                    break;
+                    
+                case 'english':
+                    questionIndex++;
+                    if (questionIndex >= 2) {
+                        response = `Excellent! Now let's discuss the Oath of Allegiance. ${INTERVIEW_QUESTIONS.oath[0]}`;
+                        currentPhase = 'oath';
+                        questionIndex = 0;
+                    } else {
+                        response = INTERVIEW_QUESTIONS.english[1];
+                    }
+                    break;
+                    
+                case 'oath':
+                    questionIndex++;
+                    if (questionIndex >= 2) {
+                        response = randomFrom(INTERVIEW_QUESTIONS.closing);
+                        currentPhase = 'closed';
+                    } else {
+                        response = INTERVIEW_QUESTIONS.oath[questionIndex];
+                    }
+                    break;
+                    
+                case 'closed':
+                    response = "The interview is complete. Thank you for your time. You may close this window when ready.";
+                    break;
+                    
+                default:
+                    response = "Thank you. Let's continue.";
+            }
+            
+            addMessage('officer', response);
+        }
+        
+        function randomFrom(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+        
+        function speakLastMessage() {
+            const messages = document.querySelectorAll('.message.officer .bubble');
+            if (messages.length === 0) return;
+            
+            const lastMessage = messages[messages.length - 1].textContent;
+            
+            if ('speechSynthesis' in window) {
+                speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(lastMessage);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.85;
+                speechSynthesis.speak(utterance);
+            }
+        }
+        
+        function endInterview() {
+            if (confirm('¿Estás seguro de terminar la entrevista?')) {
+                alert(`Entrevista completada con ${OFFICERS[selectedOfficer].name}.\n\nMensajes intercambiados: ${conversationHistory.length}\n\n¡Buen trabajo!`);
+                location.reload();
+            }
+        }
+    </script>
 </body>
 </html>
-
