@@ -1,586 +1,1124 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>USCIS AI Interview Practice - Escuela de Bookkeepers</title>
+    <title>USCIS Interviews AI - Master Your Citizenship Interview</title>
+    <meta name="description" content="Practice your USCIS naturalization interview with AI-powered officers. Real voices, real personalities, real preparation.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 1rem;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #ffffff;
+            color: #0f172a;
+            line-height: 1.6;
         }
         
-        .container {
-            max-width: 900px;
+        .nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid #e2e8f0;
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+        
+        .nav-container {
+            max-width: 1280px;
             margin: 0 auto;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #0f172a;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logo-flag { font-size: 1.75rem; }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .nav-link {
+            color: #475569;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+        
+        .nav-link:hover { color: #1e40af; }
+        
+        .btn-primary {
+            background: #1e40af;
+            color: white;
+            padding: 0.625rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+        
+        .btn-primary:hover {
+            background: #1e3a8a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+        }
+        
+        .hero {
+            padding: 8rem 2rem 4rem;
+            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+            position: relative;
             overflow: hidden;
         }
         
-        .header {
-            background: linear-gradient(135deg, #1e40af, #3b82f6);
-            color: white;
-            padding: 2rem;
-            text-align: center;
-        }
-        
-        .header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
-        
-        .content { padding: 2rem; }
-        
-        .setup-section {
-            background: #f8fafc;
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-        
-        .form-group {
+        .hero-container {
+            max-width: 1280px;
+            margin: 0 auto;
             display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            position: relative;
+        }
+        
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
             gap: 0.5rem;
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            color: #92400e;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            border: 1px solid #fcd34d;
+        }
+        
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1.1;
+            color: #0f172a;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .hero h1 .highlight {
+            background: linear-gradient(135deg, #1e40af 0%, #dc2626 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero p {
+            font-size: 1.25rem;
+            color: #475569;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+        
+        .btn-large {
+            padding: 1rem 2rem;
+            font-size: 1.0625rem;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #0f172a;
+            border: 2px solid #e2e8f0;
+            padding: 0.875rem 1.875rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .btn-secondary:hover {
+            border-color: #1e40af;
+            color: #1e40af;
+        }
+        
+        .hero-stats {
+            display: flex;
+            gap: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .stat { display: flex; flex-direction: column; }
+        .stat-number { font-size: 2rem; font-weight: 800; color: #0f172a; }
+        .stat-label { font-size: 0.875rem; color: #64748b; }
+        
+        .hero-visual { position: relative; }
+        
+        .interview-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .interview-card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
             margin-bottom: 1.5rem;
         }
         
-        label {
-            font-weight: 600;
-            color: #374151;
-        }
-        
-        select, input, textarea {
-            padding: 12px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-family: inherit;
-        }
-        
-        select:focus, input:focus, textarea:focus {
-            outline: none;
-            border-color: #3b82f6;
-        }
-        
-        .start-btn, .send-btn {
-            background: linear-gradient(135deg, #3b82f6, #1e40af);
-            color: white;
-            border: none;
-            padding: 16px 32px;
-            border-radius: 12px;
-            font-size: 1.125rem;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            transition: transform 0.2s;
-        }
-        
-        .start-btn:hover, .send-btn:hover {
-            transform: translateY(-2px);
-        }
-        
-        .interview-area { display: none; }
-        
-        .officer-info {
-            background: linear-gradient(135deg, #f0f9ff, #dbeafe);
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        
-        .officer-avatar { font-size: 3rem; }
-        
-        .conversation {
-            background: #f9fafb;
-            border-radius: 12px;
-            padding: 1.5rem;
-            max-height: 500px;
-            overflow-y: auto;
-            margin-bottom: 1rem;
-        }
-        
-        .message {
-            margin-bottom: 1rem;
-            display: flex;
-            gap: 1rem;
-        }
-        
-        .message.user { flex-direction: row-reverse; }
-        
-        .avatar {
-            width: 45px;
-            height: 45px;
+        .officer-avatar-large {
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #1e40af, #3b82f6);
-            color: white;
+            background: linear-gradient(135deg, #ec4899, #be185d);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            flex-shrink: 0;
+            color: white;
+            font-weight: 800;
+            font-size: 1.25rem;
+            box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+            border: 3px solid white;
         }
         
-        .message.user .avatar {
-            background: linear-gradient(135deg, #10b981, #059669);
-        }
+        .officer-info h4 { font-size: 1.125rem; font-weight: 700; color: #0f172a; }
+        .officer-info p { font-size: 0.875rem; color: #64748b; margin: 0; }
         
-        .bubble {
-            background: white;
-            padding: 1rem;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            max-width: 75%;
-        }
-        
-        .message.user .bubble {
-            background: #dbeafe;
-        }
-        
-        .input-area {
+        .live-indicator {
+            margin-left: auto;
             display: flex;
-            gap: 1rem;
+            align-items: center;
+            gap: 0.5rem;
+            color: #16a34a;
+            font-size: 0.875rem;
+            font-weight: 600;
         }
         
-        textarea.message-input {
-            flex: 1;
-            min-height: 60px;
-            resize: vertical;
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #16a34a;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
         }
         
-        .send-btn {
-            width: auto;
-            padding: 12px 24px;
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .conversation-preview { display: flex; flex-direction: column; gap: 1rem; }
+        .conv-message { padding: 1rem; border-radius: 0.75rem; font-size: 0.95rem; }
+        .conv-officer { background: #f1f5f9; color: #0f172a; }
+        .conv-user { background: #dbeafe; color: #1e40af; margin-left: 2rem; }
+        
+        .features { padding: 6rem 2rem; background: white; }
+        .section-container { max-width: 1280px; margin: 0 auto; }
+        .section-header { text-align: center; margin-bottom: 4rem; }
+        
+        .section-badge {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 0.375rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .section-title {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .section-subtitle {
+            font-size: 1.25rem;
+            color: #475569;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            border-color: #1e40af;
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.375rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.75rem;
+        }
+        
+        .feature-card p { color: #475569; line-height: 1.7; }
+        
+        .officers-section {
+            padding: 6rem 2rem;
+            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
         }
         
         .officers-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin: 2rem 0;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1.5rem;
+            margin-top: 3rem;
         }
         
-        .officer-card {
-            background: #f8fafc;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 1.5rem;
+        .officer-card-display {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem 1.5rem;
             text-align: center;
-            cursor: pointer;
+            border: 1px solid #e2e8f0;
             transition: all 0.3s;
         }
         
-        .officer-card:hover {
-            border-color: #3b82f6;
-            transform: translateY(-2px);
+        .officer-card-display:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
         }
         
-        .officer-card.selected {
-            border-color: #3b82f6;
+        .officer-avatar-pro {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border: 4px solid white;
+        }
+        
+        .officer-initials {
+            color: white;
+            font-size: 2rem;
+            font-weight: 800;
+        }
+        
+        .officer-badge-pro {
+            position: absolute;
+            bottom: -8px;
+            background: white;
+            color: #1e40af;
+            font-size: 0.625rem;
+            font-weight: 800;
+            padding: 0.25rem 0.625rem;
+            border-radius: 1rem;
+            letter-spacing: 0.05em;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 2px solid #e2e8f0;
+        }
+        
+        .officer-card-display h4 {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+        }
+        
+        .officer-card-display .specialty {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+        
+        .officer-experience-mini {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .officer-tag {
+            display: inline-block;
             background: #dbeafe;
+            color: #1e40af;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
         }
         
-        .officer-card h3 {
-            margin: 0.5rem 0;
-            color: #1e293b;
-        }
+        .pricing { padding: 6rem 2rem; background: white; }
         
-        .officer-card p {
-            color: #6b7280;
-            font-size: 0.875rem;
-        }
-        
-        .status-bar {
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            color: #16a34a;
-            padding: 0.75rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
+        .founders-banner {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border: 2px solid #f59e0b;
+            border-radius: 1rem;
+            padding: 1.5rem;
             text-align: center;
+            margin-bottom: 3rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .founders-banner h3 {
+            color: #92400e;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 800;
+        }
+        
+        .founders-banner p { color: #78350f; font-size: 1.0625rem; }
+        
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .pricing-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2.5rem;
+            border: 2px solid #e2e8f0;
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        .pricing-card.featured {
+            border-color: #1e40af;
+            transform: scale(1.05);
+            box-shadow: 0 25px 50px rgba(30, 64, 175, 0.15);
+        }
+        
+        .pricing-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            color: white;
+            padding: 0.25rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .founder-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .pricing-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+        }
+        
+        .pricing-card .description { color: #64748b; margin-bottom: 2rem; }
+        
+        .price {
+            display: flex;
+            align-items: baseline;
+            gap: 0.25rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .price-amount { font-size: 3rem; font-weight: 800; color: #0f172a; }
+        .price-period { color: #64748b; font-size: 1.125rem; }
+        
+        .price-original {
+            text-decoration: line-through;
+            color: #94a3b8;
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .price-note {
+            font-size: 0.875rem;
+            color: #16a34a;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+        
+        .features-list { list-style: none; margin-bottom: 2rem; }
+        
+        .features-list li {
+            padding: 0.5rem 0;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .features-list li::before {
+            content: '✓';
+            color: #16a34a;
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+        
+        .btn-pricing {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-size: 1rem;
+        }
+        
+        .btn-pricing.primary { background: #1e40af; color: white; }
+        .btn-pricing.primary:hover { background: #1e3a8a; }
+        
+        .btn-pricing.secondary {
+            background: white;
+            color: #1e40af;
+            border: 2px solid #1e40af;
+        }
+        
+        .btn-pricing.secondary:hover { background: #dbeafe; }
+        
+        .cta-section {
+            padding: 6rem 2rem;
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-container {
+            position: relative;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .cta-section h2 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+        
+        .cta-section p {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        .btn-cta {
+            background: white;
+            color: #1e40af;
+            padding: 1.25rem 3rem;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            font-size: 1.125rem;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .btn-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .footer {
+            padding: 3rem 2rem 2rem;
+            background: #0f172a;
+            color: #94a3b8;
+            text-align: center;
+        }
+        
+        .footer-content { max-width: 1280px; margin: 0 auto; }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .footer-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+        
+        .footer-links a:hover { color: white; }
+        
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            backdrop-filter: blur(4px);
+        }
+        
+        .modal-overlay.active { display: flex; }
+        
+        .modal {
+            background: white;
+            border-radius: 1rem;
+            padding: 2.5rem;
+            max-width: 450px;
+            width: 100%;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: #f1f5f9;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.25rem;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-close:hover { background: #e2e8f0; }
+        
+        .modal h2 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+        }
+        
+        .modal p { color: #64748b; margin-bottom: 1.5rem; }
+        
+        .form-group { margin-bottom: 1.25rem; }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
             font-size: 0.875rem;
         }
         
-        @media (max-width: 768px) {
-            .container { margin: 0.5rem; }
-            .header h1 { font-size: 1.5rem; }
-            .content { padding: 1rem; }
-            .input-area { flex-direction: column; }
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        
+        .form-input:focus { outline: none; border-color: #1e40af; }
+        
+        .modal-submit {
+            width: 100%;
+            padding: 0.875rem;
+            background: #1e40af;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 0.5rem;
+        }
+        
+        .modal-submit:hover { background: #1e3a8a; }
+        
+        .modal-switch {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+        
+        .modal-switch a {
+            color: #1e40af;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        .alert {
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            display: none;
+        }
+        
+        .alert.error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            display: block;
+        }
+        
+        .alert.success {
+            background: #f0fdf4;
+            color: #16a34a;
+            border: 1px solid #bbf7d0;
+            display: block;
+        }
+        
+        @media (max-width: 968px) {
+            .hero-container { grid-template-columns: 1fr; gap: 3rem; }
+            .hero h1 { font-size: 2.5rem; }
+            .features-grid, .officers-grid, .pricing-grid { grid-template-columns: 1fr; }
+            .pricing-card.featured { transform: none; }
+            .section-title { font-size: 2rem; }
+            .nav-links { display: none; }
+            .cta-section h2 { font-size: 2rem; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🇺🇸 USCIS AI Interview Practice</h1>
-            <p>Practica con 5 Oficiales AI con Personalidades Únicas</p>
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <span class="logo-flag">🇺🇸</span>
+                <span>USCIS Interviews<span style="color: #dc2626;">.AI</span></span>
+            </a>
+            <div class="nav-links">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#officers" class="nav-link">Officers</a>
+                <a href="#pricing" class="nav-link">Pricing</a>
+                <a class="nav-link" onclick="openModal('login')">Login</a>
+                <a class="btn-primary" onclick="openModal('signup')">Start Free Trial</a>
+            </div>
         </div>
-        
-        <div class="content">
-            <div class="status-bar">
-                ✅ Sistema cargado correctamente - 100% funcional sin dependencias externas
+    </nav>
+
+    <section class="hero">
+        <div class="hero-container">
+            <div>
+                <div class="hero-badge">🔥 FOUNDERS PRICING: 20 SPOTS LEFT</div>
+                <h1>Master Your <span class="highlight">Citizenship Interview</span> with AI</h1>
+                <p>Practice with 5 AI-powered USCIS officers featuring authentic voices and personalities. Get instant feedback and pass your interview on the first try.</p>
+                <div class="hero-buttons">
+                    <button class="btn-primary btn-large" onclick="openModal('signup')">Start 3-Day Free Trial →</button>
+                    <a href="#demo" class="btn-secondary">▶️ Watch Demo</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat"><span class="stat-number">98%</span><span class="stat-label">Pass Rate</span></div>
+                    <div class="stat"><span class="stat-number">5,000+</span><span class="stat-label">Students</span></div>
+                    <div class="stat"><span class="stat-number">4.9★</span><span class="stat-label">User Rating</span></div>
+                </div>
             </div>
-            
-            <!-- Configuración Inicial -->
-            <div id="setupSection" class="setup-section">
-                <h2 style="margin-bottom: 1rem;">🎯 Configura tu Práctica</h2>
-                
+            <div class="hero-visual">
+                <div class="interview-card">
+                    <div class="interview-card-header">
+                        <div class="officer-avatar-large">MM</div>
+                        <div class="officer-info">
+                            <h4>Officer Maria Martinez</h4>
+                            <p>USCIS Miami Field Office</p>
+                        </div>
+                        <div class="live-indicator"><span class="live-dot"></span>LIVE</div>
+                    </div>
+                    <div class="conversation-preview">
+                        <div class="conv-message conv-officer">"Good morning! Please state your full legal name as it appears on your N-400 application."</div>
+                        <div class="conv-message conv-user">🎤 "My name is Maria Elena Rodriguez"</div>
+                        <div class="conv-message conv-officer">"Thank you, Maria. I see you're applying based on 5 years as a permanent resident. Is that correct?"</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <div class="section-container">
+            <div class="section-header">
+                <span class="section-badge">⚡ AI-POWERED</span>
+                <h2 class="section-title">Real AI. Real Practice. Real Results.</h2>
+                <p class="section-subtitle">Unlike basic flashcard apps, we use cutting-edge AI to give you a realistic interview experience</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card"><div class="feature-icon">🎤</div><h3>Voice Practice</h3><p>Speak naturally and get instant AI feedback. Practice your pronunciation, fluency, and confidence.</p></div>
+                <div class="feature-card"><div class="feature-icon">🧠</div><h3>Smart AI Officer</h3><p>AI-powered officers ask follow-up questions, detect inconsistencies, and adapt to your responses.</p></div>
+                <div class="feature-card"><div class="feature-icon">🗣️</div><h3>Authentic Accents</h3><p>5 unique officers with realistic voices and personalities. Train your ear for the real interview.</p></div>
+                <div class="feature-card"><div class="feature-icon">📊</div><h3>Performance Analytics</h3><p>Track your progress with detailed reports. See your strengths and weaknesses.</p></div>
+                <div class="feature-card"><div class="feature-icon">📋</div><h3>N-400 Personalization</h3><p>Upload your N-400 and get personalized questions based on your specific case.</p></div>
+                <div class="feature-card"><div class="feature-icon">🔒</div><h3>Secure & Private</h3><p>Bank-level encryption. Your N-400 data stays private. Not shared with third parties.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="officers-section" id="officers">
+        <div class="section-container">
+            <div class="section-header">
+                <span class="section-badge">👮‍♀️ MEET YOUR OFFICERS</span>
+                <h2 class="section-title">Practice with 5 Unique AI Officers</h2>
+                <p class="section-subtitle">Each officer has a distinct personality, accent, and interview style</p>
+            </div>
+            <div class="officers-grid">
+                <div class="officer-card-display">
+                    <div class="officer-avatar-pro" style="background: linear-gradient(135deg, #ec4899, #be185d);">
+                        <span class="officer-initials">MM</span><div class="officer-badge-pro">USCIS</div>
+                    </div>
+                    <h4>Officer M. Martinez</h4><p class="specialty">Miami Field Office</p>
+                    <p class="officer-experience-mini">15 years experience</p>
+                    <span class="officer-tag">Warm & Thorough</span>
+                </div>
+                <div class="officer-card-display">
+                    <div class="officer-avatar-pro" style="background: linear-gradient(135deg, #1e40af, #1e3a8a);">
+                        <span class="officer-initials">RJ</span><div class="officer-badge-pro">USCIS</div>
+                    </div>
+                    <h4>Officer R. Johnson</h4><p class="specialty">Washington DC Office</p>
+                    <p class="officer-experience-mini">22 years experience</p>
+                    <span class="officer-tag">Strict & Professional</span>
+                </div>
+                <div class="officer-card-display">
+                    <div class="officer-avatar-pro" style="background: linear-gradient(135deg, #7c3aed, #5b21b6);">
+                        <span class="officer-initials">LC</span><div class="officer-badge-pro">USCIS</div>
+                    </div>
+                    <h4>Officer L. Chen</h4><p class="specialty">San Francisco Office</p>
+                    <p class="officer-experience-mini">8 years experience</p>
+                    <span class="officer-tag">Modern & Patient</span>
+                </div>
+                <div class="officer-card-display">
+                    <div class="officer-avatar-pro" style="background: linear-gradient(135deg, #16a34a, #15803d);">
+                        <span class="officer-initials">CR</span><div class="officer-badge-pro">USCIS</div>
+                    </div>
+                    <h4>Officer C. Rodriguez</h4><p class="specialty">Los Angeles Office</p>
+                    <p class="officer-experience-mini">12 years experience</p>
+                    <span class="officer-tag">Bilingual Expert</span>
+                </div>
+                <div class="officer-card-display">
+                    <div class="officer-avatar-pro" style="background: linear-gradient(135deg, #dc2626, #991b1b);">
+                        <span class="officer-initials">SW</span><div class="officer-badge-pro">USCIS</div>
+                    </div>
+                    <h4>Officer S. Williams</h4><p class="specialty">Atlanta Field Office</p>
+                    <p class="officer-experience-mini">18 years experience</p>
+                    <span class="officer-tag">Diplomatic</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="pricing" id="pricing">
+        <div class="section-container">
+            <div class="section-header">
+                <span class="section-badge">💎 PRICING PLANS</span>
+                <h2 class="section-title">Invest in Your American Dream</h2>
+                <p class="section-subtitle">Less than the cost of one immigration consultation. Cancel anytime.</p>
+            </div>
+            <div class="founders-banner">
+                <h3>🔥 FOUNDERS SPECIAL - LIMITED TIME</h3>
+                <p>First 20 students get <strong>$19/month for life</strong> (Regular price: $49/month)</p>
+            </div>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3>Starter</h3>
+                    <p class="description">Perfect for getting started</p>
+                    <div class="price"><span class="price-amount">$19</span><span class="price-period">/month</span></div>
+                    <ul class="features-list">
+                        <li>10 practice sessions/month</li>
+                        <li>Access to 2 AI officers</li>
+                        <li>Basic civics questions</li>
+                        <li>Text-based practice</li>
+                        <li>Email support</li>
+                    </ul>
+                    <button class="btn-pricing secondary" onclick="selectPlan('starter')">Get Started</button>
+                </div>
+                <div class="pricing-card featured">
+                    <span class="pricing-badge">⭐ Founders Special</span>
+                    <span class="founder-badge">🔥 SAVE $30/month</span>
+                    <h3>Professional</h3>
+                    <p class="description">Everything you need to pass</p>
+                    <div class="price-original">$49/month</div>
+                    <div class="price"><span class="price-amount">$19</span><span class="price-period">/month</span></div>
+                    <p class="price-note">3-day free trial • Price locked forever</p>
+                    <ul class="features-list">
+                        <li>Unlimited practice sessions</li>
+                        <li>All 5 AI officers with voices</li>
+                        <li>Voice recognition & feedback</li>
+                        <li>N-400 personalization</li>
+                        <li>Detailed analytics</li>
+                        <li>Mock interview reports</li>
+                        <li>Priority support</li>
+                    </ul>
+                    <button class="btn-pricing primary" onclick="selectPlan('pro')">Claim Founder Spot →</button>
+                </div>
+                <div class="pricing-card">
+                    <h3>Premium</h3>
+                    <p class="description">For serious applicants</p>
+                    <div class="price"><span class="price-amount">$99</span><span class="price-period">/month</span></div>
+                    <ul class="features-list">
+                        <li>Everything in Professional</li>
+                        <li>1-on-1 expert consultation</li>
+                        <li>Custom case analysis</li>
+                        <li>Document review</li>
+                        <li>Mock interview with expert</li>
+                        <li>Money-back guarantee</li>
+                        <li>VIP support 24/7</li>
+                    </ul>
+                    <button class="btn-pricing secondary" onclick="selectPlan('premium')">Get Premium</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="cta-container">
+            <h2>Ready to Pass Your Interview?</h2>
+            <p>Join 5,000+ students who passed their USCIS interview on the first try</p>
+            <button class="btn-cta" onclick="openModal('signup')">Start Your Free Trial Now →</button>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a>About</a><a>Privacy Policy</a><a>Terms of Service</a><a>Contact</a><a>Refund Policy</a>
+            </div>
+            <p>© 2025 USCIS Interviews.AI by Escuela de Bookkeepers. All rights reserved.</p>
+            <p style="margin-top: 1rem; font-size: 0.875rem;">This service is for educational purposes only and does not constitute legal advice.</p>
+        </div>
+    </footer>
+    
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal('login')">×</button>
+            <h2>Welcome Back!</h2>
+            <p>Login to continue your interview practice</p>
+            <div class="alert error" id="loginError"></div>
+            <form id="loginForm" onsubmit="handleLogin(event)">
                 <div class="form-group">
-                    <label>Modo de Práctica</label>
-                    <select id="practiceMode">
-                        <option value="training">Modo Entrenamiento (con tips)</option>
-                        <option value="official">Modo Oficial (realista)</option>
-                    </select>
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" class="form-input" placeholder="you@example.com" required>
                 </div>
-                
                 <div class="form-group">
-                    <label>Idioma</label>
-                    <select id="language">
-                        <option value="en">English Only</option>
-                        <option value="both">English + Spanish Support</option>
-                    </select>
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required>
                 </div>
-                
-                <h3 style="margin-top: 2rem;">👮‍♀️ Selecciona tu Oficial USCIS</h3>
-                <div class="officers-grid" id="officersGrid"></div>
-                
-                <button class="start-btn" onclick="startInterview()" id="startBtn" disabled>
-                    🎭 Comenzar Entrevista Práctica
-                </button>
-            </div>
-            
-            <!-- Área de Entrevista -->
-            <div id="interviewArea" class="interview-area">
-                <div class="officer-info" id="officerInfo"></div>
-                
-                <div class="conversation" id="conversation"></div>
-                
-                <div class="input-area">
-                    <textarea 
-                        id="userInput" 
-                        class="message-input" 
-                        placeholder="Escribe tu respuesta aquí..."
-                        onkeypress="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendMessage();}"
-                    ></textarea>
-                    <button class="send-btn" onclick="sendMessage()">Enviar</button>
-                </div>
-                
-                <div style="margin-top: 1rem; display: flex; gap: 0.5rem; justify-content: center;">
-                    <button onclick="speakLastMessage()" style="padding: 8px 16px; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px; cursor: pointer;">
-                        🔊 Escuchar
-                    </button>
-                    <button onclick="endInterview()" style="padding: 8px 16px; background: #fef2f2; border: 1px solid #dc2626; border-radius: 6px; cursor: pointer;">
-                        ⏹️ Terminar
-                    </button>
-                </div>
-            </div>
+                <button type="submit" class="modal-submit" id="loginButton">Login</button>
+            </form>
+            <p class="modal-switch">Don't have an account? <a onclick="switchModal('signup')">Sign up free</a></p>
         </div>
     </div>
-
+    
+    <div class="modal-overlay" id="signupModal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal('signup')">×</button>
+            <h2>Start Your Free Trial</h2>
+            <p>3 days free • No credit card required</p>
+            <div class="alert error" id="signupError"></div>
+            <div class="alert success" id="signupSuccess"></div>
+            <form id="signupForm" onsubmit="handleSignup(event)">
+                <div class="form-group">
+                    <label for="signupName">Full Name</label>
+                    <input type="text" id="signupName" class="form-input" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupEmail">Email</label>
+                    <input type="email" id="signupEmail" class="form-input" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" class="form-input" placeholder="Minimum 6 characters" minlength="6" required>
+                </div>
+                <button type="submit" class="modal-submit" id="signupButton">Create Free Account</button>
+            </form>
+            <p class="modal-switch">Already have an account? <a onclick="switchModal('login')">Login</a></p>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <script>
-        // ===== DATOS EMBEBIDOS (No requiere archivos JSON externos) =====
+        const SUPABASE_URL = 'https://vugvnqapdxyewxyfaayl.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_vFFY4GL2f8PIGrArW05ncg_PVkcgV4M';
         
-        const OFFICERS = {
-            martinez: {
-                name: "Officer Maria Martinez",
-                avatar: "👩🏽‍💼",
-                style: "warm",
-                specialty: "Casos familiares - Hispanos",
-                greeting: "Good morning! Please have a seat and make yourself comfortable. I'm Officer Martinez, and I'll be conducting your naturalization interview today. Don't worry, we'll take this step by step. Can you please state your full legal name?",
-                phrases: {
-                    encouragement: ["You're doing great!", "Take your time.", "That's perfectly fine.", "Don't worry."],
-                    transitions: ["Wonderful! Let's continue.", "Thank you for that.", "I appreciate your honesty."],
-                }
-            },
-            johnson: {
-                name: "Officer Robert Johnson",
-                avatar: "👨🏼‍💼",
-                style: "strict",
-                specialty: "Casos complejos - Ex-militar",
-                greeting: "Good morning. Please be seated. I am Officer Johnson and I will be conducting your naturalization examination today. State your full legal name as it appears on your application.",
-                phrases: {
-                    encouragement: ["Please be precise.", "I need a clear answer.", "Continue."],
-                    transitions: ["Acknowledged.", "Moving on.", "Next question."],
-                }
-            },
-            chen: {
-                name: "Officer Lisa Chen",
-                avatar: "👩🏻‍💼",
-                style: "modern",
-                specialty: "Comunidad asiática - Tech",
-                greeting: "Good morning! Welcome. I'm Officer Chen. I understand this can feel overwhelming, but we'll get through this together. Please state your full legal name when you're ready.",
-                phrases: {
-                    encouragement: ["You're doing well.", "I understand.", "Let's work through this together."],
-                    transitions: ["Great, let's continue.", "That makes sense.", "Moving forward."],
-                }
-            },
-            rodriguez: {
-                name: "Officer Carlos Rodriguez",
-                avatar: "👨🏽‍💼",
-                style: "bilingual",
-                specialty: "Comunidad latina - Bilingüe",
-                greeting: "Good morning, ¿cómo está? Please have a seat. I'm Officer Rodriguez, and I understand the journey it took to get here today. Please tell me your full legal name. Take your time.",
-                phrases: {
-                    encouragement: ["Está bien.", "Take your time, mi amigo/amiga.", "You've worked hard."],
-                    transitions: ["Excelente!", "Muy bien, let's continue.", "Perfect, sigamos."],
-                }
-            },
-            williams: {
-                name: "Officer Sarah Williams",
-                avatar: "👩🏿‍💼",
-                style: "diplomatic",
-                specialty: "Casos legales - Diplomática",
-                greeting: "Good morning. Please come in and have a seat. I am Officer Williams, and I appreciate you being here today for this important interview. Please state your full legal name for the record.",
-                phrases: {
-                    encouragement: ["I appreciate your patience.", "Your perspective is valued.", "Take your time."],
-                    transitions: ["Duly noted.", "Let us proceed.", "Thank you for that clarification."],
-                }
-            }
-        };
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
-        const INTERVIEW_QUESTIONS = {
-            eligibility: [
-                "I see you're applying based on 5 years as a permanent resident. Is that correct?",
-                "When did you become a permanent resident?",
-                "What is the basis for your naturalization application?"
-            ],
-            background: [
-                "Let's talk about your travels outside the United States. Have you taken any trips longer than 6 months?",
-                "What is your current occupation?",
-                "Tell me about your employment over the past 5 years.",
-                "Have you filed your taxes every year since becoming a permanent resident?"
-            ],
-            civics: [
-                "What is the supreme law of the land?",
-                "What does the Constitution do?",
-                "Name one branch or part of the government.",
-                "Who makes federal laws?",
-                "What are two rights in the Declaration of Independence?",
-                "Who is the President of the United States now?"
-            ],
-            english: [
-                "Please read this sentence out loud: 'America is the land of freedom.'",
-                "Please write this sentence: 'Citizens have the right to vote.'"
-            ],
-            oath: [
-                "Are you willing to take the full Oath of Allegiance to the United States?",
-                "Are you willing to bear arms on behalf of the United States when required by law?",
-                "Do you understand that you must give up any foreign allegiances?"
-            ],
-            closing: [
-                "Based on our interview today, I'm pleased to recommend your application for approval. Congratulations! You'll receive information about your oath ceremony by mail.",
-                "Thank you for your patience today. Your application looks good, and I'm recommending approval. You'll get your oath ceremony details soon."
-            ]
-        };
+        function openModal(type) {
+            document.getElementById(type + 'Modal').classList.add('active');
+        }
         
-        // ===== ESTADO DE LA APLICACIÓN =====
-        let selectedOfficer = null;
-        let currentPhase = 'opening';
-        let questionIndex = 0;
-        let conversationHistory = [];
+        function closeModal(type) {
+            document.getElementById(type + 'Modal').classList.remove('active');
+            document.querySelectorAll('.alert').forEach(alert => alert.style.display = 'none');
+        }
         
-        // ===== INICIALIZACIÓN =====
-        document.addEventListener('DOMContentLoaded', () => {
-            renderOfficers();
+        function switchModal(type) {
+            document.querySelectorAll('.modal-overlay').forEach(modal => modal.classList.remove('active'));
+            openModal(type);
+        }
+        
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) overlay.classList.remove('active');
+            });
         });
         
-        function renderOfficers() {
-            const grid = document.getElementById('officersGrid');
-            grid.innerHTML = '';
+        async function handleSignup(event) {
+            event.preventDefault();
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const button = document.getElementById('signupButton');
+            const errorAlert = document.getElementById('signupError');
+            const successAlert = document.getElementById('signupSuccess');
             
-            Object.entries(OFFICERS).forEach(([id, officer]) => {
-                const card = document.createElement('div');
-                card.className = 'officer-card';
-                card.onclick = () => selectOfficer(id);
-                card.innerHTML = `
-                    <div style="font-size: 3rem;">${officer.avatar}</div>
-                    <h3>${officer.name}</h3>
-                    <p>${officer.specialty}</p>
-                `;
-                grid.appendChild(card);
-            });
-        }
-        
-        function selectOfficer(officerId) {
-            selectedOfficer = officerId;
+            errorAlert.style.display = 'none';
+            successAlert.style.display = 'none';
+            button.disabled = true;
+            button.textContent = 'Creating account...';
             
-            document.querySelectorAll('.officer-card').forEach((card, index) => {
-                card.classList.remove('selected');
-                if (Object.keys(OFFICERS)[index] === officerId) {
-                    card.classList.add('selected');
-                }
-            });
-            
-            document.getElementById('startBtn').disabled = false;
-        }
-        
-        function startInterview() {
-            if (!selectedOfficer) {
-                alert('Por favor selecciona un oficial');
-                return;
-            }
-            
-            const officer = OFFICERS[selectedOfficer];
-            
-            document.getElementById('setupSection').style.display = 'none';
-            document.getElementById('interviewArea').style.display = 'block';
-            
-            document.getElementById('officerInfo').innerHTML = `
-                <div class="officer-avatar">${officer.avatar}</div>
-                <div>
-                    <h3 style="margin: 0;">${officer.name}</h3>
-                    <p style="margin: 0; color: #6b7280;">${officer.specialty}</p>
-                </div>
-            `;
-            
-            addMessage('officer', officer.greeting);
-            currentPhase = 'opening';
-            questionIndex = 0;
-        }
-        
-        function addMessage(sender, text) {
-            const conversation = document.getElementById('conversation');
-            const officer = OFFICERS[selectedOfficer];
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}`;
-            
-            const avatar = sender === 'officer' ? officer.avatar : '👤';
-            
-            messageDiv.innerHTML = `
-                <div class="avatar">${avatar}</div>
-                <div class="bubble">${text}</div>
-            `;
-            
-            conversation.appendChild(messageDiv);
-            conversation.scrollTop = conversation.scrollHeight;
-            
-            conversationHistory.push({ sender, text, timestamp: new Date() });
-        }
-        
-        function sendMessage() {
-            const input = document.getElementById('userInput');
-            const userText = input.value.trim();
-            
-            if (!userText) return;
-            
-            addMessage('user', userText);
-            input.value = '';
-            
-            setTimeout(() => generateResponse(userText), 800);
-        }
-        
-        function generateResponse(userInput) {
-            const officer = OFFICERS[selectedOfficer];
-            let response = '';
-            
-            switch(currentPhase) {
-                case 'opening':
-                    if (userInput.toLowerCase().includes('name') || userInput.split(' ').length >= 2) {
-                        const transition = randomFrom(officer.phrases.transitions);
-                        const question = randomFrom(INTERVIEW_QUESTIONS.eligibility);
-                        response = `${transition} ${question}`;
-                        currentPhase = 'eligibility';
-                    } else {
-                        response = "I need your full legal name, please. Take your time.";
-                    }
-                    break;
-                    
-                case 'eligibility':
-                    questionIndex++;
-                    if (questionIndex >= 2) {
-                        response = `${randomFrom(officer.phrases.transitions)} Now let's discuss your background. ${randomFrom(INTERVIEW_QUESTIONS.background)}`;
-                        currentPhase = 'background';
-                        questionIndex = 0;
-                    } else {
-                        response = randomFrom(INTERVIEW_QUESTIONS.eligibility);
-                    }
-                    break;
-                    
-                case 'background':
-                    questionIndex++;
-                    if (questionIndex >= 3) {
-                        response = `${randomFrom(officer.phrases.encouragement)} Now I'm going to test your civics knowledge. ${INTERVIEW_QUESTIONS.civics[0]}`;
-                        currentPhase = 'civics';
-                        questionIndex = 0;
-                    } else {
-                        response = randomFrom(INTERVIEW_QUESTIONS.background);
-                    }
-                    break;
-                    
-                case 'civics':
-                    questionIndex++;
-                    if (questionIndex >= 4) {
-                        response = `${randomFrom(officer.phrases.encouragement)} Now for the English portion. ${INTERVIEW_QUESTIONS.english[0]}`;
-                        currentPhase = 'english';
-                        questionIndex = 0;
-                    } else {
-                        response = INTERVIEW_QUESTIONS.civics[questionIndex];
-                    }
-                    break;
-                    
-                case 'english':
-                    questionIndex++;
-                    if (questionIndex >= 2) {
-                        response = `Excellent! Now let's discuss the Oath of Allegiance. ${INTERVIEW_QUESTIONS.oath[0]}`;
-                        currentPhase = 'oath';
-                        questionIndex = 0;
-                    } else {
-                        response = INTERVIEW_QUESTIONS.english[1];
-                    }
-                    break;
-                    
-                case 'oath':
-                    questionIndex++;
-                    if (questionIndex >= 2) {
-                        response = randomFrom(INTERVIEW_QUESTIONS.closing);
-                        currentPhase = 'closed';
-                    } else {
-                        response = INTERVIEW_QUESTIONS.oath[questionIndex];
-                    }
-                    break;
-                    
-                case 'closed':
-                    response = "The interview is complete. Thank you for your time. You may close this window when ready.";
-                    break;
-                    
-                default:
-                    response = "Thank you. Let's continue.";
-            }
-            
-            addMessage('officer', response);
-        }
-        
-        function randomFrom(array) {
-            return array[Math.floor(Math.random() * array.length)];
-        }
-        
-        function speakLastMessage() {
-            const messages = document.querySelectorAll('.message.officer .bubble');
-            if (messages.length === 0) return;
-            
-            const lastMessage = messages[messages.length - 1].textContent;
-            
-            if ('speechSynthesis' in window) {
-                speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(lastMessage);
-                utterance.lang = 'en-US';
-                utterance.rate = 0.85;
-                speechSynthesis.speak(utterance);
+            try {
+                const { data, error } = await supabaseClient.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: { data: { full_name: name } }
+                });
+                
+                if (error) throw error;
+                
+                successAlert.textContent = '✅ Account created! Check your email to verify.';
+                successAlert.style.display = 'block';
+                
+                setTimeout(() => {
+                    window.location.href = '/dashboard.html';
+                }, 2000);
+            } catch (error) {
+                console.error('Signup error:', error);
+                errorAlert.textContent = error.message || 'Error creating account. Please try again.';
+                errorAlert.style.display = 'block';
+                button.disabled = false;
+                button.textContent = 'Create Free Account';
             }
         }
         
-        function endInterview() {
-            if (confirm('¿Estás seguro de terminar la entrevista?')) {
-                alert(`Entrevista completada con ${OFFICERS[selectedOfficer].name}.\n\nMensajes intercambiados: ${conversationHistory.length}\n\n¡Buen trabajo!`);
-                location.reload();
+        async function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const button = document.getElementById('loginButton');
+            const errorAlert = document.getElementById('loginError');
+            
+            errorAlert.style.display = 'none';
+            button.disabled = true;
+            button.textContent = 'Logging in...';
+            
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                
+                if (error) throw error;
+                window.location.href = '/dashboard.html';
+            } catch (error) {
+                console.error('Login error:', error);
+                errorAlert.textContent = error.message || 'Invalid credentials.';
+                errorAlert.style.display = 'block';
+                button.disabled = false;
+                button.textContent = 'Login';
             }
         }
+        
+        function selectPlan(plan) {
+            localStorage.setItem('selectedPlan', plan);
+            openModal('signup');
+        }
+        
+        async function checkSession() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) {
+                console.log('Usuario logueado:', session.user.email);
+            }
+        }
+        
+        checkSession();
     </script>
 </body>
 </html>
