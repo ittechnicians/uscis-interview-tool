@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practice Interview - USCIS Interviews.AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            line-height: 1.6;
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed; inset: 0; background: #f8fafc;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 1rem; z-index: 5000;
+        }
+        .loading-overlay.hidden { display: none; }
+        .spinner {
+            width: 44px; height: 44px; border: 4px solid #e2e8f0;
+            border-top-color: #1e40af; border-radius: 50%; animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-overlay p { color: #64748b; font-weight: 500; }
+
+        /* Top bar */
+        .topbar {
+            background: #ffffff; border-bottom: 1px solid #e2e8f0; padding: 0.875rem 0;
+            position: sticky; top: 0; z-index: 1000;
+        }
+        .topbar-inner {
+            max-width: 900px; margin: 0 auto; padding: 0 1.5rem;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .logo { font-size: 1.2rem; font-weight: 800; color: #0f172a; text-decoration: none; display: flex; align-items: center; gap: 0.4rem; }
+        .btn-end {
+            background: white; color: #dc2626; border: 1px solid #fecaca;
+            padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-end:hover { background: #fef2f2; }
+
+        .stage-wrap { max-width: 900px; margin: 0 auto; padding: 1.5rem; }
+
+        /* Officer stage */
+        .officer-stage {
+            background: linear-gradient(160deg, #0f172a 0%, #1e293b 100%);
+            border-radius: 1.25rem; padding: 2rem; text-align: center; color: white;
+            position: relative; overflow: hidden;
+        }
+        .officer-avatar {
+            width: 110px; height: 110px; border-radius: 50%; margin: 0 auto 1rem;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 800; font-size: 2.25rem;
+            border: 4px solid rgba(255,255,255,0.15); transition: box-shadow 0.2s;
+        }
+        .officer-avatar.speaking { animation: glow 1.2s ease-in-out infinite; }
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(96,165,250,0.5); }
+            50% { box-shadow: 0 0 0 16px rgba(96,165,250,0); }
+        }
+        .officer-stage h2 { font-size: 1.35rem; font-weight: 800; }
+        .officer-stage .office { color: #94a3b8; font-size: 0.9rem; margin-bottom: 1rem; }
+        .status-pill {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: rgba(255,255,255,0.1); padding: 0.4rem 1rem; border-radius: 2rem;
+            font-size: 0.85rem; font-weight: 600;
+        }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #94a3b8; }
+        .status-dot.live { background: #22c55e; animation: pulse 1.5s infinite; }
+        .status-dot.listening { background: #f59e0b; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        /* Transcript */
+        .transcript {
+            background: white; border: 1px solid #e2e8f0; border-radius: 1rem;
+            padding: 1.25rem; margin-top: 1.25rem; min-height: 180px;
+            max-height: 45vh; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 0.75rem;
+        }
+        .bubble { padding: 0.75rem 1rem; border-radius: 0.875rem; font-size: 0.95rem; max-width: 85%; }
+        .bubble.officer { background: #f1f5f9; color: #0f172a; align-self: flex-start; border-bottom-left-radius: 0.25rem; }
+        .bubble.user { background: #dbeafe; color: #1e3a8a; align-self: flex-end; border-bottom-right-radius: 0.25rem; }
+        .bubble .who { font-size: 0.7rem; font-weight: 700; opacity: 0.6; display: block; margin-bottom: 0.15rem; text-transform: uppercase; letter-spacing: 0.04em; }
+        .transcript-empty { color: #94a3b8; text-align: center; margin: auto; }
+
+        /* Controls */
+        .controls { margin-top: 1.25rem; }
+        .start-row { text-align: center; }
+        .btn-start {
+            background: #1e40af; color: white; border: none;
+            padding: 1rem 2.5rem; border-radius: 0.75rem; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-start:hover { background: #1e3a8a; transform: translateY(-1px); }
+        .test-q { color: #475569; font-weight: 600; margin-bottom: 0.75rem; }
+        .test-toggle { display: inline-flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; justify-content: center; }
+        .test-opt {
+            background: white; color: #475569; border: 2px solid #e2e8f0;
+            padding: 0.7rem 1.1rem; border-radius: 0.6rem; font-weight: 600; font-size: 0.9rem;
+            cursor: pointer; font-family: inherit; transition: all 0.2s; line-height: 1.2;
+        }
+        .test-opt:hover { border-color: #cbd5e1; }
+        .test-opt.selected { border-color: #1e40af; background: #eff6ff; color: #1e40af; }
+        .test-opt small { display: block; font-weight: 500; opacity: 0.7; font-size: 0.75rem; }
+
+        .mic-row { display: none; flex-direction: column; align-items: center; gap: 0.75rem; }
+        .mic-btn {
+            width: 84px; height: 84px; border-radius: 50%; border: none; cursor: pointer;
+            background: #1e40af; color: white; font-size: 2rem; transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .mic-btn:hover { background: #1e3a8a; }
+        .mic-btn.listening { background: #f59e0b; animation: pulse 1s infinite; }
+        .mic-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+        .mic-hint { color: #64748b; font-size: 0.9rem; }
+
+        .text-fallback { display: flex; gap: 0.5rem; margin-top: 1rem; }
+        .text-fallback input {
+            flex: 1; padding: 0.75rem 1rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.95rem; font-family: inherit;
+        }
+        .text-fallback input:focus { outline: none; border-color: #1e40af; }
+        .text-fallback button {
+            background: #0f172a; color: white; border: none; padding: 0 1.25rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer;
+        }
+        .text-fallback button:disabled { background: #cbd5e1; cursor: not-allowed; }
+
+        .note { color: #94a3b8; font-size: 0.8rem; text-align: center; margin-top: 1rem; }
+        .err { color: #dc2626; font-size: 0.85rem; text-align: center; margin-top: 0.75rem; }
+
+        @media (max-width: 600px) {
+            .officer-avatar { width: 88px; height: 88px; font-size: 1.75rem; }
+            .officer-stage h2 { font-size: 1.15rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p>Preparing your interview...</p>
+    </div>
+
+    <div class="topbar">
+        <div class="topbar-inner">
+            <a href="dashboard.html" class="logo"><span>🇺🇸</span> USCIS Interviews<span style="color:#dc2626;">.AI</span></a>
+            <button class="btn-end" onclick="endInterview()">End Interview</button>
+        </div>
+    </div>
+
+    <div class="stage-wrap">
+        <div class="officer-stage">
+            <div class="officer-avatar" id="officerAvatar">MM</div>
+            <h2 id="officerName">Officer</h2>
+            <p class="office" id="officerOffice">USCIS Field Office</p>
+            <span class="status-pill"><span class="status-dot" id="statusDot"></span><span id="statusText">Ready</span></span>
+        </div>
+
+        <div class="transcript" id="transcript">
+            <p class="transcript-empty" id="transcriptEmpty">Your conversation with the officer will appear here.</p>
+        </div>
+
+        <div class="controls">
+            <!-- Start -->
+            <div class="start-row" id="startRow">
+                <p class="test-q">Which civics test are you preparing for?</p>
+                <div class="test-toggle">
+                    <button class="test-opt selected" data-v="100" onclick="selectTest('100')">2008 Test<small>100 questions · 6 of 10 to pass</small></button>
+                    <button class="test-opt" data-v="128" onclick="selectTest('128')">2020 Test<small>128 questions · 12 of 20 to pass</small></button>
+                </div>
+                <br>
+                <button class="btn-start" onclick="startInterview()">Begin Interview →</button>
+                <p class="note">Best experienced in Google Chrome with your microphone enabled.</p>
+            </div>
+
+            <!-- Voice + text input (shown after start) -->
+            <div class="mic-row" id="micRow">
+                <button class="mic-btn" id="micBtn" onclick="toggleListening()">🎤</button>
+                <p class="mic-hint" id="micHint">Tap the mic and answer the officer.</p>
+                <div class="text-fallback">
+                    <input type="text" id="textInput" placeholder="...or type your answer here" onkeydown="if(event.key==='Enter')sendTyped()">
+                    <button id="sendBtn" onclick="sendTyped()">Send</button>
+                </div>
+            </div>
+
+            <p class="err" id="errBox" style="display:none;"></p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // ---------- Supabase config (same as the rest of the site) ----------
+        const SUPABASE_URL = 'https://vugvnqapdxyewxyfaayl.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_vFFY4GL2f8PIGrArW05ncg_PVkcgV4M';
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let officer = null;
+        let history = [];          // [{role:'assistant'|'user', content:'...'}]
+        let testVersion = '100';   // '100' (2008 test) or '128' (2020 test)
+        let recognition = null;
+        let listening = false;
+        let busy = false;          // waiting for the officer / speaking
+
+        function selectTest(v) {
+            testVersion = v;
+            document.querySelectorAll('.test-opt').forEach(b => {
+                b.classList.toggle('selected', b.dataset.v === v);
+            });
+        }
+
+        // ---------- Status helpers ----------
+        function setStatus(text, type) {
+            document.getElementById('statusText').textContent = text;
+            const dot = document.getElementById('statusDot');
+            dot.className = 'status-dot' + (type ? ' ' + type : '');
+        }
+        function showError(msg) {
+            const box = document.getElementById('errBox');
+            box.textContent = msg;
+            box.style.display = 'block';
+        }
+        function clearError() { document.getElementById('errBox').style.display = 'none'; }
+
+        // ---------- Transcript ----------
+        function addMessage(who, text) {
+            const t = document.getElementById('transcript');
+            const empty = document.getElementById('transcriptEmpty');
+            if (empty) empty.remove();
+            const b = document.createElement('div');
+            b.className = 'bubble ' + (who === 'officer' ? 'officer' : 'user');
+            b.innerHTML = '<span class="who">' + (who === 'officer' ? officer.name : 'You') + '</span>' +
+                          text.replace(/</g, '&lt;');
+            t.appendChild(b);
+            t.scrollTop = t.scrollHeight;
+        }
+
+        // ---------- Text-to-speech (officer voice) ----------
+        function pickVoice() {
+            const voices = window.speechSynthesis.getVoices().filter(v => v.lang && v.lang.startsWith('en'));
+            if (!voices.length) return null;
+            // Deterministic pick so each officer sounds consistent
+            const idx = Math.abs(hashString(officer.id || officer.name)) % voices.length;
+            return voices[idx];
+        }
+        function hashString(s) {
+            let h = 0;
+            for (let i = 0; i < s.length; i++) { h = (h << 5) - h + s.charCodeAt(i); h |= 0; }
+            return h;
+        }
+        function speak(text, onDone) {
+            if (!('speechSynthesis' in window)) { if (onDone) onDone(); return; }
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            const v = pickVoice();
+            if (v) u.voice = v;
+            u.lang = 'en-US';
+            u.rate = 0.98;
+            // small pitch variation per officer for distinctiveness
+            u.pitch = 1 + ((Math.abs(hashString(officer.id || 'x')) % 5) - 2) * 0.06;
+            document.getElementById('officerAvatar').classList.add('speaking');
+            setStatus('Officer is speaking...', 'live');
+            u.onend = () => {
+                document.getElementById('officerAvatar').classList.remove('speaking');
+                setStatus('Your turn — tap the mic', '');
+                if (onDone) onDone();
+            };
+            window.speechSynthesis.speak(u);
+        }
+
+        // ---------- Talk to the officer (our serverless function) ----------
+        async function askOfficer() {
+            busy = true;
+            setStatus('Officer is thinking...', 'live');
+            clearError();
+            try {
+                const res = await fetch('/api/interview', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ officer: officer, history: history, testVersion: testVersion })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Request failed');
+                const reply = data.reply;
+                history.push({ role: 'assistant', content: reply });
+                addMessage('officer', reply);
+                speak(reply);
+            } catch (err) {
+                console.error(err);
+                showError('There was a problem reaching the interviewer. Please try again.');
+                setStatus('Connection issue', '');
+            } finally {
+                busy = false;
+            }
+        }
+
+        // ---------- Start ----------
+        function startInterview() {
+            document.getElementById('startRow').style.display = 'none';
+            document.getElementById('micRow').style.display = 'flex';
+            setStatus('Connecting...', 'live');
+            askOfficer(); // empty history -> officer greets
+        }
+
+        // ---------- Applicant input ----------
+        function handleApplicant(text) {
+            const clean = (text || '').trim();
+            if (!clean || busy) return;
+            history.push({ role: 'user', content: clean });
+            addMessage('user', clean);
+            askOfficer();
+        }
+
+        function sendTyped() {
+            const input = document.getElementById('textInput');
+            const val = input.value;
+            input.value = '';
+            handleApplicant(val);
+        }
+
+        // ---------- Speech-to-text ----------
+        function setupRecognition() {
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SR) {
+                document.getElementById('micBtn').style.display = 'none';
+                document.getElementById('micHint').textContent = 'Voice input is not supported in this browser — please type your answers.';
+                return;
+            }
+            recognition = new SR();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+            recognition.onresult = (e) => {
+                const text = e.results[0][0].transcript;
+                handleApplicant(text);
+            };
+            recognition.onend = () => {
+                listening = false;
+                document.getElementById('micBtn').classList.remove('listening');
+            };
+            recognition.onerror = (e) => {
+                listening = false;
+                document.getElementById('micBtn').classList.remove('listening');
+                if (e.error === 'not-allowed') {
+                    showError('Microphone access was blocked. Allow it in your browser, or type your answers.');
+                }
+            };
+        }
+
+        function toggleListening() {
+            if (busy) return;
+            if (!recognition) return;
+            if (listening) {
+                recognition.stop();
+                return;
+            }
+            window.speechSynthesis.cancel();
+            try {
+                recognition.start();
+                listening = true;
+                document.getElementById('micBtn').classList.add('listening');
+                setStatus('Listening...', 'listening');
+            } catch (e) { /* already started */ }
+        }
+
+        // ---------- End ----------
+        function endInterview() {
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            if (recognition && listening) recognition.stop();
+            window.location.href = 'dashboard.html';
+        }
+
+        // ---------- Auth guard + load officer ----------
+        async function init() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) { window.location.href = 'index.html'; return; }
+
+            // Load the officer chosen on the dashboard
+            try {
+                officer = JSON.parse(localStorage.getItem('selectedOfficer'));
+            } catch (e) { officer = null; }
+            if (!officer) {
+                // No officer selected -> go pick one
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            document.getElementById('officerAvatar').textContent = officer.initials || 'OF';
+            document.getElementById('officerAvatar').style.background = officer.gradient || 'linear-gradient(135deg,#1e40af,#3b82f6)';
+            document.getElementById('officerName').textContent = officer.name;
+            document.getElementById('officerOffice').textContent = officer.office || 'USCIS Field Office';
+            setStatus('Ready', '');
+
+            setupRecognition();
+            // Some browsers load TTS voices asynchronously
+            if ('speechSynthesis' in window) window.speechSynthesis.onvoiceschanged = () => {};
+
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+
+        init();
+    </script>
+</body>
+</html>
