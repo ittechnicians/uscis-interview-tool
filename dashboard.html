@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - USCIS Interviews.AI</title>
+    <meta name="description" content="Your AI-powered USCIS interview practice dashboard.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            line-height: 1.6;
+        }
+
+        /* ---------- Loading overlay ---------- */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            z-index: 5000;
+        }
+        .loading-overlay.hidden { display: none; }
+        .spinner {
+            width: 44px;
+            height: 44px;
+            border: 4px solid #e2e8f0;
+            border-top-color: #1e40af;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-overlay p { color: #64748b; font-weight: 500; }
+
+        /* ---------- Top nav ---------- */
+        .nav {
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .nav-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #0f172a;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .logo-flag { font-size: 1.6rem; }
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+        .user-chip {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+        .user-meta { display: flex; flex-direction: column; line-height: 1.2; }
+        .user-meta .name { font-weight: 700; font-size: 0.9rem; color: #0f172a; }
+        .user-meta .email { font-size: 0.75rem; color: #94a3b8; }
+        .btn-logout {
+            background: white;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-logout:hover { border-color: #dc2626; color: #dc2626; }
+
+        /* ---------- Layout ---------- */
+        .container { max-width: 1280px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
+
+        .welcome { margin-bottom: 2.5rem; }
+        .welcome h1 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.25rem;
+        }
+        .welcome p { color: #64748b; font-size: 1.0625rem; }
+
+        /* ---------- Stats ---------- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.25rem;
+            margin-bottom: 3rem;
+        }
+        .stat-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+        .stat-card .icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 0.625rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            background: #dbeafe;
+        }
+        .stat-card .value { font-size: 2rem; font-weight: 800; color: #0f172a; }
+        .stat-card .label { font-size: 0.875rem; color: #64748b; }
+
+        /* ---------- Section header ---------- */
+        .section { margin-bottom: 3rem; }
+        .section-head { margin-bottom: 1.5rem; }
+        .section-head h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            margin-bottom: 0.25rem;
+        }
+        .section-head p { color: #64748b; }
+
+        .ai-note {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #eff6ff;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+            padding: 0.4rem 0.9rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        /* ---------- Officer selection ---------- */
+        .officers-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1.25rem;
+        }
+        .officer-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 1rem;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .officer-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 16px 32px rgba(0,0,0,0.08);
+        }
+        .officer-card.selected {
+            border-color: #1e40af;
+            box-shadow: 0 0 0 3px rgba(30,64,175,0.12);
+        }
+        .officer-check {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #1e40af;
+            color: white;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .officer-card.selected .officer-check { display: flex; }
+        .officer-avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 1.5rem;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            border: 3px solid white;
+        }
+        .officer-card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem; }
+        .officer-card .office { font-size: 0.8rem; color: #64748b; margin-bottom: 0.5rem; }
+        .officer-card .tag {
+            display: inline-block;
+            background: #f1f5f9;
+            color: #475569;
+            padding: 0.2rem 0.6rem;
+            border-radius: 1rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .start-bar {
+            margin-top: 1.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .start-hint { color: #64748b; font-size: 0.9rem; }
+        .btn-start {
+            background: #1e40af;
+            color: white;
+            border: none;
+            padding: 1rem 2.25rem;
+            border-radius: 0.625rem;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-start:hover:not(:disabled) {
+            background: #1e3a8a;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(30,64,175,0.3);
+        }
+        .btn-start:disabled { background: #cbd5e1; cursor: not-allowed; }
+
+        /* ---------- Recent sessions ---------- */
+        .empty-state {
+            background: white;
+            border: 1px dashed #cbd5e1;
+            border-radius: 1rem;
+            padding: 3rem 2rem;
+            text-align: center;
+            color: #64748b;
+        }
+        .empty-state .emoji { font-size: 2.5rem; margin-bottom: 0.75rem; }
+        .empty-state h3 { color: #334155; font-weight: 700; margin-bottom: 0.25rem; }
+
+        .footer-note {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 968px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .officers-grid { grid-template-columns: repeat(2, 1fr); }
+            .welcome h1 { font-size: 1.75rem; }
+            .user-meta { display: none; }
+        }
+        @media (max-width: 540px) {
+            .officers-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading overlay (shown until session is confirmed) -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p>Loading your dashboard...</p>
+    </div>
+
+    <!-- Top navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <span class="logo-flag">🇺🇸</span>
+                <span>USCIS Interviews<span style="color:#dc2626;">.AI</span></span>
+            </a>
+            <div class="nav-right">
+                <div class="user-chip">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div class="user-meta">
+                        <span class="name" id="userName">Student</span>
+                        <span class="email" id="userEmail"></span>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="handleLogout()">Log out</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Welcome -->
+        <div class="welcome">
+            <h1>Welcome back, <span id="welcomeName">Student</span> 👋</h1>
+            <p>Ready to practice? Choose your AI officer and start a mock interview.</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="icon">🎤</div>
+                <div class="value" id="statSessions">0</div>
+                <div class="label">Practice sessions</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon" style="background:#dcfce7;">✅</div>
+                <div class="value" id="statQuestions">0</div>
+                <div class="label">Questions practiced</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon" style="background:#fef3c7;">📊</div>
+                <div class="value" id="statScore">—</div>
+                <div class="label">Average score</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon" style="background:#fee2e2;">🔥</div>
+                <div class="value" id="statStreak">0</div>
+                <div class="label">Day streak</div>
+            </div>
+        </div>
+
+        <!-- Start a practice -->
+        <div class="section">
+            <div class="section-head">
+                <span class="ai-note">🤖 Your interview is conducted entirely by an AI officer</span>
+                <h2>Start a New AI Interview</h2>
+                <p>Pick the officer you want to practice with. Each one has a different style and difficulty.</p>
+            </div>
+
+            <div class="officers-grid" id="officersGrid"></div>
+
+            <div class="start-bar">
+                <span class="start-hint" id="startHint">Select an officer above to begin.</span>
+                <button class="btn-start" id="startBtn" disabled onclick="startPractice()">Start Practice Interview →</button>
+            </div>
+        </div>
+
+        <!-- Recent sessions -->
+        <div class="section">
+            <div class="section-head">
+                <h2>Recent Sessions</h2>
+                <p>Your last practice interviews will show up here.</p>
+            </div>
+            <div id="sessionsContainer">
+                <div class="empty-state">
+                    <div class="emoji">📝</div>
+                    <h3>No sessions yet</h3>
+                    <p>Once you finish your first AI interview, your history and scores will appear here.</p>
+                </div>
+            </div>
+        </div>
+
+        <p class="footer-note">This service is for educational purposes only and does not constitute legal advice.</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // ---------- Supabase config (same as index.html) ----------
+        const SUPABASE_URL = 'https://vugvnqapdxyewxyfaayl.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_vFFY4GL2f8PIGrArW05ncg_PVkcgV4M';
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ---------- The 5 AI officers (same roster as the landing page) ----------
+        const OFFICERS = [
+            { id: 'martinez', initials: 'MM', name: 'Officer M. Martinez', office: 'Miami Field Office',  tag: 'Warm & Thorough',    gradient: 'linear-gradient(135deg,#ec4899,#be185d)' },
+            { id: 'johnson',  initials: 'RJ', name: 'Officer R. Johnson',  office: 'Washington DC Office', tag: 'Strict & Professional', gradient: 'linear-gradient(135deg,#1e40af,#1e3a8a)' },
+            { id: 'chen',     initials: 'LC', name: 'Officer L. Chen',     office: 'San Francisco Office', tag: 'Modern & Patient',   gradient: 'linear-gradient(135deg,#7c3aed,#5b21b6)' },
+            { id: 'rodriguez',initials: 'CR', name: 'Officer C. Rodriguez',office: 'Los Angeles Office',   tag: 'Bilingual Expert',   gradient: 'linear-gradient(135deg,#16a34a,#15803d)' },
+            { id: 'williams', initials: 'SW', name: 'Officer S. Williams', office: 'Atlanta Field Office', tag: 'Diplomatic',         gradient: 'linear-gradient(135deg,#dc2626,#991b1b)' }
+        ];
+
+        let selectedOfficer = null;
+
+        // ---------- Render officer cards ----------
+        function renderOfficers() {
+            const grid = document.getElementById('officersGrid');
+            grid.innerHTML = OFFICERS.map(o => `
+                <div class="officer-card" data-id="${o.id}" onclick="selectOfficer('${o.id}')">
+                    <div class="officer-check">✓</div>
+                    <div class="officer-avatar" style="background:${o.gradient};">${o.initials}</div>
+                    <h4>${o.name}</h4>
+                    <p class="office">${o.office}</p>
+                    <span class="tag">${o.tag}</span>
+                </div>
+            `).join('');
+        }
+
+        function selectOfficer(id) {
+            selectedOfficer = OFFICERS.find(o => o.id === id);
+            document.querySelectorAll('.officer-card').forEach(card => {
+                card.classList.toggle('selected', card.dataset.id === id);
+            });
+            const btn = document.getElementById('startBtn');
+            btn.disabled = false;
+            document.getElementById('startHint').textContent =
+                `Selected: ${selectedOfficer.name}. Ready when you are.`;
+        }
+
+        function startPractice() {
+            if (!selectedOfficer) return;
+            // Save the chosen officer so the practice page can read it
+            localStorage.setItem('selectedOfficer', JSON.stringify(selectedOfficer));
+            window.location.href = 'practice.html';
+        }
+
+        // ---------- Logout ----------
+        async function handleLogout() {
+            await supabaseClient.auth.signOut();
+            window.location.href = 'index.html';
+        }
+
+        // ---------- Auth guard + load profile ----------
+        async function init() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+
+            // Not logged in -> send back to the landing page
+            if (!session) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const user = session.user;
+            const email = user.email || '';
+
+            // Try to read the profile row for the full name
+            let fullName = (user.user_metadata && user.user_metadata.full_name) || '';
+            try {
+                const { data: profile } = await supabaseClient
+                    .from('profiles')
+                    .select('full_name')
+                    .eq('id', user.id)
+                    .single();
+                if (profile && profile.full_name) fullName = profile.full_name;
+            } catch (e) {
+                console.log('Profile lookup skipped:', e);
+            }
+
+            const displayName = fullName || email.split('@')[0] || 'Student';
+            const firstName = displayName.split(' ')[0];
+            const initials = displayName.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
+
+            document.getElementById('userName').textContent = displayName;
+            document.getElementById('userEmail').textContent = email;
+            document.getElementById('userAvatar').textContent = initials || 'U';
+            document.getElementById('welcomeName').textContent = firstName;
+
+            // Load stats defensively (table schema may evolve; never let this break the page)
+            try {
+                const { count } = await supabaseClient
+                    .from('practice_sessions')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('user_id', user.id);
+                if (typeof count === 'number') {
+                    document.getElementById('statSessions').textContent = count;
+                }
+            } catch (e) {
+                console.log('Stats lookup skipped:', e);
+            }
+
+            // Everything ready -> reveal the dashboard
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+
+        renderOfficers();
+        init();
+    </script>
+</body>
+</html>
