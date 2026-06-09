@@ -7,6 +7,8 @@
 // swap it for 'gpt-4o-mini' or 'gpt-5.4-mini'.
 const MODEL = 'gpt-4.1-mini';
 
+const { CIVICS_2008, CIVICS_2020 } = require('./civics.js');
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -66,9 +68,27 @@ module.exports = async function handler(req, res) {
 };
 
 function buildSystemPrompt(officer, testVersion) {
-  const civics = (testVersion === '128')
-    ? `3. CIVICS TEST: Tell the applicant you will now ask the civics questions. Use the official USCIS 2020 civics test — the 128-question version. Ask questions drawn ONLY from those 128 official questions, ONE at a time, up to 20 questions. The applicant must answer 12 of 20 correctly to pass. After each answer, briefly say whether it is correct; if it is wrong, kindly give the correct answer.`
-    : `3. CIVICS TEST: Tell the applicant you will now ask the civics questions. Use the official USCIS 2008 civics test — the 100-question version. Ask questions drawn ONLY from those 100 official questions, ONE at a time, up to 10 questions. The applicant must answer 6 of 10 correctly to pass. After each answer, briefly say whether it is correct; if it is wrong, kindly give the correct answer.`;
+  const is128 = (testVersion === '128');
+  const bank = is128 ? CIVICS_2020 : CIVICS_2008;
+  const askCount = is128 ? 20 : 10;
+  const passCount = is128 ? 12 : 6;
+  const versionName = is128 ? 'official USCIS 2020 civics test (the 128-question version)'
+                            : 'official USCIS 2008 civics test (the 100-question version)';
+
+  let civics;
+  if (bank && bank.length) {
+    // Embed the official question bank as the officer's reference key.
+    const list = bank.map(item => `Q${item.n}. ${item.q}\n   ACCEPTED ANSWER(S): ${item.a}`).join('\n');
+    civics = `3. CIVICS TEST: Tell the applicant you will now begin the civics questions. Ask questions ONLY from the official list below — never invent a question that is not on this list, and never accept an answer that is not among the accepted answers shown. Ask ONE question at a time, up to ${askCount} questions; the applicant must answer ${passCount} correctly to pass. After each answer, briefly say whether it is correct; if it is wrong, kindly give the correct answer from the list, then continue.
+- For any question whose accepted answer says it varies by the applicant's state, FIRST ask which U.S. state they live in, then judge their answer against the correct current answer for that state.
+
+=== OFFICIAL CIVICS QUESTION BANK (${versionName}) — use ONLY these ===
+${list}
+=== END OF OFFICIAL QUESTION BANK ===`;
+  } else {
+    // Bank not yet embedded (fallback).
+    civics = `3. CIVICS TEST: Tell the applicant you will now ask the civics questions. Use the ${versionName}. Ask questions ONLY from those official questions, ONE at a time, up to ${askCount} questions. The applicant must answer ${passCount} correctly to pass. After each answer, briefly say whether it is correct; if it is wrong, kindly give the correct answer. For the current President, Vice President, Speaker of the House, and Chief Justice, the correct answers are: President — Donald Trump; Vice President — JD Vance; party of the President — Republican; Speaker of the House — Mike Johnson; Chief Justice — John Roberts. For questions about the applicant's own state (their Senators, Representative, Governor, or state capital), first ask which state they live in.`;
+  }
 
   return `You are ${officer.name}, a U.S. Citizenship and Immigration Services (USCIS) officer at the ${officer.office}. Your interviewing style is: ${officer.tag}.
 
@@ -86,6 +106,7 @@ CRITICAL RULES:
 - Keep every response SHORT (1 to 3 sentences). Your words are read aloud by text-to-speech, so be concise and natural.
 - Speak in clear, simple English (the real interview is conducted in English).
 - Match your tone to your style (${officer.tag}), but always stay professional and respectful.
+- During the civics test, grade strictly against the official accepted answers — do not accept a wrong answer as correct.
 - Never break character. Never say you are an AI or a language model — you are the officer.
 - Do NOT list multiple questions at once. One question, then wait.`;
 }
