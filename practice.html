@@ -74,6 +74,7 @@
         .status-dot.live { background: #22c55e; animation: pulse 1.5s infinite; }
         .status-dot.listening { background: #f59e0b; animation: pulse 1s infinite; }
         @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .test-badge { margin-top: 0.75rem; color: #cbd5e1; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.02em; }
 
         /* Transcript */
         .transcript {
@@ -156,6 +157,7 @@
             <h2 id="officerName">Officer</h2>
             <p class="office" id="officerOffice">USCIS Field Office</p>
             <span class="status-pill"><span class="status-dot" id="statusDot"></span><span id="statusText">Ready</span></span>
+            <div class="test-badge" id="testBadge"></div>
         </div>
 
         <div class="transcript" id="transcript">
@@ -167,8 +169,8 @@
             <div class="start-row" id="startRow">
                 <p class="test-q">Which civics test are you preparing for?</p>
                 <div class="test-toggle">
-                    <button class="test-opt selected" data-v="100" onclick="selectTest('100')">2008 Test<small>100 questions · 6 of 10 to pass</small></button>
-                    <button class="test-opt" data-v="128" onclick="selectTest('128')">2020 Test<small>128 questions · 12 of 20 to pass</small></button>
+                    <button class="test-opt selected" data-v="100" onclick="selectTest('100')">100 Questions<small>2008 test · 6 of 10 to pass</small></button>
+                    <button class="test-opt" data-v="128" onclick="selectTest('128')">128 Questions<small>2020 test · 12 of 20 to pass</small></button>
                 </div>
                 <br>
                 <button class="btn-start" onclick="startInterview()">Begin Interview →</button>
@@ -178,7 +180,7 @@
             <!-- Voice + text input (shown after start) -->
             <div class="mic-row" id="micRow">
                 <button class="mic-btn" id="micBtn" onclick="toggleListening()">🎤</button>
-                <p class="mic-hint" id="micHint">Tap the mic and answer the officer.</p>
+                <p class="mic-hint" id="micHint">Tap the mic, speak your full answer, then tap again to send.</p>
                 <div class="text-fallback">
                     <input type="text" id="textInput" placeholder="...or type your answer here" onkeydown="if(event.key==='Enter')sendTyped()">
                     <button id="sendBtn" onclick="sendTyped()">Send</button>
@@ -203,6 +205,7 @@
         let recognition = null;
         let listening = false;
         let busy = false;          // waiting for the officer / speaking
+        let finalTranscript = '';  // accumulates speech until the user taps to send
 
         function selectTest(v) {
             testVersion = v;
@@ -300,6 +303,8 @@
         function startInterview() {
             document.getElementById('startRow').style.display = 'none';
             document.getElementById('micRow').style.display = 'flex';
+            document.getElementById('testBadge').textContent =
+                (testVersion === '128') ? 'Civics: 2020 test · 128 questions' : 'Civics: 2008 test · 100 questions';
             setStatus('Connecting...', 'live');
             askOfficer(); // empty history -> officer greets
         }
@@ -320,48 +325,73 @@
             handleApplicant(val);
         }
 
-        // ---------- Speech-to-text ----------
+        // ---------- Speech-to-text (push to talk: tap to start, tap to send) ----------
         function setupRecognition() {
             const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SR) {
                 document.getElementById('micBtn').style.display = 'none';
-                document.getElementById('micHint').textContent = 'Voice input is not supported in this browser — please type your answers.';
+                document.getElementById('micHint').textContent = 'Voice input is not supported in this browser — please type your answers below.';
                 return;
             }
             recognition = new SR();
             recognition.lang = 'en-US';
-            recognition.interimResults = false;
+            recognition.continuous = true;      // keep listening through pauses
+            recognition.interimResults = true;  // show words as they are heard
             recognition.maxAlternatives = 1;
+
             recognition.onresult = (e) => {
-                const text = e.results[0][0].transcript;
-                handleApplicant(text);
+                let interim = '';
+                for (let i = e.resultIndex; i < e.results.length; i++) {
+                    const chunk = e.results[i][0].transcript;
+                    if (e.results[i].isFinal) finalTranscript += chunk + ' ';
+                    else interim += chunk;
+                }
+                const shown = (finalTranscript + interim).trim();
+                document.getElementById('micHint').textContent = shown ? ('Hearing: ' + shown) : 'Listening… tap ⏹ when you finish.';
             };
             recognition.onend = () => {
+                // Fires when the user taps stop (or the browser stops). Send the full answer.
                 listening = false;
-                document.getElementById('micBtn').classList.remove('listening');
+                const btn = document.getElementById('micBtn');
+                btn.classList.remove('listening');
+                btn.textContent = '🎤';
+                const text = finalTranscript.trim();
+                finalTranscript = '';
+                if (text) {
+                    handleApplicant(text);
+                } else {
+                    document.getElementById('micHint').textContent = "I didn't catch that — tap the mic and try again.";
+                }
             };
             recognition.onerror = (e) => {
                 listening = false;
-                document.getElementById('micBtn').classList.remove('listening');
+                const btn = document.getElementById('micBtn');
+                btn.classList.remove('listening');
+                btn.textContent = '🎤';
                 if (e.error === 'not-allowed') {
-                    showError('Microphone access was blocked. Allow it in your browser, or type your answers.');
+                    showError('Microphone access was blocked. Allow it in your browser, or type your answers below.');
                 }
             };
         }
 
         function toggleListening() {
-            if (busy) return;
-            if (!recognition) return;
+            if (busy || !recognition) return;
             if (listening) {
+                // User finished talking -> stop, which triggers onend -> sends the full answer
                 recognition.stop();
+                setStatus('Sending your answer…', 'live');
                 return;
             }
             window.speechSynthesis.cancel();
+            finalTranscript = '';
             try {
                 recognition.start();
                 listening = true;
-                document.getElementById('micBtn').classList.add('listening');
-                setStatus('Listening...', 'listening');
+                const btn = document.getElementById('micBtn');
+                btn.classList.add('listening');
+                btn.textContent = '⏹';
+                setStatus('Listening — tap ⏹ when done', 'listening');
+                document.getElementById('micHint').textContent = 'Listening… tap the button again when you finish speaking.';
             } catch (e) { /* already started */ }
         }
 
