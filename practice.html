@@ -128,6 +128,8 @@
             background: #0f172a; color: white; border: none; padding: 0 1.25rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer;
         }
         .text-fallback button:disabled { background: #cbd5e1; cursor: not-allowed; }
+        .btn-clear { background: #f1f5f9 !important; color: #64748b !important; padding: 0 1rem !important; font-weight: 700; }
+        .btn-clear:hover { background: #e2e8f0 !important; }
 
         .note { color: #94a3b8; font-size: 0.8rem; text-align: center; margin-top: 1rem; }
         .err { color: #dc2626; font-size: 0.85rem; text-align: center; margin-top: 0.75rem; }
@@ -180,9 +182,10 @@
             <!-- Voice + text input (shown after start) -->
             <div class="mic-row" id="micRow">
                 <button class="mic-btn" id="micBtn" onclick="toggleListening()">🎤</button>
-                <p class="mic-hint" id="micHint">Tap the mic, speak your full answer, then tap again to send.</p>
+                <p class="mic-hint" id="micHint">Tap the mic, speak your answer, then tap again to review it before sending.</p>
                 <div class="text-fallback">
                     <input type="text" id="textInput" placeholder="...or type your answer here" onkeydown="if(event.key==='Enter')sendTyped()">
+                    <button id="clearBtn" class="btn-clear" onclick="clearInput()" title="Clear">✕</button>
                     <button id="sendBtn" onclick="sendTyped()">Send</button>
                 </div>
             </div>
@@ -325,6 +328,13 @@
             handleApplicant(val);
         }
 
+        function clearInput() {
+            const input = document.getElementById('textInput');
+            input.value = '';
+            input.focus();
+            document.getElementById('micHint').textContent = 'Cleared. Tap the mic to speak, or type your answer.';
+        }
+
         // ---------- Speech-to-text (push to talk: tap to start, tap to send) ----------
         function setupRecognition() {
             const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -350,7 +360,8 @@
                 document.getElementById('micHint').textContent = shown ? ('Hearing: ' + shown) : 'Listening… tap ⏹ when you finish.';
             };
             recognition.onend = () => {
-                // Fires when the user taps stop (or the browser stops). Send the full answer.
+                // Fires when the user taps stop (or the browser stops).
+                // Put the captured text in the box so the user can REVIEW/EDIT before sending.
                 listening = false;
                 const btn = document.getElementById('micBtn');
                 btn.classList.remove('listening');
@@ -358,9 +369,14 @@
                 const text = finalTranscript.trim();
                 finalTranscript = '';
                 if (text) {
-                    handleApplicant(text);
+                    const input = document.getElementById('textInput');
+                    input.value = text;
+                    input.focus();
+                    document.getElementById('micHint').textContent = 'Review your answer below — edit or clear it if needed, then tap Send.';
+                    setStatus('Review and send', '');
                 } else {
                     document.getElementById('micHint').textContent = "I didn't catch that — tap the mic and try again.";
+                    setStatus('Your turn — tap the mic', '');
                 }
             };
             recognition.onerror = (e) => {
@@ -377,13 +393,14 @@
         function toggleListening() {
             if (busy || !recognition) return;
             if (listening) {
-                // User finished talking -> stop, which triggers onend -> sends the full answer
+                // User finished talking -> stop; onend drops the text into the box for review
                 recognition.stop();
-                setStatus('Sending your answer…', 'live');
+                setStatus('Got it — review below', '');
                 return;
             }
             window.speechSynthesis.cancel();
             finalTranscript = '';
+            document.getElementById('textInput').value = '';
             try {
                 recognition.start();
                 listening = true;
