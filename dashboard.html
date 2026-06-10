@@ -167,7 +167,7 @@
         // To activate a mode later: set active:true and give it an href (or a custom action).
         const MODES = [
             { id:'full',       icon:'🎙️', bg:'#dbeafe', title:'Full Mock Interview', desc:'A complete interview with an AI officer: oath, your application, civics, and the English test. The real thing.', active:true, real:true },
-            { id:'civics',     icon:'📚', bg:'#ede9fe', title:'Civics Practice',     desc:'Quiz yourself on the official civics questions (100 or 128). Choose which ones to study.', active:false },
+            { id:'civics',     icon:'📚', bg:'#ede9fe', title:'Civics Practice',     desc:'Quiz yourself on the official civics questions (100 or 128). Choose which ones to study.', active:true, href:'civics.html' },
             { id:'n400',       icon:'📋', bg:'#dcfce7', title:'N-400 Questions',      desc:'Practice the standard application questions an officer asks during the interview.', active:false },
             { id:'n400upload', icon:'🔐', bg:'#cffafe', title:'Upload Your N-400',    desc:'A personalized interview based on your own application. Private, and deleted when you finish.', active:false },
             { id:'vocab',      icon:'🗂️', bg:'#fef3c7', title:'Vocabulary',          desc:'Study the official USCIS reading and writing word lists.', active:false },
@@ -191,8 +191,10 @@
                 const setup = document.getElementById('interviewSetup');
                 setup.classList.add('show');
                 setup.scrollIntoView({ behavior: 'smooth' });
+                return;
             }
-            // Future modes will navigate to their own pages here.
+            const mode = MODES.find(m => m.id === id);
+            if (mode && mode.href) window.location.href = mode.href;
         }
 
         // ---------- Officers ----------
