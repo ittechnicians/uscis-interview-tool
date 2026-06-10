@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civics Practice - USCIS Interviews.AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: #f8fafc; color: #0f172a; line-height: 1.6; }
+
+        .loading-overlay { position: fixed; inset: 0; background: #f8fafc; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; z-index: 5000; }
+        .loading-overlay.hidden { display: none; }
+        .spinner { width: 44px; height: 44px; border: 4px solid #e2e8f0; border-top-color: #1e40af; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-overlay p { color: #64748b; font-weight: 500; }
+
+        .topbar { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 0.875rem 0; position: sticky; top: 0; z-index: 1000; }
+        .topbar-inner { max-width: 800px; margin: 0 auto; padding: 0 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.2rem; font-weight: 800; color: #0f172a; text-decoration: none; display: flex; align-items: center; gap: 0.4rem; }
+        .top-actions { display: flex; align-items: center; gap: 0.75rem; }
+        .lang-toggle { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 2rem; padding: 0.3rem; display: flex; gap: 0.15rem; }
+        .lang-toggle button { border: none; background: transparent; padding: 0.25rem 0.7rem; border-radius: 2rem; font-weight: 700; font-size: 0.8rem; cursor: pointer; color: #64748b; font-family: inherit; }
+        .lang-toggle button.on { background: #1e40af; color: white; }
+        .btn-back { background: white; color: #475569; border: 1px solid #e2e8f0; padding: 0.45rem 0.9rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem; cursor: pointer; text-decoration: none; }
+        .btn-back:hover { border-color: #cbd5e1; }
+
+        .wrap { max-width: 800px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+        h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.25rem; }
+        .sub { color: #64748b; margin-bottom: 2rem; }
+
+        .field { margin-bottom: 1.75rem; }
+        .field-label { font-weight: 700; color: #334155; margin-bottom: 0.75rem; }
+        .opts { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+        .opt { background: white; color: #475569; border: 2px solid #e2e8f0; padding: 0.7rem 1.1rem; border-radius: 0.6rem; font-weight: 600; font-size: 0.9rem; cursor: pointer; font-family: inherit; transition: all 0.15s; line-height: 1.2; }
+        .opt:hover { border-color: #cbd5e1; }
+        .opt.sel { border-color: #1e40af; background: #eff6ff; color: #1e40af; }
+        .opt small { display: block; font-weight: 500; opacity: 0.7; font-size: 0.72rem; }
+
+        .btn-primary { background: #1e40af; color: white; border: none; padding: 1rem 2rem; border-radius: 0.7rem; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+        .btn-primary:hover { background: #1e3a8a; transform: translateY(-1px); }
+        .btn-ghost { background: white; color: #1e40af; border: 2px solid #1e40af; padding: 0.85rem 1.5rem; border-radius: 0.7rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+        .btn-ghost:hover { background: #eff6ff; }
+
+        .note { color: #94a3b8; font-size: 0.85rem; margin-top: 1.5rem; }
+
+        /* Study card */
+        .progress { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; }
+        .progress-bar { flex: 1; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #1e40af; transition: width 0.3s; }
+        .progress-text { font-size: 0.85rem; color: #64748b; font-weight: 600; white-space: nowrap; }
+
+        .card { background: white; border: 1px solid #e2e8f0; border-radius: 1.25rem; padding: 2.5rem 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.04); }
+        .q-num { font-size: 0.8rem; font-weight: 700; color: #1e40af; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+        .q-text { font-size: 1.5rem; font-weight: 700; line-height: 1.35; margin-bottom: 1.5rem; }
+        .answer { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1.5rem; display: none; }
+        .answer.show { display: block; }
+        .answer .lbl { font-size: 0.75rem; font-weight: 700; color: #16a34a; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.4rem; }
+        .answer .txt { font-size: 1.1rem; color: #166534; font-weight: 600; }
+        .card-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+        .card-actions button { flex: 1; min-width: 130px; }
+        .btn-known { background: #16a34a; color: white; border: none; padding: 0.9rem; border-radius: 0.6rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+        .btn-known:hover { background: #15803d; }
+        .btn-miss { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; padding: 0.9rem; border-radius: 0.6rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+        .btn-miss:hover { background: #ffedd5; }
+
+        /* Results */
+        .result-card { background: white; border: 1px solid #e2e8f0; border-radius: 1.25rem; padding: 2.5rem 2rem; text-align: center; }
+        .result-emoji { font-size: 3rem; margin-bottom: 0.5rem; }
+        .result-score { font-size: 2.5rem; font-weight: 800; color: #1e40af; margin: 0.5rem 0; }
+        .result-actions { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.75rem; }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p id="loadingText">Loading…</p>
+    </div>
+
+    <div class="topbar">
+        <div class="topbar-inner">
+            <a href="dashboard.html" class="logo"><span>🇺🇸</span> USCIS Interviews<span style="color:#dc2626;">.AI</span></a>
+            <div class="top-actions">
+                <div class="lang-toggle">
+                    <button id="langEn" onclick="setLang('en')">EN</button>
+                    <button id="langEs" onclick="setLang('es')">ES</button>
+                </div>
+                <a href="dashboard.html" class="btn-back" id="backBtn">← Hub</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="wrap" id="app"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // ---------- Supabase (auth guard) ----------
+        const SUPABASE_URL = 'https://vugvnqapdxyewxyfaayl.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_vFFY4GL2f8PIGrArW05ncg_PVkcgV4M';
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ---------- Translations (UI only — the questions stay in English) ----------
+        const T = {
+            en: {
+                back: '← Hub',
+                title: 'Civics Practice',
+                sub: 'Study the official USCIS civics questions at your own pace.',
+                whichTest: 'Which test are you studying for?',
+                t100: '100 Questions', t100s: '2008 test',
+                t128: '128 Questions', t128s: '2020 test',
+                topic: 'Topic', allTopics: 'All topics',
+                howMany: 'How many questions?', all: 'All',
+                start: 'Start studying →',
+                loading: 'Loading questions…',
+                noteEng: 'Questions and answers are shown in English, just like the real test.',
+                show: 'Show answer',
+                official: 'Official accepted answer(s)',
+                known: 'I knew it', miss: 'Need to review',
+                qof: (i, n) => `Question ${i} of ${n}`,
+                done: 'Session complete!',
+                score: (k, n) => `You knew ${k} of ${n}`,
+                again: 'Practice again',
+                redoMissed: 'Review the ones I missed',
+                toHub: 'Back to hub',
+                catGov: 'American Government', catHist: 'American History', catCivics: 'Integrated Civics'
+            },
+            es: {
+                back: '← Inicio',
+                title: 'Práctica de Civismo',
+                sub: 'Estudia las preguntas oficiales de civismo de USCIS a tu ritmo.',
+                whichTest: '¿Para cuál examen estás estudiando?',
+                t100: '100 Preguntas', t100s: 'examen 2008',
+                t128: '128 Preguntas', t128s: 'examen 2020',
+                topic: 'Tema', allTopics: 'Todos los temas',
+                howMany: '¿Cuántas preguntas?', all: 'Todas',
+                start: 'Empezar a estudiar →',
+                loading: 'Cargando preguntas…',
+                noteEng: 'Las preguntas y respuestas se muestran en inglés, igual que en el examen real.',
+                show: 'Ver respuesta',
+                official: 'Respuesta(s) oficial(es) aceptada(s)',
+                known: 'La sabía', miss: 'Repasar',
+                qof: (i, n) => `Pregunta ${i} de ${n}`,
+                done: '¡Sesión completa!',
+                score: (k, n) => `Supiste ${k} de ${n}`,
+                again: 'Practicar de nuevo',
+                redoMissed: 'Repasar las que fallé',
+                toHub: 'Volver al inicio',
+                catGov: 'Gobierno de EE. UU.', catHist: 'Historia de EE. UU.', catCivics: 'Civismo Integrado'
+            }
+        };
+
+        let lang = localStorage.getItem('lang') || 'en';
+        function t(k) { return T[lang][k]; }
+
+        // ---------- State ----------
+        const state = {
+            screen: 'setup',
+            test: '100',
+            category: 'all',
+            count: 10,
+            allQuestions: { '100': null, '128': null }, // cached banks
+            working: [],
+            index: 0,
+            known: 0,
+            missed: [],
+            revealed: false
+        };
+
+        function categoriesFor(test) {
+            const is128 = (test === '128');
+            return [
+                { key: 'gov',    label: t('catGov'),    min: 1,                 max: is128 ? 72 : 57 },
+                { key: 'hist',   label: t('catHist'),   min: is128 ? 73 : 58,   max: is128 ? 116 : 87 },
+                { key: 'civics', label: t('catCivics'), min: is128 ? 117 : 88,  max: is128 ? 128 : 100 }
+            ];
+        }
+
+        // ---------- Language ----------
+        function setLang(l) {
+            lang = l;
+            localStorage.setItem('lang', l);
+            document.getElementById('langEn').classList.toggle('on', l === 'en');
+            document.getElementById('langEs').classList.toggle('on', l === 'es');
+            document.getElementById('backBtn').textContent = t('back');
+            document.documentElement.lang = l;
+            render();
+        }
+
+        // ---------- Data ----------
+        async function loadBank(test) {
+            if (state.allQuestions[test]) return state.allQuestions[test];
+            const res = await fetch('/api/questions?v=' + test);
+            const data = await res.json();
+            state.allQuestions[test] = data.questions;
+            return data.questions;
+        }
+
+        function shuffle(arr) {
+            const a = arr.slice();
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        // ---------- Render ----------
+        const app = document.getElementById('app');
+
+        function render() {
+            if (state.screen === 'setup') renderSetup();
+            else if (state.screen === 'study') renderStudy();
+            else if (state.screen === 'results') renderResults();
+        }
+
+        function renderSetup() {
+            const cats = categoriesFor(state.test);
+            const catBtns = [{ key: 'all', label: t('allTopics') }, ...cats]
+                .map(c => `<button class="opt ${state.category === c.key ? 'sel' : ''}" onclick="pick('category','${c.key}')">${c.label}</button>`).join('');
+            const counts = [10, 20, 'all'];
+            const countBtns = counts.map(c => {
+                const label = (c === 'all') ? t('all') : c;
+                const val = (c === 'all') ? 'all' : c;
+                return `<button class="opt ${String(state.count) === String(val) ? 'sel' : ''}" onclick="pick('count','${val}')">${label}</button>`;
+            }).join('');
+
+            app.innerHTML = `
+                <h1>${t('title')}</h1>
+                <p class="sub">${t('sub')}</p>
+
+                <div class="field">
+                    <div class="field-label">${t('whichTest')}</div>
+                    <div class="opts">
+                        <button class="opt ${state.test === '100' ? 'sel' : ''}" onclick="pick('test','100')">${t('t100')}<small>${t('t100s')}</small></button>
+                        <button class="opt ${state.test === '128' ? 'sel' : ''}" onclick="pick('test','128')">${t('t128')}<small>${t('t128s')}</small></button>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <div class="field-label">${t('topic')}</div>
+                    <div class="opts">${catBtns}</div>
+                </div>
+
+                <div class="field">
+                    <div class="field-label">${t('howMany')}</div>
+                    <div class="opts">${countBtns}</div>
+                </div>
+
+                <button class="btn-primary" onclick="startStudy()">${t('start')}</button>
+                <p class="note">${t('noteEng')}</p>
+            `;
+        }
+
+        function pick(field, value) {
+            if (field === 'count') state.count = (value === 'all') ? 'all' : parseInt(value, 10);
+            else state[field] = value;
+            if (field === 'test') state.category = 'all'; // categories differ per test
+            renderSetup();
+        }
+
+        async function startStudy() {
+            document.getElementById('loadingText').textContent = t('loading');
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+            const bank = await loadBank(state.test);
+            document.getElementById('loadingOverlay').classList.add('hidden');
+
+            let pool = bank;
+            if (state.category !== 'all') {
+                const cat = categoriesFor(state.test).find(c => c.key === state.category);
+                pool = bank.filter(q => q.n >= cat.min && q.n <= cat.max);
+            }
+            pool = shuffle(pool);
+            if (state.count !== 'all') pool = pool.slice(0, state.count);
+
+            state.working = pool;
+            state.index = 0;
+            state.known = 0;
+            state.missed = [];
+            state.revealed = false;
+            state.screen = 'study';
+            render();
+        }
+
+        function renderStudy() {
+            const q = state.working[state.index];
+            const total = state.working.length;
+            const pct = Math.round((state.index / total) * 100);
+            app.innerHTML = `
+                <div class="progress">
+                    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+                    <div class="progress-text">${t('qof')(state.index + 1, total)}</div>
+                </div>
+                <div class="card">
+                    <div class="q-num">Q${q.n}</div>
+                    <div class="q-text">${escapeHtml(q.q)}</div>
+                    <div class="answer ${state.revealed ? 'show' : ''}" id="answerBox">
+                        <div class="lbl">${t('official')}</div>
+                        <div class="txt">${escapeHtml(q.a)}</div>
+                    </div>
+                    ${state.revealed
+                        ? `<div class="card-actions">
+                               <button class="btn-miss" onclick="mark(false)">${t('miss')}</button>
+                               <button class="btn-known" onclick="mark(true)">${t('known')}</button>
+                           </div>`
+                        : `<button class="btn-primary" style="width:100%;" onclick="reveal()">${t('show')}</button>`
+                    }
+                </div>
+            `;
+        }
+
+        function reveal() { state.revealed = true; renderStudy(); }
+
+        function mark(knewIt) {
+            if (knewIt) state.known++;
+            else state.missed.push(state.working[state.index]);
+            state.index++;
+            state.revealed = false;
+            if (state.index >= state.working.length) { state.screen = 'results'; render(); }
+            else renderStudy();
+        }
+
+        function renderResults() {
+            const total = state.working.length;
+            const k = state.known;
+            const good = (k / total) >= 0.6;
+            app.innerHTML = `
+                <div class="result-card">
+                    <div class="result-emoji">${good ? '🎉' : '💪'}</div>
+                    <h1>${t('done')}</h1>
+                    <div class="result-score">${t('score')(k, total)}</div>
+                    <div class="result-actions">
+                        ${state.missed.length ? `<button class="btn-primary" onclick="redoMissed()">${t('redoMissed')} (${state.missed.length})</button>` : ''}
+                        <button class="btn-ghost" onclick="state.screen='setup'; render();">${t('again')}</button>
+                        <a href="dashboard.html" class="btn-ghost" style="text-decoration:none; text-align:center;">${t('toHub')}</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        function redoMissed() {
+            state.working = shuffle(state.missed);
+            state.index = 0; state.known = 0; state.missed = []; state.revealed = false;
+            state.screen = 'study'; render();
+        }
+
+        function escapeHtml(s) { return String(s).replace(/</g, '&lt;'); }
+
+        // ---------- Init ----------
+        async function init() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) { window.location.href = 'index.html'; return; }
+            setLang(lang); // sets toggles + back button + renders
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+        init();
+    </script>
+</body>
+</html>
