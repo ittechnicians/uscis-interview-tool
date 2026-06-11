@@ -8,8 +8,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', -apple-system, sans-serif; background: #f8fafc; color: #0f172a; line-height: 1.6; }
-
-        .loading-overlay { position: fixed; inset: 0; background: #f8fafc; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; z-index: 5000; }
+        .loading-overlay { position: fixed; inset: 0; background: #f8fafc; display: flex; align-items: center; justify-content: center; z-index: 5000; }
         .loading-overlay.hidden { display: none; }
         .spinner { width: 44px; height: 44px; border: 4px solid #e2e8f0; border-top-color: #1e40af; border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -22,22 +21,50 @@
         .lang-toggle button { border: none; background: transparent; padding: 0.25rem 0.7rem; border-radius: 2rem; font-weight: 700; font-size: 0.8rem; cursor: pointer; color: #64748b; font-family: inherit; }
         .lang-toggle button.on { background: #1e40af; color: white; }
         .btn-back { background: white; color: #475569; border: 1px solid #e2e8f0; padding: 0.45rem 0.9rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem; cursor: pointer; text-decoration: none; }
-        .btn-back:hover { border-color: #cbd5e1; }
 
         .wrap { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
         h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.25rem; }
         .sub { color: #64748b; margin-bottom: 1.5rem; }
 
-        .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.75rem; }
-        .tab { background: white; color: #475569; border: 2px solid #e2e8f0; padding: 0.7rem 1.4rem; border-radius: 0.6rem; font-weight: 700; font-size: 0.95rem; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+        .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.75rem; flex-wrap: wrap; }
+        .tab { background: white; color: #475569; border: 2px solid #e2e8f0; padding: 0.7rem 1.2rem; border-radius: 0.6rem; font-weight: 700; font-size: 0.9rem; cursor: pointer; font-family: inherit; transition: all 0.15s; }
         .tab.on { border-color: #1e40af; background: #eff6ff; color: #1e40af; }
 
         .cat { background: white; border: 1px solid #e2e8f0; border-radius: 1rem; padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
         .cat h3 { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #1e40af; margin-bottom: 0.85rem; }
         .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
         .chip { background: #f1f5f9; color: #334155; padding: 0.4rem 0.85rem; border-radius: 0.5rem; font-size: 0.95rem; font-weight: 600; }
-
         .note { color: #94a3b8; font-size: 0.85rem; margin-top: 1.25rem; }
+
+        /* Quiz */
+        .intro-card { background: white; border: 1px solid #e2e8f0; border-radius: 1.25rem; padding: 2rem; }
+        .intro-card p { color: #475569; margin-bottom: 1.25rem; }
+        .btn-primary { background: #1e40af; color: white; border: none; padding: 1rem 2rem; border-radius: 0.7rem; font-size: 1.05rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+        .btn-primary:hover { background: #1e3a8a; transform: translateY(-1px); }
+        .btn-ghost { background: white; color: #1e40af; border: 2px solid #1e40af; padding: 0.85rem 1.5rem; border-radius: 0.7rem; font-weight: 700; cursor: pointer; font-family: inherit; text-decoration: none; display: inline-block; text-align: center; }
+
+        .progress { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; }
+        .btn-exit { background: white; color: #64748b; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 0.4rem 0.8rem; font-weight: 600; font-size: 0.8rem; cursor: pointer; font-family: inherit; white-space: nowrap; }
+        .btn-exit:hover { border-color: #dc2626; color: #dc2626; }
+        .progress-bar { flex: 1; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #1e40af; transition: width 0.3s; }
+        .progress-text { font-size: 0.85rem; color: #64748b; font-weight: 600; white-space: nowrap; }
+
+        .quiz-card { background: white; border: 1px solid #e2e8f0; border-radius: 1.25rem; padding: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.04); }
+        .quiz-q { font-size: 1.5rem; font-weight: 800; margin-bottom: 1.5rem; }
+        .quiz-q .term { color: #1e40af; }
+        .options { display: flex; flex-direction: column; gap: 0.75rem; }
+        .opt-btn { text-align: left; background: white; border: 2px solid #e2e8f0; border-radius: 0.7rem; padding: 1rem 1.25rem; font-size: 1rem; font-family: inherit; cursor: pointer; color: #334155; transition: all 0.15s; }
+        .opt-btn:hover:not(:disabled) { border-color: #1e40af; }
+        .opt-btn:disabled { cursor: default; }
+        .opt-btn.correct { border-color: #16a34a; background: #f0fdf4; color: #166534; font-weight: 600; }
+        .opt-btn.wrong { border-color: #dc2626; background: #fef2f2; color: #b91c1c; }
+        .next-row { margin-top: 1.25rem; }
+
+        .result-card { background: white; border: 1px solid #e2e8f0; border-radius: 1.25rem; padding: 2.5rem 2rem; text-align: center; }
+        .result-emoji { font-size: 3rem; }
+        .result-score { font-size: 2.5rem; font-weight: 800; color: #1e40af; margin: 0.5rem 0; }
+        .result-actions { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.5rem; }
     </style>
 </head>
 <body>
@@ -51,7 +78,7 @@
                     <button id="langEn" onclick="setLang('en')">EN</button>
                     <button id="langEs" onclick="setLang('es')">ES</button>
                 </div>
-                <a href="dashboard.html" class="btn-back" id="backBtn">← Hub</a>
+                <a href="dashboard.html" class="btn-back" id="backBtn">&larr; Hub</a>
             </div>
         </div>
     </div>
@@ -67,30 +94,46 @@
 
         const T = {
             en: {
-                back: '← Hub', title: 'Vocabulary',
-                sub: "The official USCIS word lists for the English reading and writing test.",
-                reading: 'Reading list', writing: 'Writing list',
+                back: '\u2190 Hub', exit: '\u2715 Exit', title: 'Vocabulary',
+                sub: 'Official USCIS word lists plus the key N-400 interview vocabulary.',
+                reading: 'Reading list', writing: 'Writing list', n400: 'N-400 Vocabulary',
                 note: 'These are the official USCIS vocabulary lists. The words are in English, as on the real test.',
-                cats: { people:'People', civics:'Civics', places:'Places', holidays:'Holidays', questions:'Question words', verbs:'Verbs', months:'Months', other:'Other (function & content words)' }
+                cats: { people:'People', civics:'Civics', places:'Places', holidays:'Holidays', questions:'Question words', verbs:'Verbs', months:'Months', other:'Other (function & content words)' },
+                introTitle: 'N-400 Vocabulary Quiz',
+                introText: 'During the interview, the officer may ask you to explain what a word from your N-400 means. Practice the most important terms with this quiz.',
+                startQuiz: 'Start quiz \u2192',
+                whatMeans: (term) => 'What does <span class="term">' + term + '</span> mean?',
+                next: 'Next \u2192', finish: 'See results \u2192',
+                qof: (i,n) => 'Question ' + i + ' of ' + n,
+                done: 'Quiz complete!', score: (k,n) => 'You got ' + k + ' of ' + n + ' correct',
+                again: 'Try again', lists: 'Back to word lists'
             },
             es: {
-                back: '← Inicio', title: 'Vocabulario',
-                sub: 'Las listas oficiales de palabras de USCIS para la prueba de lectura y escritura en inglés.',
-                reading: 'Lista de lectura', writing: 'Lista de escritura',
-                note: 'Estas son las listas de vocabulario oficiales de USCIS. Las palabras están en inglés, como en el examen real.',
-                cats: { people:'Personas', civics:'Civismo', places:'Lugares', holidays:'Días feriados', questions:'Palabras de pregunta', verbs:'Verbos', months:'Meses', other:'Otras (palabras funcionales y de contenido)' }
+                back: '\u2190 Inicio', exit: '\u2715 Salir', title: 'Vocabulario',
+                sub: 'Listas oficiales de USCIS m\u00e1s el vocabulario clave de la entrevista del N-400.',
+                reading: 'Lista de lectura', writing: 'Lista de escritura', n400: 'Vocabulario del N-400',
+                note: 'Estas son las listas de vocabulario oficiales de USCIS. Las palabras est\u00e1n en ingl\u00e9s, como en el examen real.',
+                cats: { people:'Personas', civics:'Civismo', places:'Lugares', holidays:'D\u00edas feriados', questions:'Palabras de pregunta', verbs:'Verbos', months:'Meses', other:'Otras (palabras funcionales y de contenido)' },
+                introTitle: 'Trivia de Vocabulario del N-400',
+                introText: 'En la entrevista, el oficial puede pedirte que expliques qu\u00e9 significa una palabra de tu N-400. Practica los t\u00e9rminos m\u00e1s importantes con esta trivia.',
+                startQuiz: 'Empezar trivia \u2192',
+                whatMeans: (term) => '\u00bfQu\u00e9 significa <span class="term">' + term + '</span>?',
+                next: 'Siguiente \u2192', finish: 'Ver resultados \u2192',
+                qof: (i,n) => 'Pregunta ' + i + ' de ' + n,
+                done: '\u00a1Trivia completa!', score: (k,n) => 'Acertaste ' + k + ' de ' + n,
+                again: 'Intentar de nuevo', lists: 'Volver a las listas'
             }
         };
         let lang = localStorage.getItem('lang') || 'en';
         function t(k) { return T[lang][k]; }
 
-        // ---------- Official USCIS vocabulary (public domain) ----------
+        // ---------- Official USCIS reading/writing vocabulary (public domain) ----------
         const VOCAB = {
             reading: [
                 { cat:'people',   words:['Abraham Lincoln','George Washington'] },
                 { cat:'civics',   words:['American flag','Bill of Rights','capital','citizen','city','Congress','country','Father of Our Country','government','President','right','Senators','state / states','White House'] },
                 { cat:'places',   words:['America','United States','U.S.'] },
-                { cat:'holidays', words:["Presidents' Day",'Memorial Day','Flag Day','Independence Day','Labor Day','Columbus Day','Thanksgiving'] },
+                { cat:'holidays', words:['Presidents Day','Memorial Day','Flag Day','Independence Day','Labor Day','Columbus Day','Thanksgiving'] },
                 { cat:'questions',words:['How','What','When','Where','Who','Why'] },
                 { cat:'verbs',    words:['can','come','do / does','elects','have / has','is / are / was / be','lives / lived','meet','name','pay','vote','want'] },
                 { cat:'other',    words:['a','for','here','in','of','on','the','to','we','colors','dollar bill','first','largest','many','most','north','one','people','second','south'] }
@@ -100,13 +143,52 @@
                 { cat:'civics',   words:['American Indians','capital','citizens','Civil War','Congress','Father of Our Country','flag','free','freedom of speech','President','right','Senators','state / states','White House'] },
                 { cat:'places',   words:['Alaska','California','Canada','Delaware','Mexico','New York City','United States','Washington','Washington, D.C.'] },
                 { cat:'months',   words:['February','May','June','July','September','October','November'] },
-                { cat:'holidays', words:["Presidents' Day",'Memorial Day','Flag Day','Independence Day','Labor Day','Columbus Day','Thanksgiving'] },
+                { cat:'holidays', words:['Presidents Day','Memorial Day','Flag Day','Independence Day','Labor Day','Columbus Day','Thanksgiving'] },
                 { cat:'verbs',    words:['can','come','elect','have / has','is / was / be','lives / lived','meets','pay','vote','want'] },
                 { cat:'other',    words:['and','during','for','here','in','of','on','the','to','we','blue','dollar bill','fifty / 50','first','largest','most','north','one','one hundred / 100','people','red','second','south','taxes','white'] }
             ]
         };
 
-        let activeList = 'reading';
+        // ---------- Key N-400 interview vocabulary (simple definitions, EN/ES) ----------
+        const VOCAB_N400 = [
+            { term:'naturalization', en:'the process of becoming a U.S. citizen if you were born in another country', es:'el proceso de convertirse en ciudadano de EE. UU. si naciste en otro pa\u00eds' },
+            { term:'permanent resident', en:'a person allowed to live and work in the U.S. permanently (a green card holder)', es:'una persona autorizada a vivir y trabajar permanentemente en EE. UU. (tiene green card)' },
+            { term:'applicant', en:'the person who is applying for a benefit (you)', es:'la persona que solicita un beneficio (t\u00fa)' },
+            { term:'eligibility', en:'meeting the requirements to qualify for something', es:'cumplir los requisitos para calificar para algo' },
+            { term:'Oath of Allegiance', en:'the official promise of loyalty you make to the United States to become a citizen', es:'la promesa oficial de lealtad que haces a Estados Unidos para hacerte ciudadano' },
+            { term:'allegiance', en:'loyalty and support given to a country', es:'lealtad y apoyo que se da a un pa\u00eds' },
+            { term:'good moral character', en:'behaving honestly and obeying the law; required to become a citizen', es:'comportarse con honestidad y respetar la ley; es requisito para ser ciudadano' },
+            { term:'persecution', en:'being harmed or treated very badly because of your race, religion, nationality, political opinion, or group', es:'ser da\u00f1ado o maltratado por tu raza, religi\u00f3n, nacionalidad, opini\u00f3n pol\u00edtica o grupo' },
+            { term:'totalitarian party', en:'a government or party that has total control and does not allow other parties or freedoms', es:'un gobierno o partido con control total que no permite otros partidos ni libertades' },
+            { term:'Communist party', en:'a party or government where the state controls property and there is no private ownership', es:'un partido o gobierno donde el estado controla la propiedad y no hay propiedad privada' },
+            { term:'terrorist', en:'a person who uses violence and fear against people for political reasons', es:'una persona que usa violencia y miedo contra la gente por razones pol\u00edticas' },
+            { term:'genocide', en:'the deliberate killing of a large group of people because of their race, religion, or nationality', es:'el asesinato deliberado de un gran grupo de personas por su raza, religi\u00f3n o nacionalidad' },
+            { term:'torture', en:'causing someone severe pain on purpose to punish them or get information', es:'causar dolor severo a alguien a prop\u00f3sito para castigarlo u obtener informaci\u00f3n' },
+            { term:'arrested', en:'taken by the police because you are suspected of a crime', es:'detenido por la polic\u00eda porque te sospechan de un delito' },
+            { term:'cited', en:'officially given a ticket or notice by an officer for breaking a law (like a traffic ticket)', es:'recibir oficialmente una multa o citaci\u00f3n de un oficial por infringir una ley (como una multa de tr\u00e1fico)' },
+            { term:'detained', en:'held or kept by authorities, not free to leave', es:'retenido por las autoridades, sin poder irte' },
+            { term:'convicted', en:'found guilty of a crime by a court', es:'declarado culpable de un delito por un tribunal' },
+            { term:'crime', en:'an act that breaks the law', es:'un acto que viola la ley' },
+            { term:'probation', en:'a period when a person convicted of a crime is supervised instead of, or after, being in jail', es:'un periodo en que una persona condenada es supervisada en lugar de, o despu\u00e9s de, estar en la c\u00e1rcel' },
+            { term:'parole', en:'early release from prison under supervision, before the sentence ends', es:'liberaci\u00f3n anticipada de prisi\u00f3n bajo supervisi\u00f3n, antes de terminar la condena' },
+            { term:'deport / removal', en:'to be officially ordered to leave the United States', es:'recibir la orden oficial de salir de Estados Unidos' },
+            { term:'asylum', en:'protection given by a country to someone who fled persecution', es:'protecci\u00f3n que un pa\u00eds da a alguien que huy\u00f3 de la persecuci\u00f3n' },
+            { term:'refugee', en:'a person who flees their country to escape war or persecution', es:'una persona que huye de su pa\u00eds para escapar de la guerra o la persecuci\u00f3n' },
+            { term:'affiliated', en:'connected to, or a member of, a group or organization', es:'conectado a, o miembro de, un grupo u organizaci\u00f3n' },
+            { term:'bear arms', en:'to carry or use a weapon, such as a gun', es:'portar o usar un arma, como una pistola' },
+            { term:'Selective Service', en:'a system requiring most men ages 18 to 25 to register in case the military needs them', es:'un sistema que exige que la mayor\u00eda de los hombres de 18 a 25 a\u00f1os se registren por si el ej\u00e9rcito los necesita' },
+            { term:'spouse', en:'your husband or wife', es:'tu esposo o esposa' },
+            { term:'continuous residence', en:'living in the U.S. without long trips away during the required period', es:'vivir en EE. UU. sin viajes largos durante el periodo requerido' },
+            { term:'taxes', en:'money you must pay to the government from your income', es:'dinero que debes pagar al gobierno de tus ingresos' },
+            { term:'smuggling', en:'secretly and illegally bringing people or goods into a country', es:'introducir personas o bienes a un pa\u00eds en secreto e ilegalmente' },
+            { term:'habitual drunkard', en:'a person who is regularly or frequently drunk', es:'una persona que se emborracha habitual o frecuentemente' },
+            { term:'misrepresentation', en:'giving false information or lying to get a benefit', es:'dar informaci\u00f3n falsa o mentir para obtener un beneficio' }
+        ];
+
+        const state = {
+            view: 'reading',
+            quiz: { phase: 'intro', questions: [], index: 0, score: 0, answered: false, chosen: null }
+        };
         const app = document.getElementById('app');
 
         function setLang(l) {
@@ -118,25 +200,106 @@
             render();
         }
 
-        function showList(which) { activeList = which; render(); }
+        function showView(v) {
+            state.view = v;
+            if (v === 'n400') state.quiz.phase = 'intro';
+            render();
+        }
+
+        function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+        function escapeHtml(s) { return String(s).replace(/</g, '&lt;'); }
+
+        function tabsHtml() {
+            return '<div class="tabs">' +
+                '<button class="tab ' + (state.view === 'reading' ? 'on' : '') + '" onclick="showView(\'reading\')">' + t('reading') + '</button>' +
+                '<button class="tab ' + (state.view === 'writing' ? 'on' : '') + '" onclick="showView(\'writing\')">' + t('writing') + '</button>' +
+                '<button class="tab ' + (state.view === 'n400' ? 'on' : '') + '" onclick="showView(\'n400\')">' + t('n400') + '</button>' +
+                '</div>';
+        }
 
         function render() {
-            const cats = VOCAB[activeList].map(group => `
-                <div class="cat">
-                    <h3>${t('cats')[group.cat]}</h3>
-                    <div class="chips">${group.words.map(w => `<span class="chip">${w}</span>`).join('')}</div>
-                </div>
-            `).join('');
-            app.innerHTML = `
-                <h1>${t('title')}</h1>
-                <p class="sub">${t('sub')}</p>
-                <div class="tabs">
-                    <button class="tab ${activeList === 'reading' ? 'on' : ''}" onclick="showList('reading')">${t('reading')}</button>
-                    <button class="tab ${activeList === 'writing' ? 'on' : ''}" onclick="showList('writing')">${t('writing')}</button>
-                </div>
-                ${cats}
-                <p class="note">${t('note')}</p>
-            `;
+            if (state.view === 'n400') return renderN400();
+            const cats = VOCAB[state.view].map(function(group) {
+                return '<div class="cat"><h3>' + t('cats')[group.cat] + '</h3><div class="chips">' +
+                    group.words.map(function(w) { return '<span class="chip">' + w + '</span>'; }).join('') +
+                    '</div></div>';
+            }).join('');
+            app.innerHTML = '<h1>' + t('title') + '</h1><p class="sub">' + t('sub') + '</p>' +
+                tabsHtml() + cats + '<p class="note">' + t('note') + '</p>';
+        }
+
+        function renderN400() {
+            const q = state.quiz;
+            if (q.phase === 'intro') {
+                app.innerHTML = '<h1>' + t('title') + '</h1><p class="sub">' + t('sub') + '</p>' + tabsHtml() +
+                    '<div class="intro-card"><h2 style="margin-bottom:0.75rem;">' + t('introTitle') + '</h2>' +
+                    '<p>' + t('introText') + '</p>' +
+                    '<button class="btn-primary" onclick="startQuiz()">' + t('startQuiz') + '</button></div>';
+                return;
+            }
+            if (q.phase === 'results') {
+                const good = (q.score / q.questions.length) >= 0.6;
+                app.innerHTML = '<h1>' + t('title') + '</h1>' + tabsHtml() +
+                    '<div class="result-card"><div class="result-emoji">' + (good ? '\ud83c\udf89' : '\ud83d\udcaa') + '</div>' +
+                    '<h2>' + t('done') + '</h2><div class="result-score">' + t('score')(q.score, q.questions.length) + '</div>' +
+                    '<div class="result-actions">' +
+                    '<button class="btn-primary" onclick="startQuiz()">' + t('again') + '</button>' +
+                    '<button class="btn-ghost" onclick="showView(\'reading\')">' + t('lists') + '</button>' +
+                    '</div></div>';
+                return;
+            }
+            // phase === 'quiz'
+            const item = q.questions[q.index];
+            const total = q.questions.length;
+            const pct = Math.round((q.index / total) * 100);
+            const opts = item.opts.map(function(o) {
+                let cls = 'opt-btn';
+                if (q.answered) {
+                    if (o === item.correctObj) cls += ' correct';
+                    else if (o === q.chosen) cls += ' wrong';
+                }
+                return '<button class="' + cls + '" ' + (q.answered ? 'disabled' : '') +
+                    ' onclick="answer(' + item.opts.indexOf(o) + ')">' + escapeHtml(o[lang]) + '</button>';
+            }).join('');
+            app.innerHTML =
+                '<div class="progress">' +
+                    '<button class="btn-exit" onclick="state.quiz.phase=\'intro\';render();">' + t('exit') + '</button>' +
+                    '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
+                    '<div class="progress-text">' + t('qof')(q.index + 1, total) + '</div>' +
+                '</div>' +
+                '<div class="quiz-card"><div class="quiz-q">' + t('whatMeans')(escapeHtml(item.correctObj.term)) + '</div>' +
+                '<div class="options">' + opts + '</div>' +
+                (q.answered ? '<div class="next-row"><button class="btn-primary" onclick="nextQ()">' + (q.index + 1 >= total ? t('finish') : t('next')) + '</button></div>' : '') +
+                '</div>';
+        }
+
+        function startQuiz() {
+            const pool = shuffle(VOCAB_N400);
+            state.quiz.questions = pool.map(function(item) {
+                const others = shuffle(VOCAB_N400.filter(function(x) { return x.term !== item.term; })).slice(0, 3);
+                const opts = shuffle([item].concat(others));
+                return { correctObj: item, opts: opts };
+            });
+            state.quiz.index = 0; state.quiz.score = 0; state.quiz.answered = false; state.quiz.chosen = null;
+            state.quiz.phase = 'quiz';
+            render();
+        }
+
+        function answer(optIndex) {
+            const q = state.quiz;
+            if (q.answered) return;
+            const item = q.questions[q.index];
+            q.chosen = item.opts[optIndex];
+            q.answered = true;
+            if (q.chosen === item.correctObj) q.score++;
+            render();
+        }
+
+        function nextQ() {
+            const q = state.quiz;
+            q.index++; q.answered = false; q.chosen = null;
+            if (q.index >= q.questions.length) q.phase = 'results';
+            render();
         }
 
         async function init() {
