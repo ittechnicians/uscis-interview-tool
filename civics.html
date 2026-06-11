@@ -46,6 +46,8 @@
 
         /* Study card */
         .progress { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; }
+        .btn-exit { background: white; color: #64748b; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 0.4rem 0.8rem; font-weight: 600; font-size: 0.8rem; cursor: pointer; font-family: inherit; white-space: nowrap; }
+        .btn-exit:hover { border-color: #dc2626; color: #dc2626; }
         .progress-bar { flex: 1; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
         .progress-fill { height: 100%; background: #1e40af; transition: width 0.3s; }
         .progress-text { font-size: 0.85rem; color: #64748b; font-weight: 600; white-space: nowrap; }
@@ -104,6 +106,7 @@
         const T = {
             en: {
                 back: '← Hub',
+                exit: '✕ Exit',
                 title: 'Civics Practice',
                 sub: 'Study the official USCIS civics questions at your own pace.',
                 whichTest: 'Which test are you studying for?',
@@ -127,6 +130,7 @@
             },
             es: {
                 back: '← Inicio',
+                exit: '✕ Salir',
                 title: 'Práctica de Civismo',
                 sub: 'Estudia las preguntas oficiales de civismo de USCIS a tu ritmo.',
                 whichTest: '¿Para cuál examen estás estudiando?',
@@ -288,6 +292,7 @@
             const pct = Math.round((state.index / total) * 100);
             app.innerHTML = `
                 <div class="progress">
+                    <button class="btn-exit" onclick="exitStudy()">${t('exit')}</button>
                     <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
                     <div class="progress-text">${t('qof')(state.index + 1, total)}</div>
                 </div>
@@ -310,6 +315,8 @@
         }
 
         function reveal() { state.revealed = true; renderStudy(); }
+
+        function exitStudy() { state.screen = 'setup'; state.revealed = false; render(); }
 
         function mark(knewIt) {
             if (knewIt) state.known++;
