@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocabulary - USCIS Interviews.AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: #f8fafc; color: #0f172a; line-height: 1.6; }
+
+        .loading-overlay { position: fixed; inset: 0; background: #f8fafc; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; z-index: 5000; }
+        .loading-overlay.hidden { display: none; }
+        .spinner { width: 44px; height: 44px; border: 4px solid #e2e8f0; border-top-color: #1e40af; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .topbar { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 0.875rem 0; position: sticky; top: 0; z-index: 1000; }
+        .topbar-inner { max-width: 860px; margin: 0 auto; padding: 0 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.2rem; font-weight: 800; color: #0f172a; text-decoration: none; display: flex; align-items: center; gap: 0.4rem; }
+        .top-actions { display: flex; align-items: center; gap: 0.75rem; }
+        .lang-toggle { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 2rem; padding: 0.3rem; display: flex; gap: 0.15rem; }
+        .lang-toggle button { border: none; background: transparent; padding: 0.25rem 0.7rem; border-radius: 2rem; font-weight: 700; font-size: 0.8rem; cursor: pointer; color: #64748b; font-family: inherit; }
+        .lang-toggle button.on { background: #1e40af; color: white; }
+        .btn-back { background: white; color: #475569; border: 1px solid #e2e8f0; padding: 0.45rem 0.9rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem; cursor: pointer; text-decoration: none; }
+        .btn-back:hover { border-color: #cbd5e1; }
+
+        .wrap { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+        h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.25rem; }
+        .sub { color: #64748b; margin-bottom: 1.5rem; }
+
+        .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.75rem; }
+        .tab { background: white; color: #475569; border: 2px solid #e2e8f0; padding: 0.7rem 1.4rem; border-radius: 0.6rem; font-weight: 700; font-size: 0.95rem; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+        .tab.on { border-color: #1e40af; background: #eff6ff; color: #1e40af; }
+
+        .cat { background: white; border: 1px solid #e2e8f0; border-radius: 1rem; padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
+        .cat h3 { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #1e40af; margin-bottom: 0.85rem; }
+        .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .chip { background: #f1f5f9; color: #334155; padding: 0.4rem 0.85rem; border-radius: 0.5rem; font-size: 0.95rem; font-weight: 600; }
+
+        .note { color: #94a3b8; font-size: 0.85rem; margin-top: 1.25rem; }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
+
+    <div class="topbar">
+        <div class="topbar-inner">
+            <a href="dashboard.html" class="logo"><span>🇺🇸</span> USCIS Interviews<span style="color:#dc2626;">.AI</span></a>
+            <div class="top-actions">
+                <div class="lang-toggle">
+                    <button id="langEn" onclick="setLang('en')">EN</button>
+                    <button id="langEs" onclick="setLang('es')">ES</button>
+                </div>
+                <a href="dashboard.html" class="btn-back" id="backBtn">← Hub</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="wrap" id="app"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://vugvnqapdxyewxyfaayl.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_vFFY4GL2f8PIGrArW05ncg_PVkcgV4M';
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const T = {
+            en: {
+                back: '← Hub', title: 'Vocabulary',
+                sub: "The official USCIS word lists for the English reading and writing test.",
+                reading: 'Reading list', writing: 'Writing list',
+                note: 'These are the official USCIS vocabulary lists. The words are in English, as on the real test.',
+                cats: { people:'People', civics:'Civics', places:'Places', holidays:'Holidays', questions:'Question words', verbs:'Verbs', months:'Months', other:'Other (function & content words)' }
+            },
+            es: {
+                back: '← Inicio', title: 'Vocabulario',
+                sub: 'Las listas oficiales de palabras de USCIS para la prueba de lectura y escritura en inglés.',
+                reading: 'Lista de lectura', writing: 'Lista de escritura',
+                note: 'Estas son las listas de vocabulario oficiales de USCIS. Las palabras están en inglés, como en el examen real.',
+                cats: { people:'Personas', civics:'Civismo', places:'Lugares', holidays:'Días feriados', questions:'Palabras de pregunta', verbs:'Verbos', months:'Meses', other:'Otras (palabras funcionales y de contenido)' }
+            }
+        };
+        let lang = localStorage.getItem('lang') || 'en';
+        function t(k) { return T[lang][k]; }
+
+        // ---------- Official USCIS vocabulary (public domain) ----------
+        const VOCAB = {
+            reading: [
+                { cat:'people',   words:['Abraham Lincoln','George Washington'] },
+                { cat:'civics',   words:['American flag','Bill of Rights','capital','citizen','city','Congress','country','Father of Our Country','government','President','right','Senators','state / states','White House'] },
+                { cat:'places',   words:['America','United States','U.S.'] },
+                { cat:'holidays', words:["Presidents' Day",'Memorial Day','Flag Day','Independence Day','Labor Day','Columbus Day','Thanksgiving'] },
+                { cat:'questions',words:['How','What','When','Where','Who','Why'] },
+                { cat:'verbs',    words:['can','come','do / does','elects','have / has','is / are / was / be','lives / lived','meet','name','pay','vote','want'] },
+                { cat:'other',    words:['a','for','here','in','of','on','the','to','we','colors','dollar bill','first','largest','many','most','north','one','people','second','south'] }
+            ],
+            writing: [
+                { cat:'people',   words:['Adams','Lincoln','Washington'] },
+                { cat:'civics',   words:['American Indians','capital','citizens','Civil War','Congress','Father of Our Country','flag','free','freedom of speech','President','right','Senators','state / states','White House'] },
+                { cat:'places',   words:['Alaska','California','Canada','Delaware','Mexico','New York City','United States','Washington','Washington, D.C.'] },
+                { cat:'months',   words:['February','May','June','July','September','October','November'] },
+                { cat:'holidays', words:["Presidents' Day",'Memorial Day','Flag Day','Independence Day','Labor Day','Columbus Day','Thanksgiving'] },
+                { cat:'verbs',    words:['can','come','elect','have / has','is / was / be','lives / lived','meets','pay','vote','want'] },
+                { cat:'other',    words:['and','during','for','here','in','of','on','the','to','we','blue','dollar bill','fifty / 50','first','largest','most','north','one','one hundred / 100','people','red','second','south','taxes','white'] }
+            ]
+        };
+
+        let activeList = 'reading';
+        const app = document.getElementById('app');
+
+        function setLang(l) {
+            lang = l; localStorage.setItem('lang', l);
+            document.getElementById('langEn').classList.toggle('on', l === 'en');
+            document.getElementById('langEs').classList.toggle('on', l === 'es');
+            document.getElementById('backBtn').textContent = t('back');
+            document.documentElement.lang = l;
+            render();
+        }
+
+        function showList(which) { activeList = which; render(); }
+
+        function render() {
+            const cats = VOCAB[activeList].map(group => `
+                <div class="cat">
+                    <h3>${t('cats')[group.cat]}</h3>
+                    <div class="chips">${group.words.map(w => `<span class="chip">${w}</span>`).join('')}</div>
+                </div>
+            `).join('');
+            app.innerHTML = `
+                <h1>${t('title')}</h1>
+                <p class="sub">${t('sub')}</p>
+                <div class="tabs">
+                    <button class="tab ${activeList === 'reading' ? 'on' : ''}" onclick="showList('reading')">${t('reading')}</button>
+                    <button class="tab ${activeList === 'writing' ? 'on' : ''}" onclick="showList('writing')">${t('writing')}</button>
+                </div>
+                ${cats}
+                <p class="note">${t('note')}</p>
+            `;
+        }
+
+        async function init() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) { window.location.href = 'index.html'; return; }
+            setLang(lang);
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+        init();
+    </script>
+</body>
+</html>
