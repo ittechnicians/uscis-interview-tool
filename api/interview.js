@@ -8,7 +8,7 @@
 const MODEL = 'gpt-4.1-mini';
 
 const { CIVICS_2008, CIVICS_2020 } = require('./civics.js');
-const { selectN400 } = require('./n400.js');
+const { selectN400, allN400, selectN400Random } = require('./n400.js');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -26,6 +26,8 @@ module.exports = async function handler(req, res) {
     const history = Array.isArray(body.history) ? body.history : [];
     const testVersion = (body.testVersion === '128') ? '128' : '100';
     const n400Seed = Number(body.n400Seed) || 1;
+    const mode = (body.mode === 'n400') ? 'n400' : 'full';
+    const n400Mode = (body.n400Mode === 'full') ? 'full' : 'random';
 
     // If there's no history yet, seed a starter so the officer opens the interview.
     const conversation = history.length === 0
@@ -33,7 +35,7 @@ module.exports = async function handler(req, res) {
       : history;
 
     const messages = [
-      { role: 'system', content: buildSystemPrompt(officer, testVersion, n400Seed) },
+      { role: 'system', content: buildSystemPrompt(officer, testVersion, n400Seed, mode, n400Mode) },
       ...conversation
     ];
 
@@ -69,7 +71,10 @@ module.exports = async function handler(req, res) {
   }
 };
 
-function buildSystemPrompt(officer, testVersion, n400Seed) {
+function buildSystemPrompt(officer, testVersion, n400Seed, mode, n400Mode) {
+  if (mode === 'n400') {
+    return buildN400OnlyPrompt(officer, n400Seed, n400Mode);
+  }
   const is128 = (testVersion === '128');
   const bank = is128 ? CIVICS_2020 : CIVICS_2008;
   const askCount = is128 ? 20 : 10;
@@ -120,6 +125,43 @@ CRITICAL RULES:
 - Speak in clear, simple English (the real interview is conducted in English).
 - Match your tone to your style (${officer.tag}), but always stay professional and respectful.
 - During the civics test, grade strictly against the official accepted answers — do not accept a wrong answer as correct.
+- Never break character. Never say you are an AI or a language model — you are the officer.
+- Do NOT list multiple questions at once. One question, then wait.`;
+}
+
+function planToList(plan) {
+  return plan.map(function (sec) {
+    return `  ${sec.title}:\n` + sec.questions.map(function (q) { return `   - ${q}`; }).join('\n');
+  }).join('\n');
+}
+
+function buildN400OnlyPrompt(officer, n400Seed, n400Mode) {
+  const isFull = (n400Mode === 'full');
+  const plan = isFull ? allN400() : selectN400Random(n400Seed, 10);
+  const list = planToList(plan);
+  const count = plan.reduce(function (n, s) { return n + s.questions.length; }, 0);
+  const intro = isFull
+    ? `This is a FULL run-through of the N-400 application questions, section by section from top to bottom (${count} questions in total).`
+    : `This is a QUICK practice of about ${count} N-400 application questions, chosen at random.`;
+
+  return `You are ${officer.name}, a U.S. Citizenship and Immigration Services (USCIS) officer at the ${officer.office}. Your interviewing style is: ${officer.tag}.
+
+You are running a FOCUSED practice of ONLY the N-400 application questions — NOT the full interview. ${intro} Stay fully in character as the officer the whole time.
+
+Do this, in order:
+1. Briefly greet the applicant in ONE sentence and tell them you will go through their application questions. Do NOT administer the oath, the civics test, or the English reading/writing test — those are not part of this practice.
+2. Then ask the questions listed below, in this exact order, ONE at a time, waiting for each answer before moving to the next. Acknowledge each answer briefly and naturally. If the applicant answers "yes" to a good-moral-character question, ask one short follow-up, then continue.
+3. After the LAST question, tell them the practice is complete and give a short, encouraging closing with one helpful tip.
+
+=== N-400 QUESTIONS (ask in this exact order, one at a time) ===
+${list}
+=== END N-400 QUESTIONS ===
+
+CRITICAL RULES:
+- Ask only ONE question per turn, then STOP and wait for the applicant's answer.
+- Keep every response SHORT (1 to 2 sentences). Your words are read aloud by text-to-speech, so be concise and natural.
+- Speak in clear, simple English (the real interview is conducted in English).
+- Match your tone to your style (${officer.tag}), but always stay professional and respectful.
 - Never break character. Never say you are an AI or a language model — you are the officer.
 - Do NOT list multiple questions at once. One question, then wait.`;
 }
