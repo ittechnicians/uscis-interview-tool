@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N-400 Questions - USCIS Interviews.AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: #f8fafc; color: #0f172a; line-height: 1.6; }
+
+        .loading-overlay { position: fixed; inset: 0; background: #f8fafc; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; z-index: 5000; }
+        .loading-overlay.hidden { display: none; }
+        .spinner { width: 44px; height: 44px; border: 4px solid #e2e8f0; border-top-color: #1e40af; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-overlay p { color: #64748b; font-weight: 500; }
+
+        .topbar { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 0.875rem 0; position: sticky; top: 0; z-index: 1000; }
+        .topbar-inner { max-width: 900px; margin: 0 auto; padding: 0 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.2rem; font-weight: 800; color: #0f172a; text-decoration: none; display: flex; align-items: center; gap: 0.4rem; }
+        .top-actions { display: flex; align-items: center; gap: 0.75rem; }
+        .lang-toggle { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 2rem; padding: 0.3rem; display: flex; gap: 0.15rem; }
+        .lang-toggle button { border: none; background: transparent; padding: 0.25rem 0.7rem; border-radius: 2rem; font-weight: 700; font-size: 0.8rem; cursor: pointer; color: #64748b; font-family: inherit; }
+        .lang-toggle button.on { background: #1e40af; color: white; }
+        .btn-end { background: white; color: #dc2626; border: 1px solid #fecaca; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.875rem; cursor: pointer; }
+        .btn-end:hover { background: #fef2f2; }
+
+        .stage-wrap { max-width: 900px; margin: 0 auto; padding: 1.5rem; }
+        .officer-stage { background: linear-gradient(160deg, #0f172a 0%, #1e293b 100%); border-radius: 1.25rem; padding: 2rem; text-align: center; color: white; }
+        .officer-avatar { width: 110px; height: 110px; border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 2.25rem; border: 4px solid rgba(255,255,255,0.15); }
+        .officer-avatar.speaking { animation: glow 1.2s ease-in-out infinite; }
+        @keyframes glow { 0%,100% { box-shadow: 0 0 0 0 rgba(96,165,250,0.5); } 50% { box-shadow: 0 0 0 16px rgba(96,165,250,0); } }
+        .officer-stage h2 { font-size: 1.35rem; font-weight: 800; }
+        .officer-stage .office { color: #94a3b8; font-size: 0.9rem; margin-bottom: 1rem; }
+        .status-pill { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.1); padding: 0.4rem 1rem; border-radius: 2rem; font-size: 0.85rem; font-weight: 600; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #94a3b8; }
+        .status-dot.live { background: #22c55e; animation: pulse 1.5s infinite; }
+        .status-dot.listening { background: #f59e0b; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .test-badge { margin-top: 0.75rem; color: #cbd5e1; font-size: 0.78rem; font-weight: 600; }
+
+        .transcript { background: white; border: 1px solid #e2e8f0; border-radius: 1rem; padding: 1.25rem; margin-top: 1.25rem; min-height: 180px; max-height: 45vh; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; }
+        .bubble { padding: 0.75rem 1rem; border-radius: 0.875rem; font-size: 0.95rem; max-width: 85%; }
+        .bubble.officer { background: #f1f5f9; color: #0f172a; align-self: flex-start; border-bottom-left-radius: 0.25rem; }
+        .bubble.user { background: #dbeafe; color: #1e3a8a; align-self: flex-end; border-bottom-right-radius: 0.25rem; }
+        .bubble .who { font-size: 0.7rem; font-weight: 700; opacity: 0.6; display: block; margin-bottom: 0.15rem; text-transform: uppercase; letter-spacing: 0.04em; }
+        .transcript-empty { color: #94a3b8; text-align: center; margin: auto; }
+
+        .controls { margin-top: 1.25rem; }
+        .start-row { text-align: center; }
+        .setup-q { color: #0f172a; font-weight: 800; font-size: 1.15rem; margin-bottom: 1rem; }
+        .mode-cards { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem; }
+        .mode-card { background: white; border: 2px solid #e2e8f0; border-radius: 0.9rem; padding: 1.1rem 1.25rem; width: 270px; text-align: left; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+        .mode-card:hover { border-color: #cbd5e1; }
+        .mode-card.sel { border-color: #1e40af; background: #eff6ff; }
+        .mode-card .mc-title { font-weight: 800; color: #0f172a; margin-bottom: 0.25rem; }
+        .mode-card.sel .mc-title { color: #1e40af; }
+        .mode-card .mc-desc { font-size: 0.85rem; color: #64748b; line-height: 1.4; }
+
+        .btn-start { background: #1e40af; color: white; border: none; padding: 1rem 2.5rem; border-radius: 0.75rem; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+        .btn-start:hover { background: #1e3a8a; transform: translateY(-1px); }
+        .note { color: #94a3b8; font-size: 0.8rem; text-align: center; margin-top: 1rem; }
+
+        .mic-row { display: none; flex-direction: column; align-items: center; gap: 0.75rem; }
+        .mic-btn { width: 84px; height: 84px; border-radius: 50%; border: none; cursor: pointer; background: #1e40af; color: white; font-size: 2rem; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+        .mic-btn:hover { background: #1e3a8a; }
+        .mic-btn.listening { background: #f59e0b; animation: pulse 1s infinite; }
+        .mic-hint { color: #64748b; font-size: 0.9rem; text-align: center; }
+        .text-fallback { display: flex; gap: 0.5rem; margin-top: 1rem; width: 100%; max-width: 520px; }
+        .text-fallback input { flex: 1; padding: 0.75rem 1rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.95rem; font-family: inherit; }
+        .text-fallback input:focus { outline: none; border-color: #1e40af; }
+        .text-fallback button { background: #0f172a; color: white; border: none; padding: 0 1.25rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer; }
+        .btn-clear { background: #f1f5f9 !important; color: #64748b !important; padding: 0 1rem !important; font-weight: 700; }
+        .btn-clear:hover { background: #e2e8f0 !important; }
+        .err { color: #dc2626; font-size: 0.85rem; text-align: center; margin-top: 0.75rem; }
+
+        @media (max-width: 600px) { .officer-avatar { width: 88px; height: 88px; font-size: 1.75rem; } }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p id="loadingText">Preparing your practice...</p>
+    </div>
+
+    <div class="topbar">
+        <div class="topbar-inner">
+            <a href="dashboard.html" class="logo"><span>🇺🇸</span> USCIS Interviews<span style="color:#dc2626;">.AI</span></a>
+            <div class="top-actions">
+                <div class="lang-toggle">
+                    <button id="langEn" onclick="setLang('en')">EN</button>
+                    <button id="langEs" onclick="setLang('es')">ES</button>
+                </div>
+                <button class="btn-end" id="endBtn" onclick="endInterview()">End</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="stage-wrap">
+        <div class="officer-stage">
+            <div class="officer-avatar" id="officerAvatar">MM</div>
+            <h2 id="officerName">Officer</h2>
+            <p class="office" id="officerOffice">USCIS Field Office</p>
+            <span class="status-pill"><span class="status-dot" id="statusDot"></span><span id="statusText">Ready</span></span>
+            <div class="test-badge" id="testBadge"></div>
+        </div>
+
+        <div class="transcript" id="transcript">
+            <p class="transcript-empty" id="transcriptEmpty"></p>
+        </div>
+
+        <div class="controls">
+            <div class="start-row" id="startRow">
+                <p class="setup-q" id="setupQ"></p>
+                <div class="mode-cards">
+                    <button class="mode-card sel" id="cardRandom" onclick="selectMode('random')">
+                        <div class="mc-title" id="randomTitle"></div>
+                        <div class="mc-desc" id="randomDesc"></div>
+                    </button>
+                    <button class="mode-card" id="cardFull" onclick="selectMode('full')">
+                        <div class="mc-title" id="fullTitle"></div>
+                        <div class="mc-desc" id="fullDesc"></div>
+                    </button>
+                </div>
+                <button class="btn-start" id="beginBtn" onclick="startN400()"></button>
+                <p class="note" id="startNote"></p>
+            </div>
+
+            <div class="mic-row" id="micRow">
+                <button class="mic-btn" id="micBtn" onclick="toggleListening()">🎤</button>
+                <p class="mic-hint" id="micHint"></p>
+                <div class="text-fallback">
+                    <input type="text" id="textInput" onkeydown="if(event.key==='Enter')sendTyped()">
+                    <button id="clearBtn" class="btn-clear" onclick="clearInput()" title="Clear">✕</button>
+                    <button id="sendBtn" onclick="sendTyped()"></button>
+                </div>
+            </div>
+
+            <p class="err" id="errBox" style="display:none;"></p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://vugvnqapdxyewxyfaayl.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_vFFY4GL2f8PIGrArW05ncg_PVkcgV4M';
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const T = {
+            en: {
+                end:'End', ready:'Ready', preparing:'Preparing your practice...',
+                setupQ:'What would you like to practice?',
+                randomTitle:'Random questions', randomDesc:'A quick, varied set of about 10 application questions.',
+                fullTitle:'Full form', fullDesc:'Go through the entire N-400, section by section, top to bottom.',
+                begin:'Begin \u2192', note:'Best experienced in Google Chrome with your microphone enabled.',
+                badgeRandom:'N-400 \u00b7 ~10 random questions', badgeFull:'N-400 \u00b7 full form, top to bottom',
+                transcriptEmpty:'Your conversation with the officer will appear here.',
+                micStart:'Tap the mic, speak your answer, then tap again to review it before sending.',
+                placeholder:'...or type your answer here', send:'Send', you:'You',
+                connecting:'Connecting...', thinking:'Officer is thinking...', speaking:'Officer is speaking...',
+                yourTurn:'Your turn \u2014 tap the mic', listening:'Listening \u2014 tap \u23f9 when done',
+                reviewSend:'Review and send', gotIt:'Got it \u2014 review below', connIssue:'Connection issue',
+                hearing:'Hearing: ', listenTap:'Listening\u2026 tap \u23f9 when you finish.',
+                listenAgain:'Listening\u2026 tap the button again when you finish speaking.',
+                reviewBelow:'Review your answer below \u2014 edit or clear it if needed, then tap Send.',
+                didntCatch:"I didn't catch that \u2014 tap the mic and try again.",
+                cleared:'Cleared. Tap the mic to speak, or type your answer.',
+                micBlocked:'Microphone access was blocked. Allow it in your browser, or type your answers below.',
+                voiceUnsupported:'Voice input is not supported in this browser \u2014 please type your answers below.',
+                reachErr:'There was a problem reaching the interviewer. Please try again.'
+            },
+            es: {
+                end:'Terminar', ready:'Listo', preparing:'Preparando tu pr\u00e1ctica...',
+                setupQ:'\u00bfQu\u00e9 quieres practicar?',
+                randomTitle:'Preguntas al azar', randomDesc:'Una tanda r\u00e1pida y variada de unas 10 preguntas del formulario.',
+                fullTitle:'Formulario completo', fullDesc:'Recorre todo el N-400, secci\u00f3n por secci\u00f3n, de arriba a abajo.',
+                begin:'Comenzar \u2192', note:'Mejor en Google Chrome con el micr\u00f3fono activado.',
+                badgeRandom:'N-400 \u00b7 ~10 preguntas al azar', badgeFull:'N-400 \u00b7 formulario completo, de arriba a abajo',
+                transcriptEmpty:'Tu conversaci\u00f3n con el oficial aparecer\u00e1 aqu\u00ed.',
+                micStart:'Toca el micr\u00f3fono, di tu respuesta y toca de nuevo para revisarla antes de enviar.',
+                placeholder:'...o escribe tu respuesta aqu\u00ed', send:'Enviar', you:'T\u00fa',
+                connecting:'Conectando...', thinking:'El oficial est\u00e1 pensando...', speaking:'El oficial est\u00e1 hablando...',
+                yourTurn:'Tu turno \u2014 toca el micr\u00f3fono', listening:'Escuchando \u2014 toca \u23f9 al terminar',
+                reviewSend:'Revisa y env\u00eda', gotIt:'Listo \u2014 revisa abajo', connIssue:'Problema de conexi\u00f3n',
+                hearing:'Escuchando: ', listenTap:'Escuchando\u2026 toca \u23f9 cuando termines.',
+                listenAgain:'Escuchando\u2026 toca el bot\u00f3n otra vez al terminar de hablar.',
+                reviewBelow:'Revisa tu respuesta abajo \u2014 ed\u00edtala o b\u00f3rrala si hace falta, luego toca Enviar.',
+                didntCatch:'No te escuch\u00e9 \u2014 toca el micr\u00f3fono e intenta de nuevo.',
+                cleared:'Borrado. Toca el micr\u00f3fono o escribe tu respuesta.',
+                micBlocked:'Se bloque\u00f3 el acceso al micr\u00f3fono. Perm\u00edtelo en tu navegador o escribe tus respuestas abajo.',
+                voiceUnsupported:'Este navegador no soporta entrada por voz \u2014 escribe tus respuestas abajo.',
+                reachErr:'Hubo un problema al contactar al oficial. Int\u00e9ntalo de nuevo.'
+            }
+        };
+        let lang = localStorage.getItem('lang') || 'en';
+        function t(k) { return T[lang][k]; }
+
+        let officer = null;
+        let history = [];
+        let n400Mode = 'random';   // 'random' | 'full'
+        let n400Seed = 1;
+        let recognition = null;
+        let listening = false;
+        let busy = false;
+        let finalTranscript = '';
+        let started = false;
+
+        function setLang(l) {
+            lang = l; localStorage.setItem('lang', l);
+            document.getElementById('langEn').classList.toggle('on', l === 'en');
+            document.getElementById('langEs').classList.toggle('on', l === 'es');
+            document.documentElement.lang = l;
+            applyStaticText();
+        }
+
+        function applyStaticText() {
+            document.getElementById('endBtn').textContent = t('end');
+            document.getElementById('setupQ').textContent = t('setupQ');
+            document.getElementById('randomTitle').textContent = t('randomTitle');
+            document.getElementById('randomDesc').textContent = t('randomDesc');
+            document.getElementById('fullTitle').textContent = t('fullTitle');
+            document.getElementById('fullDesc').textContent = t('fullDesc');
+            document.getElementById('beginBtn').textContent = t('begin');
+            document.getElementById('startNote').textContent = t('note');
+            document.getElementById('sendBtn').textContent = t('send');
+            document.getElementById('textInput').placeholder = t('placeholder');
+            const empty = document.getElementById('transcriptEmpty');
+            if (empty) empty.textContent = t('transcriptEmpty');
+            if (!started) {
+                document.getElementById('statusText').textContent = t('ready');
+                document.getElementById('micHint').textContent = t('micStart');
+            }
+            document.getElementById('testBadge').textContent =
+                started ? (n400Mode === 'full' ? t('badgeFull') : t('badgeRandom')) : '';
+        }
+
+        function selectMode(m) {
+            n400Mode = m;
+            document.getElementById('cardRandom').classList.toggle('sel', m === 'random');
+            document.getElementById('cardFull').classList.toggle('sel', m === 'full');
+        }
+
+        function setStatus(text, type) {
+            document.getElementById('statusText').textContent = text;
+            document.getElementById('statusDot').className = 'status-dot' + (type ? ' ' + type : '');
+        }
+        function showError(msg) { const b = document.getElementById('errBox'); b.textContent = msg; b.style.display = 'block'; }
+        function clearError() { document.getElementById('errBox').style.display = 'none'; }
+
+        function addMessage(who, text) {
+            const tr = document.getElementById('transcript');
+            const empty = document.getElementById('transcriptEmpty');
+            if (empty) empty.remove();
+            const b = document.createElement('div');
+            b.className = 'bubble ' + (who === 'officer' ? 'officer' : 'user');
+            b.innerHTML = '<span class="who">' + (who === 'officer' ? officer.name : t('you')) + '</span>' + text.replace(/</g, '&lt;');
+            tr.appendChild(b);
+            tr.scrollTop = tr.scrollHeight;
+        }
+
+        function hashString(s) { let h = 0; for (let i = 0; i < s.length; i++) { h = (h << 5) - h + s.charCodeAt(i); h |= 0; } return h; }
+        function pickVoice() {
+            const voices = window.speechSynthesis.getVoices().filter(v => v.lang && v.lang.startsWith('en'));
+            if (!voices.length) return null;
+            return voices[Math.abs(hashString(officer.id || officer.name)) % voices.length];
+        }
+        function speak(text) {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            const v = pickVoice(); if (v) u.voice = v;
+            u.lang = 'en-US'; u.rate = 0.98;
+            u.pitch = 1 + ((Math.abs(hashString(officer.id || 'x')) % 5) - 2) * 0.06;
+            document.getElementById('officerAvatar').classList.add('speaking');
+            setStatus(t('speaking'), 'live');
+            u.onend = () => {
+                document.getElementById('officerAvatar').classList.remove('speaking');
+                setStatus(t('yourTurn'), '');
+            };
+            window.speechSynthesis.speak(u);
+        }
+
+        async function askOfficer() {
+            busy = true;
+            setStatus(t('thinking'), 'live');
+            clearError();
+            try {
+                const res = await fetch('/api/interview', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ officer: officer, history: history, mode: 'n400', n400Mode: n400Mode, n400Seed: n400Seed })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Request failed');
+                history.push({ role: 'assistant', content: data.reply });
+                addMessage('officer', data.reply);
+                speak(data.reply);
+            } catch (err) {
+                console.error(err);
+                showError(t('reachErr'));
+                setStatus(t('connIssue'), '');
+            } finally { busy = false; }
+        }
+
+        function startN400() {
+            started = true;
+            n400Seed = Math.floor(Math.random() * 1000000000);
+            document.getElementById('startRow').style.display = 'none';
+            document.getElementById('micRow').style.display = 'flex';
+            document.getElementById('testBadge').textContent = (n400Mode === 'full') ? t('badgeFull') : t('badgeRandom');
+            document.getElementById('micHint').textContent = t('micStart');
+            setStatus(t('connecting'), 'live');
+            askOfficer();
+        }
+
+        function handleApplicant(text) {
+            const clean = (text || '').trim();
+            if (!clean || busy) return;
+            history.push({ role: 'user', content: clean });
+            addMessage('user', clean);
+            askOfficer();
+        }
+        function sendTyped() { const i = document.getElementById('textInput'); const v = i.value; i.value = ''; handleApplicant(v); }
+        function clearInput() { const i = document.getElementById('textInput'); i.value = ''; i.focus(); document.getElementById('micHint').textContent = t('cleared'); }
+
+        function setupRecognition() {
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SR) {
+                document.getElementById('micBtn').style.display = 'none';
+                document.getElementById('micHint').textContent = t('voiceUnsupported');
+                return;
+            }
+            recognition = new SR();
+            recognition.lang = 'en-US';
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.maxAlternatives = 1;
+            recognition.onresult = (e) => {
+                let interim = '';
+                for (let i = e.resultIndex; i < e.results.length; i++) {
+                    const chunk = e.results[i][0].transcript;
+                    if (e.results[i].isFinal) finalTranscript += chunk + ' '; else interim += chunk;
+                }
+                const shown = (finalTranscript + interim).trim();
+                document.getElementById('micHint').textContent = shown ? (t('hearing') + shown) : t('listenTap');
+            };
+            recognition.onend = () => {
+                listening = false;
+                const btn = document.getElementById('micBtn');
+                btn.classList.remove('listening'); btn.textContent = '🎤';
+                const text = finalTranscript.trim(); finalTranscript = '';
+                if (text) {
+                    const i = document.getElementById('textInput');
+                    i.value = text; i.focus();
+                    document.getElementById('micHint').textContent = t('reviewBelow');
+                    setStatus(t('reviewSend'), '');
+                } else {
+                    document.getElementById('micHint').textContent = t('didntCatch');
+                    setStatus(t('yourTurn'), '');
+                }
+            };
+            recognition.onerror = (e) => {
+                listening = false;
+                const btn = document.getElementById('micBtn');
+                btn.classList.remove('listening'); btn.textContent = '🎤';
+                if (e.error === 'not-allowed') showError(t('micBlocked'));
+            };
+        }
+
+        function toggleListening() {
+            if (busy || !recognition) return;
+            if (listening) { recognition.stop(); setStatus(t('gotIt'), ''); return; }
+            window.speechSynthesis.cancel();
+            finalTranscript = '';
+            document.getElementById('textInput').value = '';
+            try {
+                recognition.start();
+                listening = true;
+                const btn = document.getElementById('micBtn');
+                btn.classList.add('listening'); btn.textContent = '⏹';
+                setStatus(t('listening'), 'listening');
+                document.getElementById('micHint').textContent = t('listenAgain');
+            } catch (e) {}
+        }
+
+        function endInterview() {
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            if (recognition && listening) recognition.stop();
+            window.location.href = 'dashboard.html';
+        }
+
+        async function init() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) { window.location.href = 'index.html'; return; }
+
+            try { officer = JSON.parse(localStorage.getItem('selectedOfficer')); } catch (e) { officer = null; }
+            if (!officer) {
+                officer = { id: 'MM', name: 'Officer Martinez', office: 'USCIS Field Office', tag: 'warm and encouraging', initials: 'MM', gradient: 'linear-gradient(135deg,#1e40af,#3b82f6)' };
+            }
+            document.getElementById('officerAvatar').textContent = officer.initials || 'OF';
+            document.getElementById('officerAvatar').style.background = officer.gradient || 'linear-gradient(135deg,#1e40af,#3b82f6)';
+            document.getElementById('officerName').textContent = officer.name;
+            document.getElementById('officerOffice').textContent = officer.office || 'USCIS Field Office';
+
+            setLang(lang);
+            setupRecognition();
+            if ('speechSynthesis' in window) window.speechSynthesis.onvoiceschanged = () => {};
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+        init();
+    </script>
+</body>
+</html>
