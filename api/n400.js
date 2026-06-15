@@ -149,4 +149,28 @@ function selectN400(seed) {
   });
 }
 
-module.exports = { N400_SECTIONS, selectN400 };
+// Every question, every section, in order (top to bottom) — for the "full form" practice.
+function allN400() {
+  return N400_SECTIONS.map(function (sec) {
+    return { title: sec.title, questions: sec.questions.slice() };
+  });
+}
+
+// A random subset of about `total` questions, spread across sections,
+// kept in section order — for the "quick random" practice.
+function selectN400Random(seed, total) {
+  const rng = mulberry32((seed >>> 0) || 1);
+  const flat = [];
+  N400_SECTIONS.forEach(function (sec, si) {
+    sec.questions.forEach(function (q) { flat.push({ si: si, q: q }); });
+  });
+  const picked = shuffleWith(flat, rng).slice(0, Math.min(total, flat.length));
+  const bySection = {};
+  picked.forEach(function (item) {
+    if (!bySection[item.si]) bySection[item.si] = { title: N400_SECTIONS[item.si].title, questions: [] };
+    bySection[item.si].questions.push(item.q);
+  });
+  return N400_SECTIONS.map(function (sec, si) { return bySection[si]; }).filter(Boolean);
+}
+
+module.exports = { N400_SECTIONS, selectN400, allN400, selectN400Random };
