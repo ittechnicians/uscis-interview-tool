@@ -205,6 +205,7 @@
         let officer = null;
         let history = [];          // [{role:'assistant'|'user', content:'...'}]
         let testVersion = '100';   // '100' (2008 test) or '128' (2020 test)
+        let n400Seed = 1;          // randomized once per interview so N-400 questions vary
         let recognition = null;
         let listening = false;
         let busy = false;          // waiting for the officer / speaking
@@ -285,7 +286,7 @@
                 const res = await fetch('/api/interview', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ officer: officer, history: history, testVersion: testVersion })
+                    body: JSON.stringify({ officer: officer, history: history, testVersion: testVersion, n400Seed: n400Seed })
                 });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || 'Request failed');
@@ -304,6 +305,7 @@
 
         // ---------- Start ----------
         function startInterview() {
+            n400Seed = Math.floor(Math.random() * 1000000000); // new random N-400 set each interview
             document.getElementById('startRow').style.display = 'none';
             document.getElementById('micRow').style.display = 'flex';
             document.getElementById('testBadge').textContent =
