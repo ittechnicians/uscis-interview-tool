@@ -7,8 +7,8 @@
 // swap it for 'gpt-4o-mini' or 'gpt-5.4-mini'.
 const MODEL = 'gpt-4.1-mini';
 
-const { CIVICS_2008, CIVICS_2020 } = require('./civics.js');
-const { selectN400, allN400, selectN400Random } = require('./n400.js');
+const { CIVICS_2008, CIVICS_2020, STATE_INFO, STATE } = require('./civics.js');
+const { selectN400, allN400, selectN400Random, selectDefinitions } = require('./n400.js');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -82,20 +82,7 @@ function buildSystemPrompt(officer, testVersion, n400Seed, mode, n400Mode) {
   const versionName = is128 ? 'official USCIS 2020 civics test (the 128-question version)'
                             : 'official USCIS 2008 civics test (the 100-question version)';
 
-  let civics;
-  if (bank && bank.length) {
-    // Embed the official question bank as the officer's reference key.
-    const list = bank.map(item => `Q${item.n}. ${item.q}\n   ACCEPTED ANSWER(S): ${item.a}`).join('\n');
-    civics = `3. CIVICS TEST: Tell the applicant you will now begin the civics questions. Ask questions ONLY from the official list below — never invent a question that is not on this list, and never accept an answer that is not among the accepted answers shown. Ask ONE question at a time, up to ${askCount} questions; the applicant must answer ${passCount} correctly to pass. After each answer, briefly say whether it is correct; if it is wrong, kindly give the correct answer from the list, then continue.
-- For any question whose accepted answer says it varies by the applicant's state, FIRST ask which U.S. state they live in, then judge their answer against the correct current answer for that state.
-
-=== OFFICIAL CIVICS QUESTION BANK (${versionName}) — use ONLY these ===
-${list}
-=== END OF OFFICIAL QUESTION BANK ===`;
-  } else {
-    // Bank not yet embedded (fallback).
-    civics = `3. CIVICS TEST: Tell the applicant you will now ask the civics questions. Use the ${versionName}. Ask questions ONLY from those official questions, ONE at a time, up to ${askCount} questions. The applicant must answer ${passCount} correctly to pass. After each answer, briefly say whether it is correct; if it is wrong, kindly give the correct answer. For the current President, Vice President, Speaker of the House, and Chief Justice, the correct answers are: President — Donald Trump; Vice President — JD Vance; party of the President — Republican; Speaker of the House — Mike Johnson; Chief Justice — John Roberts. For questions about the applicant's own state (their Senators, Representative, Governor, or state capital), first ask which state they live in.`;
-  }
+  const civics = buildCivicsBlock(bank, n400Seed, askCount, passCount, versionName);
 
   // Build a varied-but-structured set of N-400 questions for this interview.
   const n400Plan = selectN400(n400Seed);
@@ -142,7 +129,20 @@ function buildN400OnlyPrompt(officer, n400Seed, n400Mode) {
   const count = plan.reduce(function (n, s) { return n + s.questions.length; }, 0);
   const intro = isFull
     ? `This is a FULL run-through of the N-400 application questions, section by section from top to bottom (${count} questions in total).`
-    : `This is a QUICK practice of about ${count} N-400 application questions, chosen at random.`;
+    : `This is a QUICK practice of about ${count} N-400 application questions, chosen at random, plus a short check of whether the applicant understands a couple of key words.`;
+
+  // In random mode, add a short "explain this word" check (officers do this for words like genocide, totalitarian, etc.).
+  let defsBlock = '';
+  if (!isFull) {
+    const defs = selectDefinitions(n400Seed, 2);
+    const defsList = defs.map(function (d) {
+      return `   - Ask the applicant to explain, in their own words, what "${d.term}" means. (Reference for you: ${d.ref}.) Accept any reasonable explanation that shows basic understanding; gently correct if they are far off.`;
+    }).join('\n');
+    defsBlock = `
+
+After the application questions above, do a short UNDERSTANDING CHECK. Ask the applicant to explain the following word(s) in their own words, ONE at a time:
+${defsList}`;
+  }
 
   return `You are ${officer.name}, a U.S. Citizenship and Immigration Services (USCIS) officer at the ${officer.office}. Your interviewing style is: ${officer.tag}.
 
@@ -155,7 +155,7 @@ Do this, in order:
 
 === N-400 QUESTIONS (ask in this exact order, one at a time) ===
 ${list}
-=== END N-400 QUESTIONS ===
+=== END N-400 QUESTIONS ===${defsBlock}
 
 CRITICAL RULES:
 - Ask only ONE question per turn, then STOP and wait for the applicant's answer.
@@ -164,4 +164,54 @@ CRITICAL RULES:
 - Match your tone to your style (${officer.tag}), but always stay professional and respectful.
 - Never break character. Never say you are an AI or a language model — you are the officer.
 - Do NOT list multiple questions at once. One question, then wait.`;
+}
+
+// Seeded shuffle so the civics selection is random per interview but stable across turns.
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function seededShuffle(arr, seed) {
+  const rng = mulberry32((seed >>> 0) || 1);
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function buildCivicsBlock(bank, seed, askCount, passCount, versionName) {
+  if (!bank || !bank.length) {
+    return `3. CIVICS TEST: Ask up to ${askCount} official civics questions from the ${versionName}, ONE at a time. The applicant needs ${passCount} correct to pass; stop as soon as they reach ${passCount} correct.`;
+  }
+  const selected = seededShuffle(bank, seed).slice(0, askCount);
+  const list = selected.map(function (item) {
+    const ans = (item.a === STATE)
+      ? '(STATE-SPECIFIC — first ask which state the applicant lives in, then grade using the State Reference below)'
+      : item.a;
+    return `Q${item.n}. ${item.q}\n   ACCEPTED ANSWER(S): ${ans}`;
+  }).join('\n');
+
+  const stateRef = Object.keys(STATE_INFO).map(function (st) {
+    const s = STATE_INFO[st];
+    return `- ${st} — capital: ${s.capital}; Governor: ${s.governor}; U.S. Senators: ${s.senators.join(', ')}`;
+  }).join('\n');
+
+  return `3. CIVICS TEST: Tell the applicant you will now begin the civics questions. Ask ONLY the questions listed below, in the order given, ONE at a time. After each answer, briefly say whether it is correct; if it is wrong, kindly give the correct answer, then continue.
+- STOPPING RULE (important): The applicant needs ${passCount} correct out of up to ${askCount}. As SOON as the applicant has answered ${passCount} correctly, STOP the civics questions and tell them they passed the civics portion. Never ask more than the ${askCount} questions listed below, and keep an accurate count of how many you have asked and how many are correct.
+- For any STATE-SPECIFIC question, FIRST ask which U.S. state the applicant lives in, then grade using the State Reference below. For "Name your U.S. Representative," the answer depends on the applicant's specific district — accept the name they give and remind them to verify their own representative. If their state is not listed, accept a reasonable answer and tell them to verify it.
+
+=== STATE REFERENCE (for state-specific questions) ===
+${stateRef}
+(Washington, D.C. is not a state — D.C. residents have no U.S. Senators, no voting Representative, and no Governor.)
+=== END STATE REFERENCE ===
+
+=== CIVICS QUESTIONS FOR THIS INTERVIEW (${versionName}) — ask ONLY these, in order, and stop at ${passCount} correct ===
+${list}
+=== END CIVICS QUESTIONS ===`;
 }
