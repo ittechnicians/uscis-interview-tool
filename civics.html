@@ -57,6 +57,8 @@
         .q-text { font-size: 1.5rem; font-weight: 700; line-height: 1.35; margin-bottom: 1.5rem; }
         .btn-speak { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; border-radius: 0.5rem; padding: 0.1rem 0.5rem; font-size: 0.95rem; cursor: pointer; vertical-align: middle; line-height: 1.4; }
         .btn-speak:hover { background: #dbeafe; }
+        .state-select { width: 100%; max-width: 380px; padding: 0.7rem 0.9rem; border: 2px solid #e2e8f0; border-radius: 0.6rem; font-family: inherit; font-size: 0.95rem; font-weight: 600; color: #334155; background: white; cursor: pointer; }
+        .state-select:focus { outline: none; border-color: #1e40af; }
         .answer { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1.5rem; display: none; }
         .answer.show { display: block; }
         .answer .lbl { font-size: 0.75rem; font-weight: 700; color: #16a34a; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.4rem; }
@@ -115,6 +117,7 @@
                 t100: '100 Questions', t100s: '2008 test',
                 t128: '128 Questions', t128s: '2020 test',
                 topic: 'Topic', allTopics: 'All topics',
+                stateLabel: 'Your state (for state-specific questions)', stateNone: 'Not listed / choose later',
                 howMany: 'How many questions?', all: 'All',
                 start: 'Start studying →',
                 loading: 'Loading questions…',
@@ -139,6 +142,7 @@
                 t100: '100 Preguntas', t100s: 'examen 2008',
                 t128: '128 Preguntas', t128s: 'examen 2020',
                 topic: 'Tema', allTopics: 'Todos los temas',
+                stateLabel: 'Tu estado (para preguntas que dependen del estado)', stateNone: 'No está en la lista / elegir después',
                 howMany: '¿Cuántas preguntas?', all: 'Todas',
                 start: 'Empezar a estudiar →',
                 loading: 'Cargando preguntas…',
@@ -165,13 +169,17 @@
             test: '100',
             category: 'all',
             count: 10,
-            allQuestions: { '100': null, '128': null }, // cached banks
+            userState: '',          // selected state for state-specific answers
+            bankCache: {},          // cached banks keyed by "test|state"
             working: [],
             index: 0,
             known: 0,
             missed: [],
             revealed: false
         };
+
+        // Keep in sync with STATE_INFO in api/civics.js
+        const STATE_NAMES = ['California','Texas','Florida','New York','Illinois','Pennsylvania','Georgia','Arizona','North Carolina','New Jersey','Ohio','Michigan','Washington','Virginia','Massachusetts'];
 
         function categoriesFor(test) {
             const is128 = (test === '128');
@@ -194,11 +202,13 @@
         }
 
         // ---------- Data ----------
-        async function loadBank(test) {
-            if (state.allQuestions[test]) return state.allQuestions[test];
-            const res = await fetch('/api/questions?v=' + test);
+        async function loadBank(test, userState) {
+            const key = test + '|' + (userState || '');
+            if (state.bankCache[key]) return state.bankCache[key];
+            const url = '/api/questions?v=' + test + (userState ? '&state=' + encodeURIComponent(userState) : '');
+            const res = await fetch(url);
             const data = await res.json();
-            state.allQuestions[test] = data.questions;
+            state.bankCache[key] = data.questions;
             return data.questions;
         }
 
@@ -253,6 +263,14 @@
                     <div class="opts">${countBtns}</div>
                 </div>
 
+                <div class="field">
+                    <div class="field-label">${t('stateLabel')}</div>
+                    <select class="state-select" onchange="pick('userState', this.value)">
+                        <option value="">${t('stateNone')}</option>
+                        ${STATE_NAMES.map(s => `<option value="${s}" ${state.userState === s ? 'selected' : ''}>${s}</option>`).join('')}
+                    </select>
+                </div>
+
                 <button class="btn-primary" onclick="startStudy()">${t('start')}</button>
                 <p class="note">${t('noteEng')}</p>
             `;
@@ -268,7 +286,7 @@
         async function startStudy() {
             document.getElementById('loadingText').textContent = t('loading');
             document.getElementById('loadingOverlay').classList.remove('hidden');
-            const bank = await loadBank(state.test);
+            const bank = await loadBank(state.test, state.userState);
             document.getElementById('loadingOverlay').classList.add('hidden');
 
             let pool = bank;
