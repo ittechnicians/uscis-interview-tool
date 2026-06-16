@@ -52,6 +52,8 @@
 
         .quiz-card { background: white; border: 1px solid #e2e8f0; border-radius: 1.25rem; padding: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.04); }
         .quiz-q { font-size: 1.5rem; font-weight: 800; margin-bottom: 1.5rem; }
+        .btn-speak { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; border-radius: 0.5rem; padding: 0.1rem 0.55rem; font-size: 0.95rem; cursor: pointer; vertical-align: middle; }
+        .btn-speak:hover { background: #dbeafe; }
         .quiz-q .term { color: #1e40af; }
         .options { display: flex; flex-direction: column; gap: 0.75rem; }
         .opt-btn { text-align: left; background: white; border: 2px solid #e2e8f0; border-radius: 0.7rem; padding: 1rem 1.25rem; font-size: 1rem; font-family: inherit; cursor: pointer; color: #334155; transition: all 0.15s; }
@@ -209,6 +211,22 @@
         function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
         function escapeHtml(s) { return String(s).replace(/</g, '&lt;'); }
 
+        // ---------- Text-to-speech (browser voice) ----------
+        function speak(text, voiceLang) {
+            if (!('speechSynthesis' in window) || !text) return;
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = voiceLang || 'en-US';
+            u.rate = 0.95;
+            const pref = (voiceLang || 'en').slice(0, 2).toLowerCase();
+            const vs = window.speechSynthesis.getVoices().filter(function (v) { return v.lang && v.lang.toLowerCase().startsWith(pref); });
+            if (vs.length) u.voice = vs[0];
+            window.speechSynthesis.speak(u);
+        }
+        function curItem() { const q = state.quiz; return (q.questions && q.questions[q.index]) ? q.questions[q.index].correctObj : null; }
+        function speakTerm() { const it = curItem(); if (it) speak(it.term, 'en-US'); }
+        function speakDef() { const it = curItem(); if (it) speak(it[lang], lang === 'es' ? 'es-ES' : 'en-US'); }
+
         function tabsHtml() {
             return '<div class="tabs">' +
                 '<button class="tab ' + (state.view === 'reading' ? 'on' : '') + '" onclick="showView(\'reading\')">' + t('reading') + '</button>' +
@@ -267,9 +285,9 @@
                     '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
                     '<div class="progress-text">' + t('qof')(q.index + 1, total) + '</div>' +
                 '</div>' +
-                '<div class="quiz-card"><div class="quiz-q">' + t('whatMeans')(escapeHtml(item.correctObj.term)) + '</div>' +
+                '<div class="quiz-card"><div class="quiz-q">' + t('whatMeans')(escapeHtml(item.correctObj.term)) + ' <button class="btn-speak" onclick="speakTerm()" title="Hear">🔊</button></div>' +
                 '<div class="options">' + opts + '</div>' +
-                (q.answered ? '<div class="next-row"><button class="btn-primary" onclick="nextQ()">' + (q.index + 1 >= total ? t('finish') : t('next')) + '</button></div>' : '') +
+                (q.answered ? '<div class="next-row"><button class="btn-speak" onclick="speakDef()" title="Hear answer">🔊</button> <button class="btn-primary" onclick="nextQ()">' + (q.index + 1 >= total ? t('finish') : t('next')) + '</button></div>' : '') +
                 '</div>';
         }
 
@@ -283,6 +301,7 @@
             state.quiz.index = 0; state.quiz.score = 0; state.quiz.answered = false; state.quiz.chosen = null;
             state.quiz.phase = 'quiz';
             render();
+            speakTerm();
         }
 
         function answer(optIndex) {
@@ -293,6 +312,7 @@
             q.answered = true;
             if (q.chosen === item.correctObj) q.score++;
             render();
+            speakDef();
         }
 
         function nextQ() {
@@ -300,6 +320,7 @@
             q.index++; q.answered = false; q.chosen = null;
             if (q.index >= q.questions.length) q.phase = 'results';
             render();
+            if (q.phase === 'quiz') speakTerm();
         }
 
         async function init() {
