@@ -275,6 +275,25 @@ const STATE_INFO = {
   'Massachusetts':  { capital: 'Boston',      governor: 'Maura Healey',       senators: ['Elizabeth Warren', 'Ed Markey'] }
 };
 
+// Resolve the state-specific questions in a bank for a given state name.
+// Senators/Governor/Capital come from STATE_INFO; the U.S. Representative
+// depends on the applicant's congressional district, so it stays a reminder.
+function resolveStateAnswers(bank, stateName) {
+  const info = STATE_INFO[stateName];
+  if (!info) return bank; // unknown/blank state: keep the generic guidance
+  return bank.map(function (item) {
+    if (item.a !== STATE) return item;
+    const q = item.q.toLowerCase();
+    let a;
+    if (q.indexOf('senator') !== -1) a = stateName + ' U.S. Senators: ' + info.senators.join(', ') + ' (name either one)';
+    else if (q.indexOf('representative') !== -1) a = 'This depends on your congressional district — look up your own U.S. Representative for where you live in ' + stateName + '.';
+    else if (q.indexOf('governor') !== -1) a = info.governor + ' (Governor of ' + stateName + ')';
+    else if (q.indexOf('capital') !== -1) a = info.capital;
+    else a = item.a;
+    return { n: item.n, q: item.q, a: a };
+  });
+}
+
 // Resolve the dynamic placeholders using the current officials.
 function resolveBank(bank) {
   const map = {
@@ -291,6 +310,7 @@ module.exports = {
   CURRENT_OFFICIALS,
   STATE_INFO,
   STATE,
+  resolveStateAnswers,
   CIVICS_2008: resolveBank(CIVICS_2008),
   CIVICS_2020: resolveBank(CIVICS_2020)
 };
