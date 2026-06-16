@@ -173,4 +173,22 @@ function selectN400Random(seed, total) {
   return N400_SECTIONS.map(function (sec, si) { return bySection[si]; }).filter(Boolean);
 }
 
-module.exports = { N400_SECTIONS, selectN400, allN400, selectN400Random };
+// Key N-400 words an officer may ask the applicant to EXPLAIN (used in random mode).
+// The "ref" is a short reference so the officer can judge a reasonable explanation.
+const N400_DEFINITIONS = [
+  { term: 'totalitarian', ref: 'a government or party with total control that allows no other parties or freedoms' },
+  { term: 'persecution', ref: 'being harmed or treated very badly because of race, religion, nationality, political opinion, or group' },
+  { term: 'genocide', ref: 'the deliberate killing of a large group of people because of their race, religion, or nationality' },
+  { term: 'allegiance', ref: 'loyalty and support given to a country' },
+  { term: 'naturalization', ref: 'the process of becoming a U.S. citizen' },
+  { term: 'good moral character', ref: 'behaving honestly and obeying the law' },
+  { term: 'Oath of Allegiance', ref: 'the promise of loyalty you make to the United States to become a citizen' },
+  { term: 'permanent resident', ref: 'a person allowed to live and work permanently in the U.S.; a green card holder' }
+];
+
+function selectDefinitions(seed, count) {
+  const rng = mulberry32(((seed >>> 0) + 999) || 1);
+  return shuffleWith(N400_DEFINITIONS, rng).slice(0, Math.min(count, N400_DEFINITIONS.length));
+}
+
+module.exports = { N400_SECTIONS, selectN400, allN400, selectN400Random, selectDefinitions };
