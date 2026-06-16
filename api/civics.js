@@ -254,6 +254,27 @@ const CIVICS_2020 = [
   { n: 128, q: 'What is Veterans Day?', a: 'A holiday to honor people in the (U.S.) military; a holiday to honor people who have served' }
 ];
 
+// Per-state answers for the state-specific civics questions (capital, governor, senators).
+// Capitals are permanent; GOVERNORS and SENATORS change with elections.
+// Last verified: June 2026. UPDATE after each election cycle (esp. Nov 2026).
+const STATE_INFO = {
+  'California':     { capital: 'Sacramento',  governor: 'Gavin Newsom',       senators: ['Alex Padilla', 'Adam Schiff'] },
+  'Texas':          { capital: 'Austin',      governor: 'Greg Abbott',        senators: ['John Cornyn', 'Ted Cruz'] },
+  'Florida':        { capital: 'Tallahassee', governor: 'Ron DeSantis',       senators: ['Rick Scott', 'Ashley Moody'] },
+  'New York':       { capital: 'Albany',      governor: 'Kathy Hochul',       senators: ['Chuck Schumer', 'Kirsten Gillibrand'] },
+  'Illinois':       { capital: 'Springfield', governor: 'JB Pritzker',        senators: ['Dick Durbin', 'Tammy Duckworth'] },
+  'Pennsylvania':   { capital: 'Harrisburg',  governor: 'Josh Shapiro',       senators: ['John Fetterman', 'Dave McCormick'] },
+  'Georgia':        { capital: 'Atlanta',     governor: 'Brian Kemp',         senators: ['Jon Ossoff', 'Raphael Warnock'] },
+  'Arizona':        { capital: 'Phoenix',     governor: 'Katie Hobbs',        senators: ['Mark Kelly', 'Ruben Gallego'] },
+  'North Carolina': { capital: 'Raleigh',     governor: 'Josh Stein',         senators: ['Thom Tillis', 'Ted Budd'] },
+  'New Jersey':     { capital: 'Trenton',     governor: 'Mikie Sherrill',     senators: ['Cory Booker', 'Andy Kim'] },
+  'Ohio':           { capital: 'Columbus',    governor: 'Mike DeWine',        senators: ['Bernie Moreno', 'Jon Husted'] },
+  'Michigan':       { capital: 'Lansing',     governor: 'Gretchen Whitmer',   senators: ['Gary Peters', 'Elissa Slotkin'] },
+  'Washington':     { capital: 'Olympia',     governor: 'Bob Ferguson',       senators: ['Patty Murray', 'Maria Cantwell'] },
+  'Virginia':       { capital: 'Richmond',    governor: 'Abigail Spanberger', senators: ['Mark Warner', 'Tim Kaine'] },
+  'Massachusetts':  { capital: 'Boston',      governor: 'Maura Healey',       senators: ['Elizabeth Warren', 'Ed Markey'] }
+};
+
 // Resolve the dynamic placeholders using the current officials.
 function resolveBank(bank) {
   const map = {
@@ -268,6 +289,8 @@ function resolveBank(bank) {
 
 module.exports = {
   CURRENT_OFFICIALS,
+  STATE_INFO,
+  STATE,
   CIVICS_2008: resolveBank(CIVICS_2008),
   CIVICS_2020: resolveBank(CIVICS_2020)
 };
