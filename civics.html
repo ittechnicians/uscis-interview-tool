@@ -55,6 +55,8 @@
         .card { background: white; border: 1px solid #e2e8f0; border-radius: 1.25rem; padding: 2.5rem 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.04); }
         .q-num { font-size: 0.8rem; font-weight: 700; color: #1e40af; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
         .q-text { font-size: 1.5rem; font-weight: 700; line-height: 1.35; margin-bottom: 1.5rem; }
+        .btn-speak { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; border-radius: 0.5rem; padding: 0.1rem 0.5rem; font-size: 0.95rem; cursor: pointer; vertical-align: middle; line-height: 1.4; }
+        .btn-speak:hover { background: #dbeafe; }
         .answer { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1.5rem; display: none; }
         .answer.show { display: block; }
         .answer .lbl { font-size: 0.75rem; font-weight: 700; color: #16a34a; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.4rem; }
@@ -284,7 +286,24 @@
             state.revealed = false;
             state.screen = 'study';
             render();
+            speakQuestion();
         }
+
+        // ---------- Text-to-speech (browser voice) ----------
+        function speak(text, voiceLang) {
+            if (!('speechSynthesis' in window) || !text) return;
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = voiceLang || 'en-US';
+            u.rate = 0.95;
+            const pref = (voiceLang || 'en').slice(0, 2).toLowerCase();
+            const vs = window.speechSynthesis.getVoices().filter(v => v.lang && v.lang.toLowerCase().startsWith(pref));
+            if (vs.length) u.voice = vs[0];
+            window.speechSynthesis.speak(u);
+        }
+        function stopSpeech() { if ('speechSynthesis' in window) window.speechSynthesis.cancel(); }
+        function speakQuestion() { const q = state.working[state.index]; if (q) speak(q.q, 'en-US'); }
+        function speakAnswer() { const q = state.working[state.index]; if (q) speak(q.a, 'en-US'); }
 
         function renderStudy() {
             const q = state.working[state.index];
@@ -298,10 +317,10 @@
                 </div>
                 <div class="card">
                     <div class="q-num">Q${q.n}</div>
-                    <div class="q-text">${escapeHtml(q.q)}</div>
+                    <div class="q-text">${escapeHtml(q.q)} <button class="btn-speak" onclick="speakQuestion()" title="Hear">🔊</button></div>
                     <div class="answer ${state.revealed ? 'show' : ''}" id="answerBox">
                         <div class="lbl">${t('official')}</div>
-                        <div class="txt">${escapeHtml(q.a)}</div>
+                        <div class="txt">${escapeHtml(q.a)} <button class="btn-speak" onclick="speakAnswer()" title="Hear">🔊</button></div>
                     </div>
                     ${state.revealed
                         ? `<div class="card-actions">
@@ -314,17 +333,17 @@
             `;
         }
 
-        function reveal() { state.revealed = true; renderStudy(); }
+        function reveal() { state.revealed = true; renderStudy(); speakAnswer(); }
 
-        function exitStudy() { state.screen = 'setup'; state.revealed = false; render(); }
+        function exitStudy() { stopSpeech(); state.screen = 'setup'; state.revealed = false; render(); }
 
         function mark(knewIt) {
             if (knewIt) state.known++;
             else state.missed.push(state.working[state.index]);
             state.index++;
             state.revealed = false;
-            if (state.index >= state.working.length) { state.screen = 'results'; render(); }
-            else renderStudy();
+            if (state.index >= state.working.length) { stopSpeech(); state.screen = 'results'; render(); }
+            else { renderStudy(); speakQuestion(); }
         }
 
         function renderResults() {
@@ -349,6 +368,7 @@
             state.working = shuffle(state.missed);
             state.index = 0; state.known = 0; state.missed = []; state.revealed = false;
             state.screen = 'study'; render();
+            speakQuestion();
         }
 
         function escapeHtml(s) { return String(s).replace(/</g, '&lt;'); }
