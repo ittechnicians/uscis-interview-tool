@@ -117,7 +117,7 @@
                 savedBody: 'Your details are saved on this device. You can start practicing, edit them, or delete them.',
                 start: 'Start personalized interview →', edit: 'Edit', del: 'Delete my info',
                 delConfirm: 'Delete all your saved information? This cannot be undone.',
-                nextNote: 'Your info is saved on this device. The personalized interview connects in the next step.',
+                nextNote: 'Your info is saved on this device. Tap "Start personalized interview" above to begin.',
                 empty: '(not provided)'
             },
             es: {
@@ -147,7 +147,7 @@
                 savedBody: 'Tus datos están guardados en este dispositivo. Puedes empezar a practicar, editarlos o borrarlos.',
                 start: 'Empezar entrevista personalizada →', edit: 'Editar', del: 'Borrar mis datos',
                 delConfirm: '¿Borrar toda tu información guardada? Esto no se puede deshacer.',
-                nextNote: 'Tus datos quedaron guardados en este dispositivo. La entrevista personalizada se conecta en el siguiente paso.',
+                nextNote: 'Tus datos quedaron guardados en este dispositivo. Toca "Empezar entrevista personalizada" arriba para comenzar.',
                 empty: '(sin dato)'
             }
         };
@@ -308,8 +308,8 @@
             screen = 'consent'; render();
         }
         function startInterview() {
-            // Connected in the next step. For now, confirm the profile is saved.
-            showNext = true; render();
+            // Profile is already saved on the device; launch the personalized interview.
+            window.location.href = 'n400.html?mode=personal';
         }
 
         async function init() {
