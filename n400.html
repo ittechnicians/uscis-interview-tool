@@ -154,8 +154,7 @@
                 randomTitle:'Random questions', randomDesc:'A quick, varied set of about 10 application questions.',
                 fullTitle:'Full form', fullDesc:'Go through the entire N-400, section by section, top to bottom.',
                 begin:'Begin \u2192', note:'Best experienced in Google Chrome with your microphone enabled.',
-                badgeRandom:'N-400 \u00b7 ~10 random questions', badgeFull:'N-400 \u00b7 full form, top to bottom',
-                transcriptEmpty:'Your conversation with the officer will appear here.',
+                badgeRandom:'N-400 \u00b7 ~10 random questions', badgeFull:'N-400 \u00b7 full form, top to bottom', badgePersonal:'N-400 \u00b7 personalized (your answers)',                transcriptEmpty:'Your conversation with the officer will appear here.',
                 micStart:'Tap the mic, speak your answer, then tap again to review it before sending.',
                 placeholder:'...or type your answer here', send:'Send', you:'You',
                 connecting:'Connecting...', thinking:'Officer is thinking...', speaking:'Officer is speaking...',
@@ -176,7 +175,7 @@
                 randomTitle:'Preguntas al azar', randomDesc:'Una tanda r\u00e1pida y variada de unas 10 preguntas del formulario.',
                 fullTitle:'Formulario completo', fullDesc:'Recorre todo el N-400, secci\u00f3n por secci\u00f3n, de arriba a abajo.',
                 begin:'Comenzar \u2192', note:'Mejor en Google Chrome con el micr\u00f3fono activado.',
-                badgeRandom:'N-400 \u00b7 ~10 preguntas al azar', badgeFull:'N-400 \u00b7 formulario completo, de arriba a abajo',
+                badgeRandom:'N-400 \u00b7 ~10 preguntas al azar', badgeFull:'N-400 \u00b7 formulario completo, de arriba a abajo', badgePersonal:'N-400 \u00b7 personalizada (tus respuestas)',
                 transcriptEmpty:'Tu conversaci\u00f3n con el oficial aparecer\u00e1 aqu\u00ed.',
                 micStart:'Toca el micr\u00f3fono, di tu respuesta y toca de nuevo para revisarla antes de enviar.',
                 placeholder:'...o escribe tu respuesta aqu\u00ed', send:'Enviar', you:'T\u00fa',
@@ -200,6 +199,8 @@
         let history = [];
         let n400Mode = 'random';   // 'random' | 'full'
         let n400Seed = 1;
+        let profile = null;        // personalized N-400 profile (from device)
+        let personalized = false;
         let recognition = null;
         let listening = false;
         let busy = false;
@@ -232,7 +233,7 @@
                 document.getElementById('micHint').textContent = t('micStart');
             }
             document.getElementById('testBadge').textContent =
-                started ? (n400Mode === 'full' ? t('badgeFull') : t('badgeRandom')) : '';
+                started ? (personalized ? t('badgePersonal') : (n400Mode === 'full' ? t('badgeFull') : t('badgeRandom'))) : '';
         }
 
         function selectMode(m) {
@@ -289,7 +290,7 @@
                 const res = await fetch('/api/interview', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ officer: officer, history: history, mode: 'n400', n400Mode: n400Mode, n400Seed: n400Seed })
+                    body: JSON.stringify({ officer: officer, history: history, mode: 'n400', n400Mode: n400Mode, n400Seed: n400Seed, profile: personalized ? profile : null })
                 });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || 'Request failed');
@@ -308,7 +309,7 @@
             n400Seed = Math.floor(Math.random() * 1000000000);
             document.getElementById('startRow').style.display = 'none';
             document.getElementById('micRow').style.display = 'flex';
-            document.getElementById('testBadge').textContent = (n400Mode === 'full') ? t('badgeFull') : t('badgeRandom');
+            document.getElementById('testBadge').textContent = personalized ? t('badgePersonal') : ((n400Mode === 'full') ? t('badgeFull') : t('badgeRandom'));
             document.getElementById('micHint').textContent = t('micStart');
             setStatus(t('connecting'), 'live');
             askOfficer();
@@ -407,6 +408,18 @@
             setupRecognition();
             if ('speechSynthesis' in window) window.speechSynthesis.onvoiceschanged = () => {};
             document.getElementById('loadingOverlay').classList.add('hidden');
+
+            // Personalized mode: launched from the Personalized N-400 page.
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('mode') === 'personal') {
+                let p = null;
+                try { p = JSON.parse(localStorage.getItem('n400Profile:' + session.user.id)); } catch (e) { p = null; }
+                if (!p) { window.location.href = 'n400-personal.html'; return; }
+                profile = p;
+                personalized = true;
+                n400Mode = 'full';
+                startN400();
+            }
         }
         init();
     </script>
