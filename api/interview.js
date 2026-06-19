@@ -178,7 +178,8 @@ function buildN400OnlyPrompt(officer, n400Seed, n400Mode, profile) {
 ${buildProfileBlock(profile)}
 === END APPLICATION ANSWERS ===`;
     personalizeRule = `
-- PERSONALIZE: When a question matches one of the applicant's answers above, ask it as a verification using their information — for example, "Your application says you live at [address] — is that still correct?" or "You listed your employer as [employer] — how long have you worked there?". Where you have no answer for a question, simply ask it normally. Ask ALL the questions in the list regardless.`;
+- PERSONALIZE: When a question matches one of the applicant's answers above, ask it as a verification using their information — for example, "Your application says you live at [address] — is that still correct?" or "You listed your employer as [employer] — how long have you worked there?". Where you have no answer for a question, simply ask it normally. Ask ALL the questions in the list regardless.
+- RESOLVE INCONSISTENCIES: If the applicant's spoken answer CONTRADICTS what their application says (a different number of years, a different employer, a different address, a different marital status, etc.), do NOT just accept it and move on — a real officer must resolve this. Politely point out the discrepancy, state both versions clearly ("Your application says X, but you just told me Y"), and ask the applicant to clarify which one is correct and why. Stay on that point and do not move to the next question until they have clarified.`;
   }
 
   // In random (non-personalized) mode, add a short "explain this word" check.
