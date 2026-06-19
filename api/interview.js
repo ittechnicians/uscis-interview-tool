@@ -28,6 +28,7 @@ module.exports = async function handler(req, res) {
     const n400Seed = Number(body.n400Seed) || 1;
     const mode = (body.mode === 'n400') ? 'n400' : 'full';
     const n400Mode = (body.n400Mode === 'full') ? 'full' : 'random';
+    const profile = (body.profile && typeof body.profile === 'object') ? body.profile : null;
 
     // If there's no history yet, seed a starter so the officer opens the interview.
     const conversation = history.length === 0
@@ -35,7 +36,7 @@ module.exports = async function handler(req, res) {
       : history;
 
     const messages = [
-      { role: 'system', content: buildSystemPrompt(officer, testVersion, n400Seed, mode, n400Mode) },
+      { role: 'system', content: buildSystemPrompt(officer, testVersion, n400Seed, mode, n400Mode, profile) },
       ...conversation
     ];
 
@@ -71,9 +72,9 @@ module.exports = async function handler(req, res) {
   }
 };
 
-function buildSystemPrompt(officer, testVersion, n400Seed, mode, n400Mode) {
+function buildSystemPrompt(officer, testVersion, n400Seed, mode, n400Mode, profile) {
   if (mode === 'n400') {
-    return buildN400OnlyPrompt(officer, n400Seed, n400Mode);
+    return buildN400OnlyPrompt(officer, n400Seed, n400Mode, profile);
   }
   const is128 = (testVersion === '128');
   const bank = is128 ? CIVICS_2020 : CIVICS_2008;
@@ -122,16 +123,65 @@ function planToList(plan) {
   }).join('\n');
 }
 
-function buildN400OnlyPrompt(officer, n400Seed, n400Mode) {
-  const isFull = (n400Mode === 'full');
+function buildProfileBlock(profile) {
+  const map = {
+    fullName: 'Full legal name',
+    countryBirth: 'Country of birth',
+    countryCit: 'Country of citizenship',
+    otherNames: 'Other names used',
+    address: 'Current home address',
+    addressTime: 'Time at current address',
+    marital: 'Marital status',
+    spouseName: "Spouse's name",
+    spouseCit: 'Spouse is a U.S. citizen',
+    employer: 'Current employer',
+    occupation: 'Occupation',
+    basis: 'Basis for applying',
+    tripsCount: 'Trips outside the U.S. (last 5 years)',
+    longestTrip: 'Longest trip outside the U.S.'
+  };
+  const pretty = function (k, v) {
+    if (k === 'marital') return { single: 'single', married: 'married', divorced: 'divorced', widowed: 'widowed' }[v] || v;
+    if (k === 'spouseCit') return v === 'yes' ? 'yes' : 'no';
+    if (k === 'basis') return v === '5yr' ? '5 years as a permanent resident' : (v === '3yr' ? '3 years married to a U.S. citizen' : v);
+    return v;
+  };
+  const lines = Object.keys(map)
+    .filter(function (k) { return profile[k]; })
+    .map(function (k) { return `   - ${map[k]}: ${pretty(k, profile[k])}`; });
+  return lines.join('\n');
+}
+
+function buildN400OnlyPrompt(officer, n400Seed, n400Mode, profile) {
+  const personalized = !!(profile && Object.keys(profile).some(function (k) { return profile[k]; }));
+  const isFull = personalized ? true : (n400Mode === 'full');
   const plan = isFull ? allN400() : selectN400Random(n400Seed, 10);
   const list = planToList(plan);
   const count = plan.reduce(function (n, s) { return n + s.questions.length; }, 0);
-  const intro = isFull
-    ? `This is a FULL run-through of the N-400 application questions, section by section from top to bottom (${count} questions in total).`
-    : `This is a QUICK practice of about ${count} N-400 application questions, chosen at random, plus a short check of whether the applicant understands a couple of key words.`;
 
-  // In random mode, add a short "explain this word" check (officers do this for words like genocide, totalitarian, etc.).
+  let intro;
+  if (personalized) {
+    intro = `This is a PERSONALIZED full run-through of the N-400 application questions, top to bottom (${count} questions), based on the applicant's own answers.`;
+  } else if (isFull) {
+    intro = `This is a FULL run-through of the N-400 application questions, section by section from top to bottom (${count} questions in total).`;
+  } else {
+    intro = `This is a QUICK practice of about ${count} N-400 application questions, chosen at random, plus a short check of whether the applicant understands a couple of key words.`;
+  }
+
+  // Personalization block (their own application answers).
+  let profileBlock = '';
+  let personalizeRule = '';
+  if (personalized) {
+    profileBlock = `
+
+=== THE APPLICANT'S OWN APPLICATION ANSWERS (use these to personalize and verify) ===
+${buildProfileBlock(profile)}
+=== END APPLICATION ANSWERS ===`;
+    personalizeRule = `
+- PERSONALIZE: When a question matches one of the applicant's answers above, ask it as a verification using their information — for example, "Your application says you live at [address] — is that still correct?" or "You listed your employer as [employer] — how long have you worked there?". Where you have no answer for a question, simply ask it normally. Ask ALL the questions in the list regardless.`;
+  }
+
+  // In random (non-personalized) mode, add a short "explain this word" check.
   let defsBlock = '';
   if (!isFull) {
     const defs = selectDefinitions(n400Seed, 2);
@@ -146,7 +196,7 @@ ${defsList}`;
 
   return `You are ${officer.name}, a U.S. Citizenship and Immigration Services (USCIS) officer at the ${officer.office}. Your interviewing style is: ${officer.tag}.
 
-You are running a FOCUSED practice of ONLY the N-400 application questions — NOT the full interview. ${intro} Stay fully in character as the officer the whole time.
+You are running a FOCUSED practice of ONLY the N-400 application questions — NOT the full interview. ${intro} Stay fully in character as the officer the whole time.${profileBlock}
 
 Do this, in order:
 1. Briefly greet the applicant in ONE sentence and tell them you will go through their application questions. Do NOT administer the oath, the civics test, or the English reading/writing test — those are not part of this practice.
@@ -163,7 +213,7 @@ CRITICAL RULES:
 - Speak in clear, simple English (the real interview is conducted in English).
 - Match your tone to your style (${officer.tag}), but always stay professional and respectful.
 - Never break character. Never say you are an AI or a language model — you are the officer.
-- Do NOT list multiple questions at once. One question, then wait.`;
+- Do NOT list multiple questions at once. One question, then wait.${personalizeRule}`;
 }
 
 // Seeded shuffle so the civics selection is random per interview but stable across turns.
