@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalized N-400 - USCIS Interviews.AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: #f8fafc; color: #0f172a; line-height: 1.6; }
+        .loading-overlay { position: fixed; inset: 0; background: #f8fafc; display: flex; align-items: center; justify-content: center; z-index: 5000; }
+        .loading-overlay.hidden { display: none; }
+        .spinner { width: 44px; height: 44px; border: 4px solid #e2e8f0; border-top-color: #1e40af; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .topbar { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 0.875rem 0; position: sticky; top: 0; z-index: 1000; }
+        .topbar-inner { max-width: 760px; margin: 0 auto; padding: 0 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.2rem; font-weight: 800; color: #0f172a; text-decoration: none; display: flex; align-items: center; gap: 0.4rem; }
+        .top-actions { display: flex; align-items: center; gap: 0.75rem; }
+        .lang-toggle { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 2rem; padding: 0.3rem; display: flex; gap: 0.15rem; }
+        .lang-toggle button { border: none; background: transparent; padding: 0.25rem 0.7rem; border-radius: 2rem; font-weight: 700; font-size: 0.8rem; cursor: pointer; color: #64748b; font-family: inherit; }
+        .lang-toggle button.on { background: #1e40af; color: white; }
+        .btn-back { background: white; color: #475569; border: 1px solid #e2e8f0; padding: 0.45rem 0.9rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem; cursor: pointer; text-decoration: none; }
+
+        .wrap { max-width: 760px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+        h1 { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.25rem; }
+        .sub { color: #64748b; margin-bottom: 1.75rem; }
+
+        .card { background: white; border: 1px solid #e2e8f0; border-radius: 1.1rem; padding: 1.75rem; box-shadow: 0 8px 24px rgba(0,0,0,0.04); }
+        .privacy-card { border-left: 4px solid #1e40af; }
+        .privacy-card h2 { font-size: 1.25rem; font-weight: 800; margin-bottom: 0.75rem; }
+        .privacy-card p { color: #475569; margin-bottom: 1rem; }
+        .privacy-points { list-style: none; margin: 0 0 1.25rem; padding: 0; }
+        .privacy-points li { padding: 0.4rem 0 0.4rem 1.75rem; position: relative; color: #334155; font-size: 0.95rem; }
+        .privacy-points li::before { content: '✓'; position: absolute; left: 0; color: #16a34a; font-weight: 800; }
+        .consent-check { display: flex; align-items: flex-start; gap: 0.6rem; margin: 1rem 0 1.25rem; cursor: pointer; }
+        .consent-check input { width: 20px; height: 20px; margin-top: 2px; cursor: pointer; }
+        .consent-check span { font-weight: 600; color: #0f172a; }
+
+        .field { margin-bottom: 1.1rem; }
+        .field label { display: block; font-weight: 600; color: #334155; margin-bottom: 0.35rem; font-size: 0.9rem; }
+        .field input, .field select { width: 100%; padding: 0.65rem 0.85rem; border: 1px solid #e2e8f0; border-radius: 0.55rem; font-family: inherit; font-size: 0.95rem; color: #0f172a; }
+        .field input:focus, .field select:focus { outline: none; border-color: #1e40af; }
+        .field select { cursor: pointer; background: white; }
+        .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        @media (max-width: 540px) { .grid2 { grid-template-columns: 1fr; } }
+        .section-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #1e40af; margin: 1.5rem 0 0.75rem; }
+        .section-label:first-child { margin-top: 0; }
+
+        .btn-primary { background: #1e40af; color: white; border: none; padding: 0.95rem 2rem; border-radius: 0.7rem; font-size: 1.02rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+        .btn-primary:hover:not(:disabled) { background: #1e3a8a; transform: translateY(-1px); }
+        .btn-primary:disabled { background: #cbd5e1; cursor: not-allowed; }
+        .btn-ghost { background: white; color: #1e40af; border: 2px solid #1e40af; padding: 0.8rem 1.5rem; border-radius: 0.7rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+        .btn-ghost:hover { background: #eff6ff; }
+        .btn-danger { background: white; color: #dc2626; border: 1px solid #fecaca; padding: 0.8rem 1.5rem; border-radius: 0.7rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+        .btn-danger:hover { background: #fef2f2; }
+        .row-btns { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.5rem; }
+        .note { color: #94a3b8; font-size: 0.85rem; margin-top: 1rem; }
+
+        .summary { list-style: none; padding: 0; margin: 1rem 0; }
+        .summary li { padding: 0.5rem 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; gap: 1rem; font-size: 0.95rem; }
+        .summary li .k { color: #64748b; }
+        .summary li .v { font-weight: 600; color: #0f172a; text-align: right; }
+        .next-note { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; border-radius: 0.6rem; padding: 0.9rem 1.1rem; margin-top: 1rem; font-weight: 600; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
+
+    <div class="topbar">
+        <div class="topbar-inner">
+            <a href="dashboard.html" class="logo"><span>🇺🇸</span> USCIS Interviews<span style="color:#dc2626;">.AI</span></a>
+            <div class="top-actions">
+                <div class="lang-toggle">
+                    <button id="langEn" onclick="setLang('en')">EN</button>
+                    <button id="langEs" onclick="setLang('es')">ES</button>
+                </div>
+                <a href="dashboard.html" class="btn-back" id="backBtn">← Hub</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="wrap" id="app"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://vugvnqapdxyewxyfaayl.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_vFFY4GL2f8PIGrArW05ncg_PVkcgV4M';
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const T = {
+            en: {
+                back: '← Hub', title: 'Personalized N-400',
+                sub: 'Practice a full interview based on your own application answers.',
+                consentTitle: 'Before we begin — your privacy',
+                consentBody: 'You will enter some details from your own application so the officer can ask you personalized questions. Please read this first:',
+                p1: 'This information stays only on your device — we never save it to our servers.',
+                p2: 'We do NOT ask for your Social Security number or your A-number.',
+                p3: 'You can edit or delete your information at any time.',
+                p4: 'To create the interview, your answers are sent securely to generate questions, but they are never stored.',
+                consentCheck: 'I understand and accept.',
+                consentBtn: 'Continue →',
+                formTitle: 'Your application details',
+                formNote: 'All fields are optional — fill in what you want to practice. Nothing here is saved to our servers.',
+                secIdentity: 'Identity', secAddress: 'Address', secMarital: 'Marital', secWork: 'Employment', secEligibility: 'Eligibility', secTravel: 'Travel',
+                fullName: 'Full legal name', countryBirth: 'Country of birth', countryCit: 'Country of citizenship', otherNames: 'Other names used (if any)',
+                address: 'Current home address', addressTime: 'How long at this address',
+                marital: 'Marital status', spouseName: "Spouse's full name", spouseCit: 'Is your spouse a U.S. citizen?',
+                employer: 'Current employer', occupation: 'Occupation / job title',
+                basis: 'Basis for applying', basis5: '5 years as a permanent resident', basis3: '3 years married to a U.S. citizen',
+                tripsCount: 'Trips outside the U.S. (last 5 years)', longestTrip: 'Longest trip outside the U.S.',
+                mSingle: 'Single', mMarried: 'Married', mDivorced: 'Divorced', mWidowed: 'Widowed',
+                yes: 'Yes', no: 'No', choose: '—',
+                save: 'Save my info', saveCont: 'Save and continue →',
+                savedTitle: 'We found your saved info',
+                savedBody: 'Your details are saved on this device. You can start practicing, edit them, or delete them.',
+                start: 'Start personalized interview →', edit: 'Edit', del: 'Delete my info',
+                delConfirm: 'Delete all your saved information? This cannot be undone.',
+                nextNote: 'Your info is saved on this device. The personalized interview connects in the next step.',
+                empty: '(not provided)'
+            },
+            es: {
+                back: '← Inicio', title: 'N-400 Personalizado',
+                sub: 'Practica una entrevista completa basada en las respuestas de tu propia solicitud.',
+                consentTitle: 'Antes de empezar — tu privacidad',
+                consentBody: 'Vas a ingresar algunos datos de tu propia solicitud para que el oficial te haga preguntas personalizadas. Por favor lee esto primero:',
+                p1: 'Esta información se queda solo en tu dispositivo — nunca la guardamos en nuestros servidores.',
+                p2: 'NO te pedimos tu número de Seguro Social ni tu A-number.',
+                p3: 'Puedes editar o borrar tu información en cualquier momento.',
+                p4: 'Para crear la entrevista, tus respuestas se envían de forma segura para generar las preguntas, pero nunca se almacenan.',
+                consentCheck: 'Entiendo y acepto.',
+                consentBtn: 'Continuar →',
+                formTitle: 'Datos de tu solicitud',
+                formNote: 'Todos los campos son opcionales — llena lo que quieras practicar. Nada de esto se guarda en nuestros servidores.',
+                secIdentity: 'Identidad', secAddress: 'Dirección', secMarital: 'Estado civil', secWork: 'Empleo', secEligibility: 'Elegibilidad', secTravel: 'Viajes',
+                fullName: 'Nombre legal completo', countryBirth: 'País de nacimiento', countryCit: 'País de ciudadanía', otherNames: 'Otros nombres usados (si aplica)',
+                address: 'Dirección actual', addressTime: 'Cuánto tiempo en esta dirección',
+                marital: 'Estado civil', spouseName: 'Nombre completo del cónyuge', spouseCit: '¿Tu cónyuge es ciudadano de EE. UU.?',
+                employer: 'Empleador actual', occupation: 'Ocupación / puesto',
+                basis: 'Base de la solicitud', basis5: '5 años como residente permanente', basis3: '3 años casado con ciudadano de EE. UU.',
+                tripsCount: 'Viajes fuera de EE. UU. (últimos 5 años)', longestTrip: 'Viaje más largo fuera de EE. UU.',
+                mSingle: 'Soltero(a)', mMarried: 'Casado(a)', mDivorced: 'Divorciado(a)', mWidowed: 'Viudo(a)',
+                yes: 'Sí', no: 'No', choose: '—',
+                save: 'Guardar mis datos', saveCont: 'Guardar y continuar →',
+                savedTitle: 'Encontramos tu información guardada',
+                savedBody: 'Tus datos están guardados en este dispositivo. Puedes empezar a practicar, editarlos o borrarlos.',
+                start: 'Empezar entrevista personalizada →', edit: 'Editar', del: 'Borrar mis datos',
+                delConfirm: '¿Borrar toda tu información guardada? Esto no se puede deshacer.',
+                nextNote: 'Tus datos quedaron guardados en este dispositivo. La entrevista personalizada se conecta en el siguiente paso.',
+                empty: '(sin dato)'
+            }
+        };
+        let lang = localStorage.getItem('lang') || 'en';
+        function t(k) { return T[lang][k]; }
+
+        let userId = null;
+        let storageKey = 'n400Profile';
+        let screen = 'consent';      // 'consent' | 'form' | 'saved'
+        let consentChecked = false;
+        let profile = null;          // saved profile
+        let draft = {};              // in-progress form values
+        let showNext = false;
+
+        const FIELDS = ['fullName','countryBirth','countryCit','otherNames','address','addressTime','marital','spouseName','spouseCit','employer','occupation','basis','tripsCount','longestTrip'];
+
+        const app = document.getElementById('app');
+
+        function setLang(l) {
+            lang = l; localStorage.setItem('lang', l);
+            document.getElementById('langEn').classList.toggle('on', l === 'en');
+            document.getElementById('langEs').classList.toggle('on', l === 'es');
+            document.getElementById('backBtn').textContent = t('back');
+            document.documentElement.lang = l;
+            if (screen === 'form') captureForm();
+            render();
+        }
+
+        function loadProfile() {
+            try { const raw = localStorage.getItem(storageKey); return raw ? JSON.parse(raw) : null; } catch (e) { return null; }
+        }
+        function saveProfile(p) { localStorage.setItem(storageKey, JSON.stringify(p)); }
+        function esc(s) { return String(s == null ? '' : s).replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+
+        function render() {
+            if (screen === 'consent') renderConsent();
+            else if (screen === 'form') renderForm();
+            else renderSaved();
+        }
+
+        function renderConsent() {
+            app.innerHTML =
+                '<h1>' + t('title') + '</h1><p class="sub">' + t('sub') + '</p>' +
+                '<div class="card privacy-card">' +
+                    '<h2>' + t('consentTitle') + '</h2>' +
+                    '<p>' + t('consentBody') + '</p>' +
+                    '<ul class="privacy-points">' +
+                        '<li>' + t('p1') + '</li><li>' + t('p2') + '</li><li>' + t('p3') + '</li><li>' + t('p4') + '</li>' +
+                    '</ul>' +
+                    '<label class="consent-check"><input type="checkbox" id="consentBox" ' + (consentChecked ? 'checked' : '') + ' onchange="onConsent(this.checked)"><span>' + t('consentCheck') + '</span></label>' +
+                    '<button class="btn-primary" id="consentBtn" ' + (consentChecked ? '' : 'disabled') + ' onclick="goForm()">' + t('consentBtn') + '</button>' +
+                '</div>';
+        }
+        function onConsent(checked) {
+            consentChecked = checked;
+            document.getElementById('consentBtn').disabled = !checked;
+        }
+        function goForm() { if (!consentChecked) return; screen = 'form'; render(); }
+
+        function inputField(id, type) {
+            return '<div class="field"><label>' + t(id) + '</label><input type="' + (type || 'text') + '" id="f_' + id + '" value="' + esc(draft[id]) + '"></div>';
+        }
+
+        function renderForm() {
+            const m = draft.marital || '';
+            const sc = draft.spouseCit || '';
+            const bs = draft.basis || '';
+            app.innerHTML =
+                '<h1>' + t('formTitle') + '</h1><p class="sub">' + t('formNote') + '</p>' +
+                '<div class="card">' +
+                    '<div class="section-label">' + t('secIdentity') + '</div>' +
+                    inputField('fullName') +
+                    '<div class="grid2">' + inputField('countryBirth') + inputField('countryCit') + '</div>' +
+                    inputField('otherNames') +
+
+                    '<div class="section-label">' + t('secAddress') + '</div>' +
+                    inputField('address') + inputField('addressTime') +
+
+                    '<div class="section-label">' + t('secMarital') + '</div>' +
+                    '<div class="field"><label>' + t('marital') + '</label><select id="f_marital">' +
+                        '<option value="">' + t('choose') + '</option>' +
+                        '<option value="single"' + (m==='single'?' selected':'') + '>' + t('mSingle') + '</option>' +
+                        '<option value="married"' + (m==='married'?' selected':'') + '>' + t('mMarried') + '</option>' +
+                        '<option value="divorced"' + (m==='divorced'?' selected':'') + '>' + t('mDivorced') + '</option>' +
+                        '<option value="widowed"' + (m==='widowed'?' selected':'') + '>' + t('mWidowed') + '</option>' +
+                    '</select></div>' +
+                    '<div class="grid2">' + inputField('spouseName') +
+                        '<div class="field"><label>' + t('spouseCit') + '</label><select id="f_spouseCit">' +
+                            '<option value="">' + t('choose') + '</option>' +
+                            '<option value="yes"' + (sc==='yes'?' selected':'') + '>' + t('yes') + '</option>' +
+                            '<option value="no"' + (sc==='no'?' selected':'') + '>' + t('no') + '</option>' +
+                        '</select></div>' +
+                    '</div>' +
+
+                    '<div class="section-label">' + t('secWork') + '</div>' +
+                    '<div class="grid2">' + inputField('employer') + inputField('occupation') + '</div>' +
+
+                    '<div class="section-label">' + t('secEligibility') + '</div>' +
+                    '<div class="field"><label>' + t('basis') + '</label><select id="f_basis">' +
+                        '<option value="">' + t('choose') + '</option>' +
+                        '<option value="5yr"' + (bs==='5yr'?' selected':'') + '>' + t('basis5') + '</option>' +
+                        '<option value="3yr"' + (bs==='3yr'?' selected':'') + '>' + t('basis3') + '</option>' +
+                    '</select></div>' +
+
+                    '<div class="section-label">' + t('secTravel') + '</div>' +
+                    '<div class="grid2">' + inputField('tripsCount') + inputField('longestTrip') + '</div>' +
+
+                    '<div class="row-btns"><button class="btn-primary" onclick="saveForm()">' + t('saveCont') + '</button></div>' +
+                '</div>';
+        }
+
+        function captureForm() {
+            FIELDS.forEach(function (id) {
+                const el = document.getElementById('f_' + id);
+                if (el) draft[id] = el.value.trim();
+            });
+        }
+
+        function saveForm() {
+            captureForm();
+            profile = Object.assign({}, draft);
+            saveProfile(profile);
+            showNext = true;
+            screen = 'saved';
+            render();
+        }
+
+        function labelForValue(id, val) {
+            if (!val) return t('empty');
+            if (id === 'marital') return t('m' + val.charAt(0).toUpperCase() + val.slice(1));
+            if (id === 'spouseCit') return val === 'yes' ? t('yes') : t('no');
+            if (id === 'basis') return val === '5yr' ? t('basis5') : t('basis3');
+            return val;
+        }
+
+        function renderSaved() {
+            const rows = FIELDS.filter(function (id) { return profile && profile[id]; }).map(function (id) {
+                return '<li><span class="k">' + t(id) + '</span><span class="v">' + esc(labelForValue(id, profile[id])) + '</span></li>';
+            }).join('');
+            app.innerHTML =
+                '<h1>' + t('savedTitle') + '</h1><p class="sub">' + t('savedBody') + '</p>' +
+                '<div class="card">' +
+                    '<ul class="summary">' + (rows || '<li><span class="k">' + t('empty') + '</span></li>') + '</ul>' +
+                    '<div class="row-btns">' +
+                        '<button class="btn-primary" onclick="startInterview()">' + t('start') + '</button>' +
+                        '<button class="btn-ghost" onclick="editProfile()">' + t('edit') + '</button>' +
+                        '<button class="btn-danger" onclick="deleteProfile()">' + t('del') + '</button>' +
+                    '</div>' +
+                    (showNext ? '<div class="next-note">' + t('nextNote') + '</div>' : '') +
+                '</div>';
+        }
+
+        function editProfile() { draft = Object.assign({}, profile || {}); screen = 'form'; render(); }
+        function deleteProfile() {
+            if (!confirm(t('delConfirm'))) return;
+            localStorage.removeItem(storageKey);
+            profile = null; draft = {}; consentChecked = false; showNext = false;
+            screen = 'consent'; render();
+        }
+        function startInterview() {
+            // Connected in the next step. For now, confirm the profile is saved.
+            showNext = true; render();
+        }
+
+        async function init() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) { window.location.href = 'index.html'; return; }
+            userId = session.user.id;
+            storageKey = 'n400Profile:' + userId;
+            profile = loadProfile();
+            screen = profile ? 'saved' : 'consent';
+            setLang(lang);
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+        init();
+    </script>
+</body>
+</html>
