@@ -106,7 +106,7 @@
     <div class="wrap" id="app"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
     <script>
         const SUPABASE_URL = 'https://vugvnqapdxyewxyfaayl.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_vFFY4GL2f8PIGrArW05ncg_PVkcgV4M';
@@ -214,21 +214,43 @@
         ];
         let selectedOfficerId = OFFICERS[0].id;
 
-        // "Have you ever..." good-moral-character questions (same as the interview bank).
+        // "Have you ever..." questions from Part 9 of the N-400 (same wording the officer uses).
         const GMC_QUESTIONS = [
-            { id:'arrested',   en:'Have you ever been arrested, cited, or detained by any law enforcement officer?', es:'¿Alguna vez ha sido arrestado, citado o detenido por algún oficial de la ley?' },
-            { id:'convicted',  en:'Have you ever been convicted of a crime?', es:'¿Alguna vez ha sido condenado por un delito?' },
-            { id:'crimeNoArr', en:'Have you ever committed a crime or offense for which you were not arrested?', es:'¿Alguna vez cometió un delito por el cual no fue arrestado?' },
-            { id:'claimedCit', en:'Have you ever claimed to be a U.S. citizen, in writing or in any other way?', es:'¿Alguna vez ha afirmado ser ciudadano de EE. UU., por escrito o de cualquier otra forma?' },
-            { id:'voted',      en:'Have you ever registered to vote, or voted, in any election in the United States?', es:'¿Alguna vez se ha registrado para votar o ha votado en alguna elección en EE. UU.?' },
-            { id:'communist',  en:'Have you ever been a member of the Communist Party or any other totalitarian party?', es:'¿Alguna vez ha sido miembro del Partido Comunista o de algún otro partido totalitario?' },
-            { id:'terrorist',  en:'Have you ever been a member of, or in any way associated with, a terrorist organization?', es:'¿Alguna vez ha sido miembro, o ha estado asociado de cualquier forma, con una organización terrorista?' },
-            { id:'persecuted', en:'Have you ever persecuted anyone because of race, religion, national origin, political opinion, or social group?', es:'¿Alguna vez ha perseguido a alguien por su raza, religión, origen nacional, opinión política o grupo social?' },
-            { id:'genocide',   en:'Have you ever been involved in genocide, torture, or the killing of any person?', es:'¿Alguna vez ha estado involucrado en genocidio, tortura o el asesinato de alguna persona?' },
-            { id:'drunkard',   en:'Have you ever been a habitual drunkard, or had a serious problem with alcohol or drugs?', es:'¿Alguna vez ha sido bebedor habitual o ha tenido un problema serio con el alcohol o las drogas?' },
-            { id:'drugs',      en:'Have you ever sold, smuggled, or helped to traffic any controlled substances or illegal drugs?', es:'¿Alguna vez ha vendido, contrabandeado o ayudado a traficar sustancias controladas o drogas ilegales?' },
-            { id:'support',    en:'Have you ever failed to support your dependents or to pay court-ordered child support?', es:'¿Alguna vez ha dejado de mantener a sus dependientes o de pagar la manutención de menores ordenada por un tribunal?' },
-            { id:'falseInfo',  en:'Have you ever given false or misleading information to a U.S. government official to gain an immigration benefit?', es:'¿Alguna vez ha dado información falsa o engañosa a un oficial del gobierno de EE. UU. para obtener un beneficio migratorio?' }
+            { id:'claimedCit',   en:'Have you EVER claimed to be a U.S. citizen (in writing or any other way)?', es:'¿Alguna vez ha afirmado ser ciudadano de EE. UU. (por escrito o de cualquier forma)?' },
+            { id:'voted',        en:'Have you EVER registered to vote, or voted, in any election in the United States?', es:'¿Alguna vez se ha registrado para votar o ha votado en alguna elección en EE. UU.?' },
+            { id:'owesTaxes',    en:'Do you currently owe any overdue Federal, state, or local taxes?', es:'¿Debe actualmente algún impuesto federal, estatal o local atrasado?' },
+            { id:'nonresidentTax', en:'Since becoming a permanent resident, have you called yourself a "nonresident" on a tax return?', es:'Desde que es residente permanente, ¿se ha declarado "no residente" en una declaración de impuestos?' },
+            { id:'communist',    en:'Have you EVER been a member of, or associated with, a Communist or other totalitarian party?', es:'¿Alguna vez ha sido miembro o ha estado asociado con un partido comunista o totalitario?' },
+            { id:'weaponHarm',   en:'Have you EVER used a weapon or explosive to harm another person or damage property?', es:'¿Alguna vez ha usado un arma o explosivo para dañar a una persona o destruir propiedad?' },
+            { id:'kidnapping',   en:'Have you EVER been involved in kidnapping, assassination, or hijacking/sabotage of a vehicle, ship, or airplane?', es:'¿Alguna vez ha participado en secuestro, asesinato o secuestro/sabotaje de un vehículo, barco o avión?' },
+            { id:'torture',      en:'Have you EVER ordered, helped, or taken part in torture, genocide, or killing any person?', es:'¿Alguna vez ha ordenado, ayudado o participado en tortura, genocidio o el asesinato de alguna persona?' },
+            { id:'militaryUnit', en:'Have you EVER served in or been a member of any military or police unit?', es:'¿Alguna vez ha servido o ha sido miembro de alguna unidad militar o policial?' },
+            { id:'armedGroup',   en:'Have you EVER served in or been a member of any armed group (paramilitary, rebel, guerrilla, etc.)?', es:'¿Alguna vez ha servido o sido miembro de un grupo armado (paramilitar, rebelde, guerrilla, etc.)?' },
+            { id:'detention',    en:'Have you EVER worked or served at a place where people were detained (prison, camp, detention facility)?', es:'¿Alguna vez ha trabajado o servido en un lugar donde se detenía a personas (prisión, campo, centro de detención)?' },
+            { id:'weaponGroup',  en:'Were you EVER part of, or did you help, a group that used a weapon against any person?', es:'¿Alguna vez fue parte de, o ayudó a, un grupo que usó un arma contra alguna persona?' },
+            { id:'weaponsTraining', en:'Have you EVER received any weapons, paramilitary, or other military-type training?', es:'¿Alguna vez ha recibido entrenamiento con armas, paramilitar o de tipo militar?' },
+            { id:'soldWeapons',  en:'Have you EVER sold, provided, or transported weapons that you knew would be used against a person?', es:'¿Alguna vez ha vendido, proporcionado o transportado armas que sabía que se usarían contra una persona?' },
+            { id:'recruitedMinor', en:'Have you EVER recruited or used a person under 15 years old to serve in or help an armed group?', es:'¿Alguna vez ha reclutado o usado a una persona menor de 15 años para servir o ayudar a un grupo armado?' },
+            { id:'usedMinor',    en:'Have you EVER used a person under 15 years old to take part in hostilities?', es:'¿Alguna vez ha usado a una persona menor de 15 años para participar en hostilidades?' },
+            { id:'crimeNoArr',   en:'Have you EVER committed a crime or offense for which you were NOT arrested?', es:'¿Alguna vez cometió un delito por el cual NO fue arrestado?' },
+            { id:'arrested',     en:'Have you EVER been arrested, cited, detained, or charged by any law enforcement officer?', es:'¿Alguna vez ha sido arrestado, citado, detenido o acusado por algún oficial de la ley?' },
+            { id:'completedProbation', en:'If you had a suspended sentence, probation, or parole, have you completed it?', es:'Si tuvo una sentencia suspendida, libertad condicional o probatoria, ¿la ha completado?' },
+            { id:'prostitution', en:'Have you EVER engaged in prostitution, or procured or imported persons for prostitution?', es:'¿Alguna vez ha ejercido la prostitución o ha conseguido/importado personas para la prostitución?' },
+            { id:'drugs',        en:'Have you EVER manufactured, sold, or smuggled (trafficked) controlled substances or illegal drugs?', es:'¿Alguna vez ha fabricado, vendido o contrabandeado sustancias controladas o drogas ilegales?' },
+            { id:'marriageFraud', en:'Have you EVER married someone in order to obtain an immigration benefit?', es:'¿Alguna vez se ha casado con alguien para obtener un beneficio migratorio?' },
+            { id:'bigamy',       en:'Have you EVER been married to more than one person at the same time?', es:'¿Alguna vez ha estado casado con más de una persona al mismo tiempo?' },
+            { id:'helpedEnter',  en:'Have you EVER helped anyone enter, or try to enter, the United States illegally?', es:'¿Alguna vez ha ayudado a alguien a entrar, o intentar entrar, ilegalmente a EE. UU.?' },
+            { id:'failedSupport', en:'Have you EVER failed to support your dependents or to pay court-ordered child support or alimony?', es:'¿Alguna vez ha dejado de mantener a sus dependientes o de pagar manutención o pensión ordenada por un tribunal?' },
+            { id:'gambling',     en:'Have you EVER gambled illegally or received income from illegal gambling?', es:'¿Alguna vez ha apostado ilegalmente o recibido ingresos de apuestas ilegales?' },
+            { id:'publicBenefit', en:'Have you EVER made a misrepresentation to obtain a public benefit in the United States?', es:'¿Alguna vez ha hecho una declaración falsa para obtener un beneficio público en EE. UU.?' },
+            { id:'falseInfoGov', en:'Have you EVER given any U.S. Government official false, fraudulent, or misleading information?', es:'¿Alguna vez ha dado a un oficial del gobierno de EE. UU. información falsa, fraudulenta o engañosa?' },
+            { id:'liedToEnter',  en:'Have you EVER lied to a U.S. Government official to gain entry/admission or immigration benefits?', es:'¿Alguna vez ha mentido a un oficial del gobierno de EE. UU. para entrar o para obtener beneficios migratorios?' },
+            { id:'removed',      en:'Have you EVER been removed or deported from the United States?', es:'¿Alguna vez ha sido removido o deportado de los Estados Unidos?' },
+            { id:'removalProc',  en:'Have you EVER been placed in removal, rescission, or deportation proceedings?', es:'¿Alguna vez ha estado en procedimientos de remoción, rescisión o deportación?' },
+            { id:'avoidDraft',   en:'Have you EVER left the United States to avoid being drafted in the U.S. armed forces?', es:'¿Alguna vez ha salido de EE. UU. para evitar ser reclutado en las fuerzas armadas?' },
+            { id:'exemption',    en:'Have you EVER applied for an exemption from military service in the U.S. armed forces?', es:'¿Alguna vez ha solicitado una exención del servicio militar en las fuerzas armadas de EE. UU.?' },
+            { id:'servedForces', en:'Have you EVER served in the U.S. armed forces?', es:'¿Alguna vez ha servido en las fuerzas armadas de EE. UU.?' },
+            { id:'deserted',     en:'Have you EVER deserted from the U.S. armed forces?', es:'¿Alguna vez ha desertado de las fuerzas armadas de EE. UU.?' }
         ];
 
         const FIELDS = ['fullName','countryBirth','countryCit','otherNames','address','addressTime','marital','spouseName','spouseCit','employer','occupation','basis','tripsCount','longestTrip'];
@@ -354,56 +376,96 @@
             renderForm();
         }
 
-        // ---------- Read the fillable N-400 PDF in the browser (never uploaded) ----------
+        // ---------- Read the fillable N-400 PDF in the browser with pdf.js (never uploaded) ----------
         let uploadMsg = '';
         let uploadMsgType = '';
+        if (window.pdfjsLib) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+        }
 
-        function findVal(values, words) {
-            const keys = Object.keys(values);
-            for (let i = 0; i < keys.length; i++) {
-                const lk = keys[i].toLowerCase();
-                const ok = words.every(function (w) { return lk.indexOf(w) !== -1; });
-                if (ok && values[keys[i]]) return values[keys[i]];
+        // Get a field's value by its short name (last path segment, ignoring [n] indices).
+        function fieldVal(objs, shortName) {
+            for (const full in objs) {
+                const seg = full.split('.').pop().replace(/\[\d+\]$/, '');
+                if (seg === shortName) {
+                    const arr = objs[full] || [];
+                    for (let i = 0; i < arr.length; i++) {
+                        const v = arr[i] && arr[i].value;
+                        if (v !== undefined && v !== null && v !== '' && v !== 'Off') return ('' + v).trim();
+                    }
+                    return (arr[0] && arr[0].value != null) ? ('' + arr[0].value).trim() : '';
+                }
             }
+            return '';
+        }
+        function yesNo(objs, shortName) {
+            const v = fieldVal(objs, shortName).replace('/', '').toUpperCase();
+            if (v === 'Y' || v === 'YES' || v === '1' || v === 'TRUE') return 'yes';
+            if (v === 'N' || v === 'NO') return 'no';
             return '';
         }
 
         async function handleUpload(file) {
-            if (!file || !window.PDFLib) return;
+            if (!file || !window.pdfjsLib) return;
             uploadMsg = t('uploadReading'); uploadMsgType = 'info';
             captureForm(); renderForm();
             try {
-                const bytes = await file.arrayBuffer();
-                const doc = await PDFLib.PDFDocument.load(bytes, { ignoreEncryption: true, updateMetadata: false });
-                const form = doc.getForm();
-                const fields = form.getFields();
-                const values = {};
-                fields.forEach(function (f) {
-                    try {
-                        const name = f.getName();
-                        if (f instanceof PDFLib.PDFTextField) { const v = f.getText(); if (v) values[name] = v.trim(); }
-                        else if (f instanceof PDFLib.PDFDropdown) { const s = f.getSelected(); if (s && s.length) values[name] = s.join(', '); }
-                        else if (f instanceof PDFLib.PDFRadioGroup) { const s = f.getSelected(); if (s) values[name] = s; }
-                    } catch (e) {}
-                });
+                const bytes = new Uint8Array(await file.arrayBuffer());
+                const pdf = await pdfjsLib.getDocument({ data: bytes }).promise;
+                const objs = await pdf.getFieldObjects();
+                if (!objs || Object.keys(objs).length === 0) {
+                    uploadMsg = t('uploadNone'); uploadMsgType = 'warn'; renderForm(); return;
+                }
                 captureForm();
                 let filled = 0;
                 function setIf(field, val) { if (val && !draft[field]) { draft[field] = val; filled++; } }
 
-                const given = findVal(values, ['given']) || findVal(values, ['first']);
-                const family = findVal(values, ['family']) || findVal(values, ['last']);
-                const full = (given + ' ' + family).trim();
-                setIf('fullName', full);
-                setIf('countryBirth', findVal(values, ['country', 'birth']));
-                setIf('countryCit', findVal(values, ['country', 'nationality']) || findVal(values, ['country', 'citizen']));
-                const street = findVal(values, ['street']);
-                const city = findVal(values, ['city']);
-                setIf('address', [street, city].filter(Boolean).join(', '));
-                setIf('employer', findVal(values, ['employer']));
-                setIf('occupation', findVal(values, ['occupation']));
+                // Part 2 — name, country of birth, citizenship
+                const given = fieldVal(objs, 'P2_Line1_GivenName');
+                const middle = fieldVal(objs, 'P2_Line1_MiddleName');
+                const family = fieldVal(objs, 'P2_Line1_FamilyName');
+                setIf('fullName', [given, middle, family].filter(Boolean).join(' '));
+                setIf('countryBirth', fieldVal(objs, 'P2_Line10_CountryOfBirth'));
+                setIf('countryCit', fieldVal(objs, 'P2_Line11_CountryOfNationality'));
 
-                if (Object.keys(values).length === 0) { uploadMsg = t('uploadNone'); uploadMsgType = 'warn'; }
-                else { uploadMsg = t('uploadDone')(filled); uploadMsgType = 'info'; }
+                // Part 4 — current physical address
+                const street = fieldVal(objs, 'P4_Line1_StreetName');
+                const city = fieldVal(objs, 'P4_Line1_City');
+                const stateAbbr = fieldVal(objs, 'P4_Line1_State');
+                setIf('address', [street, city, stateAbbr].filter(Boolean).join(', '));
+
+                // Part 5 — marital status + spouse
+                const mRaw = fieldVal(objs, 'P10_Line1_MaritalStatus').replace('/', '').toUpperCase();
+                const mMap = { S: 'single', M: 'married', D: 'divorced', W: 'widowed' };
+                if (mMap[mRaw]) setIf('marital', mMap[mRaw]);
+                const sGiven = fieldVal(objs, 'P10_Line4a_GivenName');
+                const sFamily = fieldVal(objs, 'P10_Line4a_FamilyName');
+                setIf('spouseName', [sGiven, sFamily].filter(Boolean).join(' '));
+
+                // Part 7 — employment
+                setIf('employer', fieldVal(objs, 'P7_EmployerName1'));
+                setIf('occupation', fieldVal(objs, 'P7_OccupationFieldStudy1'));
+
+                // Part 9 — "Have you ever" (mapped to the real N-400 field names, edition 01/20/25)
+                if (!draft.gmc) draft.gmc = {};
+                const gmcMap = {
+                    claimedCit: 'P9_Line1', voted: 'P9_Line2', owesTaxes: 'P9_Line3', nonresidentTax: 'P9_Line4',
+                    communist: 'P9_Line5a', weaponHarm: 'P12_6a', kidnapping: 'P12_6b', torture: 'P9_Line7a',
+                    militaryUnit: 'P9_Line8a', armedGroup: 'P9_Line8b', detention: 'P9_Line9', weaponGroup: 'P9_Line10a',
+                    weaponsTraining: 'P9_Line11', soldWeapons: 'P9_Line12', recruitedMinor: 'P9_Line13', usedMinor: 'P9_Line14',
+                    crimeNoArr: 'P9_Line15a', arrested: 'P9_Line15b', completedProbation: 'P12_Line16',
+                    prostitution: 'P11_Line17A', drugs: 'P11_Line17B', marriageFraud: 'P11_Line17C', bigamy: 'P12_Line17d',
+                    helpedEnter: 'P12_Line17e', failedSupport: 'P12_Line17f', gambling: 'P12_Line17g', publicBenefit: 'P12_Line17h',
+                    falseInfoGov: 'P12_Line18', liedToEnter: 'P12_Line19', removed: 'P12_Line20', removalProc: 'P12_Line21',
+                    avoidDraft: 'P12_Line23', exemption: 'P12_Line24', servedForces: 'P12_Line25', deserted: 'P9_Line29'
+                };
+                Object.keys(gmcMap).forEach(function (id) {
+                    if (draft.gmc[id]) return;
+                    const yn = yesNo(objs, gmcMap[id]);
+                    if (yn) { draft.gmc[id] = yn; filled++; }
+                });
+
+                uploadMsg = t('uploadDone')(filled); uploadMsgType = 'info';
             } catch (e) {
                 console.error(e);
                 uploadMsg = t('uploadFail'); uploadMsgType = 'warn';
