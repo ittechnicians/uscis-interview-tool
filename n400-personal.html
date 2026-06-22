@@ -71,6 +71,20 @@
         .off-avatar { width: 40px; height: 40px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; flex-shrink: 0; }
         .off-name { font-weight: 700; color: #0f172a; font-size: 0.9rem; line-height: 1.2; }
         .off-tag { font-size: 0.78rem; color: #64748b; }
+        .gmc-row { padding: 0.8rem 0; border-bottom: 1px solid #f1f5f9; }
+        .gmc-q { font-size: 0.9rem; color: #334155; margin-bottom: 0.5rem; line-height: 1.4; }
+        .gmc-btns { display: flex; gap: 0.5rem; }
+        .gmc-btn { border: 2px solid #e2e8f0; background: white; color: #475569; border-radius: 0.5rem; padding: 0.35rem 1.3rem; font-weight: 700; cursor: pointer; font-family: inherit; font-size: 0.85rem; }
+        .gmc-btn.yes-sel { border-color: #dc2626; background: #fef2f2; color: #b91c1c; }
+        .gmc-btn.no-sel { border-color: #16a34a; background: #f0fdf4; color: #166534; }
+        .upload-card { border: 1px dashed #93c5fd; background: #f8fbff; margin-bottom: 1rem; }
+        .upload-title { font-weight: 800; color: #1e40af; margin-bottom: 0.4rem; }
+        .upload-desc { color: #475569; font-size: 0.88rem; margin-bottom: 1rem; }
+        .upload-btn { display: inline-block; background: #1e40af; color: white; padding: 0.7rem 1.4rem; border-radius: 0.6rem; font-weight: 700; cursor: pointer; font-size: 0.95rem; }
+        .upload-btn:hover { background: #1e3a8a; }
+        .upload-msg { margin-top: 1rem; padding: 0.75rem 1rem; border-radius: 0.6rem; font-size: 0.88rem; font-weight: 600; }
+        .upload-msg.info { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
+        .upload-msg.warn { background: #fff7ed; border: 1px solid #fed7aa; color: #c2410c; }
     </style>
 </head>
 <body>
@@ -92,6 +106,7 @@
     <div class="wrap" id="app"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <script>
         const SUPABASE_URL = 'https://vugvnqapdxyewxyfaayl.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_vFFY4GL2f8PIGrArW05ncg_PVkcgV4M';
@@ -111,6 +126,13 @@
                 consentCheck: 'I understand and accept.',
                 consentBtn: 'Continue →',
                 formTitle: 'Your application details',
+                uploadTitle: 'Auto-fill from your N-400 (optional)',
+                uploadDesc: 'Upload the official fillable USCIS N-400 PDF — the form you type into on a computer, NOT a scan or photo. It is read on your device only and is never uploaded.',
+                uploadBtn: 'Choose PDF file',
+                uploadDone: (n) => 'Auto-filled ' + n + ' field(s) from your PDF. Please review everything below and complete the "Have you ever" section.',
+                uploadReading: 'Reading your PDF…',
+                uploadNone: 'We could not read fields from this file. Make sure it is the fillable USCIS N-400 PDF (not a scan or photo), or just fill in the form below.',
+                uploadFail: 'Could not open this file. Please upload the fillable USCIS N-400 PDF, or fill in the form manually below.',
                 formNote: 'All fields are optional — fill in what you want to practice. Nothing here is saved to our servers.',
                 secIdentity: 'Identity', secAddress: 'Address', secMarital: 'Marital', secWork: 'Employment', secEligibility: 'Eligibility', secTravel: 'Travel',
                 fullName: 'Full legal name', countryBirth: 'Country of birth', countryCit: 'Country of citizenship', otherNames: 'Other names used (if any)',
@@ -119,6 +141,7 @@
                 employer: 'Current employer', occupation: 'Occupation / job title',
                 basis: 'Basis for applying', basis5: '5 years as a permanent resident', basis3: '3 years married to a U.S. citizen',
                 tripsCount: 'Trips outside the U.S. (last 5 years)', longestTrip: 'Longest trip outside the U.S.',
+                secGMC: 'Have you ever... (good moral character)', gmcNote: 'Mark how you answered these on your application. The officer will check them and ask you to explain any "Yes."',
                 mSingle: 'Single', mMarried: 'Married', mDivorced: 'Divorced', mWidowed: 'Widowed',
                 yes: 'Yes', no: 'No', choose: '—',
                 save: 'Save my info', saveCont: 'Save and continue →',
@@ -142,6 +165,13 @@
                 consentCheck: 'Entiendo y acepto.',
                 consentBtn: 'Continuar →',
                 formTitle: 'Datos de tu solicitud',
+                uploadTitle: 'Autocompletar desde tu N-400 (opcional)',
+                uploadDesc: 'Sube el formulario N-400 rellenable oficial de USCIS — el que se escribe en computadora, NO un escaneo ni foto. Se lee solo en tu dispositivo y nunca se sube.',
+                uploadBtn: 'Elegir archivo PDF',
+                uploadDone: (n) => 'Autocompletamos ' + n + ' campo(s) desde tu PDF. Revisa todo abajo y completa la sección "Have you ever".',
+                uploadReading: 'Leyendo tu PDF…',
+                uploadNone: 'No pudimos leer campos de este archivo. Asegúrate de que sea el N-400 rellenable de USCIS (no un escaneo ni foto), o simplemente llena el formulario abajo.',
+                uploadFail: 'No se pudo abrir este archivo. Sube el N-400 rellenable de USCIS, o llena el formulario manualmente abajo.',
                 formNote: 'Todos los campos son opcionales — llena lo que quieras practicar. Nada de esto se guarda en nuestros servidores.',
                 secIdentity: 'Identidad', secAddress: 'Dirección', secMarital: 'Estado civil', secWork: 'Empleo', secEligibility: 'Elegibilidad', secTravel: 'Viajes',
                 fullName: 'Nombre legal completo', countryBirth: 'País de nacimiento', countryCit: 'País de ciudadanía', otherNames: 'Otros nombres usados (si aplica)',
@@ -150,6 +180,7 @@
                 employer: 'Empleador actual', occupation: 'Ocupación / puesto',
                 basis: 'Base de la solicitud', basis5: '5 años como residente permanente', basis3: '3 años casado con ciudadano de EE. UU.',
                 tripsCount: 'Viajes fuera de EE. UU. (últimos 5 años)', longestTrip: 'Viaje más largo fuera de EE. UU.',
+                secGMC: 'Alguna vez... (buen carácter moral)', gmcNote: 'Marca cómo respondiste estas en tu solicitud. El oficial las revisará y te pedirá explicar cualquier "Sí".',
                 mSingle: 'Soltero(a)', mMarried: 'Casado(a)', mDivorced: 'Divorciado(a)', mWidowed: 'Viudo(a)',
                 yes: 'Sí', no: 'No', choose: '—',
                 save: 'Guardar mis datos', saveCont: 'Guardar y continuar →',
@@ -182,6 +213,23 @@
             { id:'williams', initials:'SW', name:'Officer S. Williams', office:'Atlanta Field Office', tag:'Diplomatic',          gradient:'linear-gradient(135deg,#dc2626,#991b1b)' }
         ];
         let selectedOfficerId = OFFICERS[0].id;
+
+        // "Have you ever..." good-moral-character questions (same as the interview bank).
+        const GMC_QUESTIONS = [
+            { id:'arrested',   en:'Have you ever been arrested, cited, or detained by any law enforcement officer?', es:'¿Alguna vez ha sido arrestado, citado o detenido por algún oficial de la ley?' },
+            { id:'convicted',  en:'Have you ever been convicted of a crime?', es:'¿Alguna vez ha sido condenado por un delito?' },
+            { id:'crimeNoArr', en:'Have you ever committed a crime or offense for which you were not arrested?', es:'¿Alguna vez cometió un delito por el cual no fue arrestado?' },
+            { id:'claimedCit', en:'Have you ever claimed to be a U.S. citizen, in writing or in any other way?', es:'¿Alguna vez ha afirmado ser ciudadano de EE. UU., por escrito o de cualquier otra forma?' },
+            { id:'voted',      en:'Have you ever registered to vote, or voted, in any election in the United States?', es:'¿Alguna vez se ha registrado para votar o ha votado en alguna elección en EE. UU.?' },
+            { id:'communist',  en:'Have you ever been a member of the Communist Party or any other totalitarian party?', es:'¿Alguna vez ha sido miembro del Partido Comunista o de algún otro partido totalitario?' },
+            { id:'terrorist',  en:'Have you ever been a member of, or in any way associated with, a terrorist organization?', es:'¿Alguna vez ha sido miembro, o ha estado asociado de cualquier forma, con una organización terrorista?' },
+            { id:'persecuted', en:'Have you ever persecuted anyone because of race, religion, national origin, political opinion, or social group?', es:'¿Alguna vez ha perseguido a alguien por su raza, religión, origen nacional, opinión política o grupo social?' },
+            { id:'genocide',   en:'Have you ever been involved in genocide, torture, or the killing of any person?', es:'¿Alguna vez ha estado involucrado en genocidio, tortura o el asesinato de alguna persona?' },
+            { id:'drunkard',   en:'Have you ever been a habitual drunkard, or had a serious problem with alcohol or drugs?', es:'¿Alguna vez ha sido bebedor habitual o ha tenido un problema serio con el alcohol o las drogas?' },
+            { id:'drugs',      en:'Have you ever sold, smuggled, or helped to traffic any controlled substances or illegal drugs?', es:'¿Alguna vez ha vendido, contrabandeado o ayudado a traficar sustancias controladas o drogas ilegales?' },
+            { id:'support',    en:'Have you ever failed to support your dependents or to pay court-ordered child support?', es:'¿Alguna vez ha dejado de mantener a sus dependientes o de pagar la manutención de menores ordenada por un tribunal?' },
+            { id:'falseInfo',  en:'Have you ever given false or misleading information to a U.S. government official to gain an immigration benefit?', es:'¿Alguna vez ha dado información falsa o engañosa a un oficial del gobierno de EE. UU. para obtener un beneficio migratorio?' }
+        ];
 
         const FIELDS = ['fullName','countryBirth','countryCit','otherNames','address','addressTime','marital','spouseName','spouseCit','employer','occupation','basis','tripsCount','longestTrip'];
 
@@ -238,6 +286,14 @@
             const bs = draft.basis || '';
             app.innerHTML =
                 '<h1>' + t('formTitle') + '</h1><p class="sub">' + t('formNote') + '</p>' +
+                '<div class="card upload-card">' +
+                    '<div class="upload-title">' + t('uploadTitle') + '</div>' +
+                    '<p class="upload-desc">' + t('uploadDesc') + '</p>' +
+                    '<label class="upload-btn">' + t('uploadBtn') +
+                        '<input type="file" accept="application/pdf,.pdf" style="display:none" onchange="handleUpload(this.files[0])">' +
+                    '</label>' +
+                    (uploadMsg ? '<div class="upload-msg ' + uploadMsgType + '">' + uploadMsg + '</div>' : '') +
+                '</div>' +
                 '<div class="card">' +
                     '<div class="section-label">' + t('secIdentity') + '</div>' +
                     inputField('fullName') +
@@ -276,8 +332,83 @@
                     '<div class="section-label">' + t('secTravel') + '</div>' +
                     '<div class="grid2">' + inputField('tripsCount') + inputField('longestTrip') + '</div>' +
 
+                    '<div class="section-label">' + t('secGMC') + '</div>' +
+                    '<p style="color:#64748b;font-size:0.85rem;margin-bottom:0.75rem;">' + t('gmcNote') + '</p>' +
+                    GMC_QUESTIONS.map(function (g, i) {
+                        const ans = (draft.gmc && draft.gmc[g.id]) || '';
+                        return '<div class="gmc-row"><div class="gmc-q">' + (i + 1) + '. ' + (lang === 'es' ? g.es : g.en) + '</div>' +
+                            '<div class="gmc-btns">' +
+                                '<button class="gmc-btn ' + (ans === 'no' ? 'no-sel' : '') + '" onclick="setGmc(\'' + g.id + '\',\'no\')">' + t('no') + '</button>' +
+                                '<button class="gmc-btn ' + (ans === 'yes' ? 'yes-sel' : '') + '" onclick="setGmc(\'' + g.id + '\',\'yes\')">' + t('yes') + '</button>' +
+                            '</div></div>';
+                    }).join('') +
+
                     '<div class="row-btns"><button class="btn-primary" onclick="saveForm()">' + t('saveCont') + '</button></div>' +
                 '</div>';
+        }
+
+        function setGmc(id, val) {
+            captureForm();
+            if (!draft.gmc) draft.gmc = {};
+            draft.gmc[id] = val;
+            renderForm();
+        }
+
+        // ---------- Read the fillable N-400 PDF in the browser (never uploaded) ----------
+        let uploadMsg = '';
+        let uploadMsgType = '';
+
+        function findVal(values, words) {
+            const keys = Object.keys(values);
+            for (let i = 0; i < keys.length; i++) {
+                const lk = keys[i].toLowerCase();
+                const ok = words.every(function (w) { return lk.indexOf(w) !== -1; });
+                if (ok && values[keys[i]]) return values[keys[i]];
+            }
+            return '';
+        }
+
+        async function handleUpload(file) {
+            if (!file || !window.PDFLib) return;
+            uploadMsg = t('uploadReading'); uploadMsgType = 'info';
+            captureForm(); renderForm();
+            try {
+                const bytes = await file.arrayBuffer();
+                const doc = await PDFLib.PDFDocument.load(bytes, { ignoreEncryption: true, updateMetadata: false });
+                const form = doc.getForm();
+                const fields = form.getFields();
+                const values = {};
+                fields.forEach(function (f) {
+                    try {
+                        const name = f.getName();
+                        if (f instanceof PDFLib.PDFTextField) { const v = f.getText(); if (v) values[name] = v.trim(); }
+                        else if (f instanceof PDFLib.PDFDropdown) { const s = f.getSelected(); if (s && s.length) values[name] = s.join(', '); }
+                        else if (f instanceof PDFLib.PDFRadioGroup) { const s = f.getSelected(); if (s) values[name] = s; }
+                    } catch (e) {}
+                });
+                captureForm();
+                let filled = 0;
+                function setIf(field, val) { if (val && !draft[field]) { draft[field] = val; filled++; } }
+
+                const given = findVal(values, ['given']) || findVal(values, ['first']);
+                const family = findVal(values, ['family']) || findVal(values, ['last']);
+                const full = (given + ' ' + family).trim();
+                setIf('fullName', full);
+                setIf('countryBirth', findVal(values, ['country', 'birth']));
+                setIf('countryCit', findVal(values, ['country', 'nationality']) || findVal(values, ['country', 'citizen']));
+                const street = findVal(values, ['street']);
+                const city = findVal(values, ['city']);
+                setIf('address', [street, city].filter(Boolean).join(', '));
+                setIf('employer', findVal(values, ['employer']));
+                setIf('occupation', findVal(values, ['occupation']));
+
+                if (Object.keys(values).length === 0) { uploadMsg = t('uploadNone'); uploadMsgType = 'warn'; }
+                else { uploadMsg = t('uploadDone')(filled); uploadMsgType = 'info'; }
+            } catch (e) {
+                console.error(e);
+                uploadMsg = t('uploadFail'); uploadMsgType = 'warn';
+            }
+            renderForm();
         }
 
         function captureForm() {
@@ -290,6 +421,10 @@
         function saveForm() {
             captureForm();
             profile = Object.assign({}, draft);
+            profile.gmcObj = Object.assign({}, draft.gmc || {});
+            profile.gmc = GMC_QUESTIONS
+                .filter(function (g) { return profile.gmcObj[g.id]; })
+                .map(function (g) { return { q: g.en, a: profile.gmcObj[g.id] }; });
             saveProfile(profile);
             showNext = true;
             screen = 'saved';
@@ -329,7 +464,7 @@
                 '</div>';
         }
 
-        function editProfile() { draft = Object.assign({}, profile || {}); screen = 'form'; render(); }
+        function editProfile() { draft = Object.assign({}, profile || {}); draft.gmc = Object.assign({}, (profile && profile.gmcObj) || {}); screen = 'form'; render(); }
         function deleteProfile() {
             if (!confirm(t('delConfirm'))) return;
             localStorage.removeItem(storageKey);
