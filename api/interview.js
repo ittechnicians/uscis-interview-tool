@@ -171,15 +171,38 @@ function buildN400OnlyPrompt(officer, n400Seed, n400Mode, profile) {
   // Personalization block (their own application answers).
   let profileBlock = '';
   let personalizeRule = '';
+  let yesBlock = '';
   if (personalized) {
+    let gmcBlock = '';
+    if (Array.isArray(profile.gmc) && profile.gmc.length) {
+      const gmcLines = profile.gmc.map(function (g) {
+        return `   - "${g.q}" — applicant marked: ${g.a === 'yes' ? 'YES' : 'NO'}`;
+      }).join('\n');
+      gmcBlock = `
+
+=== THE APPLICANT'S ANSWERS TO THE "HAVE YOU EVER" QUESTIONS (from their application) ===
+${gmcLines}
+=== END "HAVE YOU EVER" ANSWERS ===`;
+
+      const yesItems = profile.gmc.filter(function (g) { return g.a === 'yes'; });
+      if (yesItems.length) {
+        const yesLines = yesItems.map(function (g) { return `   - "${g.q}"`; }).join('\n');
+        yesBlock = `
+
+=== IMPORTANT: THE APPLICANT ANSWERED "YES" TO THESE — you MUST ask about EACH ONE, one at a time, and have them explain it in their own words before continuing ===
+${yesLines}
+=== END "YES" ITEMS ===`;
+      }
+    }
     profileBlock = `
 
 === THE APPLICANT'S OWN APPLICATION ANSWERS (use these to personalize and verify) ===
 ${buildProfileBlock(profile)}
-=== END APPLICATION ANSWERS ===`;
+=== END APPLICATION ANSWERS ===${gmcBlock}`;
     personalizeRule = `
 - PERSONALIZE: When a question matches one of the applicant's answers above, ask it as a verification using their information — for example, "Your application says you live at [address] — is that still correct?" or "You listed your employer as [employer] — how long have you worked there?". Where you have no answer for a question, simply ask it normally. Ask ALL the questions in the list regardless.
-- RESOLVE INCONSISTENCIES: If the applicant's spoken answer CONTRADICTS what their application says (a different number of years, a different employer, a different address, a different marital status, etc.), do NOT just accept it and move on — a real officer must resolve this. Politely point out the discrepancy, state both versions clearly ("Your application says X, but you just told me Y"), and ask the applicant to clarify which one is correct and why. Stay on that point and do not move to the next question until they have clarified.`;
+- HAVE-YOU-EVER ANSWERS: The blocks above show how the applicant marked each "Have you ever" question. Confirm each one against what they marked. For every question they marked YES, you MUST ask about it and have them explain it in detail — a real officer always follows up on a "yes." Do not skip any YES item.
+- RESOLVE INCONSISTENCIES: If the applicant's spoken answer CONTRADICTS what their application says (a different number of years, a different employer, a different address, a different marital status, or a different yes/no on a "have you ever" question), do NOT just accept it and move on — a real officer must resolve this. Politely point out the discrepancy, state both versions clearly ("Your application says X, but you just told me Y"), and ask the applicant to clarify which one is correct and why. Stay on that point and do not move to the next question until they have clarified.`;
   }
 
   // In random (non-personalized) mode, add a short "explain this word" check.
@@ -206,7 +229,7 @@ Do this, in order:
 
 === N-400 QUESTIONS (ask in this exact order, one at a time) ===
 ${list}
-=== END N-400 QUESTIONS ===${defsBlock}
+=== END N-400 QUESTIONS ===${defsBlock}${yesBlock}
 
 CRITICAL RULES:
 - Ask only ONE question per turn, then STOP and wait for the applicant's answer.
