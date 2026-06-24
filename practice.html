@@ -257,23 +257,54 @@
             for (let i = 0; i < s.length; i++) { h = (h << 5) - h + s.charCodeAt(i); h |= 0; }
             return h;
         }
-        function speak(text, onDone) {
-            if (!('speechSynthesis' in window)) { if (onDone) onDone(); return; }
+        // Stop whatever is currently speaking (OpenAI audio or browser voice).
+        let currentAudio = null;
+        function stopSpeaking() {
+            if (currentAudio) { try { currentAudio.pause(); } catch (e) {} currentAudio = null; }
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        }
+
+        // Speak the officer's line. Tries OpenAI's realistic voice first;
+        // if that fails for any reason, falls back to the browser's built-in voice.
+        async function speak(text, onDone) {
+            stopSpeaking();
+            document.getElementById('officerAvatar').classList.add('speaking');
+            setStatus('Officer is speaking...', 'live');
+            const done = () => {
+                document.getElementById('officerAvatar').classList.remove('speaking');
+                setStatus('Your turn — tap the mic', '');
+                if (onDone) onDone();
+            };
+            try {
+                const res = await fetch('/api/tts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text, officer: officer })
+                });
+                if (!res.ok) throw new Error('tts http ' + res.status);
+                const data = await res.json();
+                if (!data || !data.audio) throw new Error('no audio');
+                const audio = new Audio('data:audio/mp3;base64,' + data.audio);
+                currentAudio = audio;
+                audio.onended = () => { currentAudio = null; done(); };
+                audio.onerror = () => { currentAudio = null; speakBrowser(text, done); };
+                await audio.play();
+            } catch (e) {
+                speakBrowser(text, done);
+            }
+        }
+
+        // Fallback: the browser's built-in speech (free, robotic).
+        function speakBrowser(text, done) {
+            if (!('speechSynthesis' in window)) { if (done) done(); return; }
             window.speechSynthesis.cancel();
             const u = new SpeechSynthesisUtterance(text);
             const v = pickVoice();
             if (v) u.voice = v;
             u.lang = 'en-US';
             u.rate = 0.98;
-            // small pitch variation per officer for distinctiveness
             u.pitch = 1 + ((Math.abs(hashString(officer.id || 'x')) % 5) - 2) * 0.06;
-            document.getElementById('officerAvatar').classList.add('speaking');
-            setStatus('Officer is speaking...', 'live');
-            u.onend = () => {
-                document.getElementById('officerAvatar').classList.remove('speaking');
-                setStatus('Your turn — tap the mic', '');
-                if (onDone) onDone();
-            };
+            u.onend = () => { if (done) done(); };
             window.speechSynthesis.speak(u);
         }
 
@@ -400,7 +431,7 @@
                 setStatus('Got it — review below', '');
                 return;
             }
-            window.speechSynthesis.cancel();
+            stopSpeaking();
             finalTranscript = '';
             document.getElementById('textInput').value = '';
             try {
@@ -416,7 +447,7 @@
 
         // ---------- End ----------
         function endInterview() {
-            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            stopSpeaking();
             if (recognition && listening) recognition.stop();
             window.location.href = 'dashboard.html';
         }
