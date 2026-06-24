@@ -85,14 +85,17 @@
         .upload-msg { margin-top: 1rem; padding: 0.75rem 1rem; border-radius: 0.6rem; font-size: 0.88rem; font-weight: 600; }
         .upload-msg.info { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
         .upload-msg.warn { background: #fff7ed; border: 1px solid #fed7aa; color: #c2410c; }
-    </style>
+    
+        .brand-logo { height: 104px; width: 104px; object-fit: contain; vertical-align: middle; margin-right: 0.45rem; }
+        @media (max-width: 600px) { .brand-logo { height: 56px; width: 56px; } .logo { font-size: 1.15rem; } }
+        </style>
 </head>
 <body>
     <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
 
     <div class="topbar">
         <div class="topbar-inner">
-            <a href="dashboard.html" class="logo"><img src="uscisinterviews_ai_logo.png" alt="USCIS Interviews.AI" style="height:104px;width:104px;object-fit:contain;vertical-align:middle;margin-right:0.45rem;"> USCIS Interviews<span style="color:#dc2626;">.AI</span></a>
+            <a href="dashboard.html" class="logo"><img src="uscisinterviews_ai_logo.png" alt="USCIS Interviews.AI" class="brand-logo"> USCIS Interviews<span style="color:#dc2626;">.AI</span></a>
             <div class="top-actions">
                 <div class="lang-toggle">
                     <button id="langEn" onclick="setLang('en')">EN</button>
