@@ -75,7 +75,10 @@
         .err { color: #dc2626; font-size: 0.85rem; text-align: center; margin-top: 0.75rem; }
 
         @media (max-width: 600px) { .officer-avatar { width: 88px; height: 88px; font-size: 1.75rem; } }
-    </style>
+    
+        .brand-logo { height: 104px; width: 104px; object-fit: contain; vertical-align: middle; margin-right: 0.45rem; }
+        @media (max-width: 600px) { .brand-logo { height: 56px; width: 56px; } .logo { font-size: 1.15rem; } }
+        </style>
 </head>
 <body>
     <div class="loading-overlay" id="loadingOverlay">
@@ -85,7 +88,7 @@
 
     <div class="topbar">
         <div class="topbar-inner">
-            <a href="dashboard.html" class="logo"><img src="uscisinterviews_ai_logo.png" alt="USCIS Interviews.AI" style="height:104px;width:104px;object-fit:contain;vertical-align:middle;margin-right:0.45rem;"> USCIS Interviews<span style="color:#dc2626;">.AI</span></a>
+            <a href="dashboard.html" class="logo"><img src="uscisinterviews_ai_logo.png" alt="USCIS Interviews.AI" class="brand-logo"> USCIS Interviews<span style="color:#dc2626;">.AI</span></a>
             <div class="top-actions">
                 <div class="lang-toggle">
                     <button id="langEn" onclick="setLang('en')">EN</button>
