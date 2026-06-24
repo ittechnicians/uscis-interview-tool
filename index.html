@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>USCIS Interviews AI - Master Your Citizenship Interview</title>
-    <meta name="description" content="Practice your USCIS naturalization interview with AI-powered officers. Real voices, real personalities, real preparation.">
+    <meta name="description" content="Practice your USCIS naturalization interview with AI officers that have realistic voices and distinct personalities. Bilingual English/Spanish. Practice, prepare, succeed.">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -24,7 +24,7 @@
             backdrop-filter: blur(20px);
             border-bottom: 1px solid #e2e8f0;
             z-index: 1000;
-            padding: 1rem 0;
+            padding: 0.75rem 0;
         }
         
         .nav-container {
@@ -43,10 +43,10 @@
             text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.625rem;
         }
         
-        .logo-flag { font-size: 1.75rem; }
+        .logo-img { height: 44px; width: 44px; object-fit: contain; }
         
         .nav-links {
             display: flex;
@@ -525,6 +525,9 @@
             font-size: 1.125rem;
         }
         
+        .features-list li.soon { color: #94a3b8; }
+        .features-list li.soon::before { content: '○'; color: #94a3b8; }
+        
         .btn-pricing {
             width: 100%;
             padding: 1rem;
@@ -546,6 +549,13 @@
         }
         
         .btn-pricing.secondary:hover { background: #dbeafe; }
+
+        .btn-pricing.disabled {
+            background: #f1f5f9;
+            color: #94a3b8;
+            border: 2px solid #e2e8f0;
+            cursor: default;
+        }
         
         .cta-section {
             padding: 6rem 2rem;
@@ -601,6 +611,7 @@
         }
         
         .footer-content { max-width: 1280px; margin: 0 auto; }
+        .footer-logo { height: 64px; width: 64px; object-fit: contain; margin: 0 auto 1rem; display: block; background: white; border-radius: 50%; padding: 4px; }
         
         .footer-links {
             display: flex;
@@ -764,7 +775,7 @@
     <nav class="nav">
         <div class="nav-container">
             <a href="#" class="logo">
-                <span class="logo-flag">🇺🇸</span>
+                <img src="uscisinterviews_ai_logo.png" alt="USCIS Interviews.AI" class="logo-img">
                 <span>USCIS Interviews<span style="color: #dc2626;">.AI</span></span>
             </a>
             <div class="nav-links">
@@ -772,7 +783,7 @@
                 <a href="#officers" class="nav-link">Officers</a>
                 <a href="#pricing" class="nav-link">Pricing</a>
                 <a class="nav-link" onclick="openModal('login')">Login</a>
-                <a class="btn-primary" onclick="openModal('signup')">Start Free Trial</a>
+                <a class="btn-primary" onclick="openModal('signup')">Get Started Free</a>
             </div>
         </div>
     </nav>
@@ -780,17 +791,17 @@
     <section class="hero">
         <div class="hero-container">
             <div>
-                <div class="hero-badge">🔥 FOUNDERS PRICING: 20 SPOTS LEFT</div>
+                <div class="hero-badge">🔥 Founding-member early access</div>
                 <h1>Master Your <span class="highlight">Citizenship Interview</span> with AI</h1>
-                <p>Practice with 5 AI-powered USCIS officers featuring authentic voices and personalities. Get instant feedback and pass your interview on the first try.</p>
+                <p>Practice with five AI officers — each with a realistic voice and a distinct personality. Get instant feedback and walk into your real interview prepared and confident.</p>
                 <div class="hero-buttons">
-                    <button class="btn-primary btn-large" onclick="openModal('signup')">Start 3-Day Free Trial →</button>
-                    <a href="#demo" class="btn-secondary">▶️ Watch Demo</a>
+                    <button class="btn-primary btn-large" onclick="openModal('signup')">Get Started Free →</button>
+                    <a href="#features" class="btn-secondary">See how it works</a>
                 </div>
                 <div class="hero-stats">
-                    <div class="stat"><span class="stat-number">98%</span><span class="stat-label">Pass Rate</span></div>
-                    <div class="stat"><span class="stat-number">5,000+</span><span class="stat-label">Students</span></div>
-                    <div class="stat"><span class="stat-number">4.9★</span><span class="stat-label">User Rating</span></div>
+                    <div class="stat"><span class="stat-number">5</span><span class="stat-label">AI officers, real voices</span></div>
+                    <div class="stat"><span class="stat-number">100+</span><span class="stat-label">Official civics questions</span></div>
+                    <div class="stat"><span class="stat-number">EN · ES</span><span class="stat-label">Fully bilingual</span></div>
                 </div>
             </div>
             <div class="hero-visual">
@@ -798,7 +809,7 @@
                     <div class="interview-card-header">
                         <div class="officer-avatar-large">MM</div>
                         <div class="officer-info">
-                            <h4>Officer Maria Martinez</h4>
+                            <h4>Officer M. Martinez</h4>
                             <p>USCIS Miami Field Office</p>
                         </div>
                         <div class="live-indicator"><span class="live-dot"></span>LIVE</div>
@@ -817,16 +828,16 @@
         <div class="section-container">
             <div class="section-header">
                 <span class="section-badge">⚡ AI-POWERED</span>
-                <h2 class="section-title">Real AI. Real Practice. Real Results.</h2>
-                <p class="section-subtitle">Unlike basic flashcard apps, we use cutting-edge AI to give you a realistic interview experience</p>
+                <h2 class="section-title">Real AI. Real Practice.</h2>
+                <p class="section-subtitle">Unlike basic flashcard apps, you have a back-and-forth conversation with an AI officer — out loud, just like the real thing.</p>
             </div>
             <div class="features-grid">
-                <div class="feature-card"><div class="feature-icon">🎤</div><h3>Voice Practice</h3><p>Speak naturally and get instant AI feedback. Practice your pronunciation, fluency, and confidence.</p></div>
-                <div class="feature-card"><div class="feature-icon">🧠</div><h3>Smart AI Officer</h3><p>AI-powered officers ask follow-up questions, detect inconsistencies, and adapt to your responses.</p></div>
-                <div class="feature-card"><div class="feature-icon">🗣️</div><h3>Authentic Accents</h3><p>5 unique officers with realistic voices and personalities. Train your ear for the real interview.</p></div>
-                <div class="feature-card"><div class="feature-icon">📊</div><h3>Performance Analytics</h3><p>Track your progress with detailed reports. See your strengths and weaknesses.</p></div>
-                <div class="feature-card"><div class="feature-icon">📋</div><h3>N-400 Personalization</h3><p>Upload your N-400 and get personalized questions based on your specific case.</p></div>
-                <div class="feature-card"><div class="feature-icon">🔒</div><h3>Secure & Private</h3><p>Bank-level encryption. Your N-400 data stays private. Not shared with third parties.</p></div>
+                <div class="feature-card"><div class="feature-icon">🎤</div><h3>Voice Practice</h3><p>Speak your answers out loud and the officer responds. Practice your pronunciation, fluency, and confidence in a real conversation.</p></div>
+                <div class="feature-card"><div class="feature-icon">🧠</div><h3>Smart AI Officer</h3><p>The officer asks natural follow-up questions, checks your answers against your application, and points out inconsistencies — just like a real interview.</p></div>
+                <div class="feature-card"><div class="feature-icon">🗣️</div><h3>Realistic Voices</h3><p>Five distinct officers, each with a realistic AI voice and personality. Train your ear and get used to being asked out loud.</p></div>
+                <div class="feature-card"><div class="feature-icon">📚</div><h3>Complete Study Tools</h3><p>Civics (both the 100 and 128-question versions), reading, writing, and vocabulary practice — all bilingual English/Spanish.</p></div>
+                <div class="feature-card"><div class="feature-icon">📋</div><h3>N-400 Personalization</h3><p>Enter your N-400 details (or auto-fill from the official fillable PDF) and the officer interviews you on your own answers — including all 35 "Have you ever" questions.</p></div>
+                <div class="feature-card"><div class="feature-icon">🔒</div><h3>Private by Design</h3><p>Your N-400 answers stay on your own device — they're never uploaded to our servers. You decide what to enter, and you can delete it anytime.</p></div>
             </div>
         </div>
     </section>
@@ -836,7 +847,7 @@
             <div class="section-header">
                 <span class="section-badge">👮‍♀️ MEET YOUR OFFICERS</span>
                 <h2 class="section-title">Practice with 5 Unique AI Officers</h2>
-                <p class="section-subtitle">Each officer has a distinct personality, accent, and interview style</p>
+                <p class="section-subtitle">Each officer has a distinct personality, voice, and interview style</p>
             </div>
             <div class="officers-grid">
                 <div class="officer-card-display">
@@ -844,7 +855,6 @@
                         <span class="officer-initials">MM</span><div class="officer-badge-pro">USCIS</div>
                     </div>
                     <h4>Officer M. Martinez</h4><p class="specialty">Miami Field Office</p>
-                    <p class="officer-experience-mini">15 years experience</p>
                     <span class="officer-tag">Warm & Thorough</span>
                 </div>
                 <div class="officer-card-display">
@@ -852,7 +862,6 @@
                         <span class="officer-initials">RJ</span><div class="officer-badge-pro">USCIS</div>
                     </div>
                     <h4>Officer R. Johnson</h4><p class="specialty">Washington DC Office</p>
-                    <p class="officer-experience-mini">22 years experience</p>
                     <span class="officer-tag">Strict & Professional</span>
                 </div>
                 <div class="officer-card-display">
@@ -860,7 +869,6 @@
                         <span class="officer-initials">LC</span><div class="officer-badge-pro">USCIS</div>
                     </div>
                     <h4>Officer L. Chen</h4><p class="specialty">San Francisco Office</p>
-                    <p class="officer-experience-mini">8 years experience</p>
                     <span class="officer-tag">Modern & Patient</span>
                 </div>
                 <div class="officer-card-display">
@@ -868,7 +876,6 @@
                         <span class="officer-initials">CR</span><div class="officer-badge-pro">USCIS</div>
                     </div>
                     <h4>Officer C. Rodriguez</h4><p class="specialty">Los Angeles Office</p>
-                    <p class="officer-experience-mini">12 years experience</p>
                     <span class="officer-tag">Bilingual Expert</span>
                 </div>
                 <div class="officer-card-display">
@@ -876,7 +883,6 @@
                         <span class="officer-initials">SW</span><div class="officer-badge-pro">USCIS</div>
                     </div>
                     <h4>Officer S. Williams</h4><p class="specialty">Atlanta Field Office</p>
-                    <p class="officer-experience-mini">18 years experience</p>
                     <span class="officer-tag">Diplomatic</span>
                 </div>
             </div>
@@ -886,61 +892,55 @@
     <section class="pricing" id="pricing">
         <div class="section-container">
             <div class="section-header">
-                <span class="section-badge">💎 PRICING PLANS</span>
-                <h2 class="section-title">Invest in Your American Dream</h2>
-                <p class="section-subtitle">Less than the cost of one immigration consultation. Cancel anytime.</p>
+                <span class="section-badge">💎 PRICING</span>
+                <h2 class="section-title">Start Free. Lock In Founder Pricing.</h2>
+                <p class="section-subtitle">Everything is free during early access. Founding members lock in a lower price for life when paid plans launch.</p>
             </div>
             <div class="founders-banner">
-                <h3>🔥 FOUNDERS SPECIAL - LIMITED TIME</h3>
-                <p>First 20 students get <strong>$19/month for life</strong> (Regular price: $49/month)</p>
+                <h3>🔥 Founding-Member Pricing</h3>
+                <p>Early supporters lock in <strong>$19/month for life</strong> (regular price $49/month) when paid plans launch.</p>
             </div>
             <div class="pricing-grid">
                 <div class="pricing-card">
-                    <h3>Starter</h3>
-                    <p class="description">Perfect for getting started</p>
-                    <div class="price"><span class="price-amount">$19</span><span class="price-period">/month</span></div>
+                    <h3>Free</h3>
+                    <p class="description">Start practicing today</p>
+                    <div class="price"><span class="price-amount">$0</span><span class="price-period">during early access</span></div>
                     <ul class="features-list">
-                        <li>10 practice sessions/month</li>
-                        <li>Access to 2 AI officers</li>
-                        <li>Basic civics questions</li>
-                        <li>Text-based practice</li>
-                        <li>Email support</li>
+                        <li>Civics practice (100 & 128 versions)</li>
+                        <li>Reading, writing & vocabulary</li>
+                        <li>N-400 practice — 10-question quick set</li>
+                        <li>Bilingual English / Spanish</li>
+                        <li>Browser voice</li>
                     </ul>
-                    <button class="btn-pricing secondary" onclick="selectPlan('starter')">Get Started</button>
+                    <button class="btn-pricing secondary" onclick="openModal('signup')">Create Free Account</button>
                 </div>
                 <div class="pricing-card featured">
-                    <span class="pricing-badge">⭐ Founders Special</span>
-                    <span class="founder-badge">🔥 SAVE $30/month</span>
+                    <span class="pricing-badge">⭐ Founding Member</span>
+                    <span class="founder-badge">🔥 Save $30/month for life</span>
                     <h3>Professional</h3>
-                    <p class="description">Everything you need to pass</p>
+                    <p class="description">Everything, with realistic voices</p>
                     <div class="price-original">$49/month</div>
                     <div class="price"><span class="price-amount">$19</span><span class="price-period">/month</span></div>
-                    <p class="price-note">3-day free trial • Price locked forever</p>
+                    <p class="price-note">Founding price locked for life • Launching soon</p>
                     <ul class="features-list">
-                        <li>Unlimited practice sessions</li>
-                        <li>All 5 AI officers with voices</li>
-                        <li>Voice recognition & feedback</li>
-                        <li>N-400 personalization</li>
-                        <li>Detailed analytics</li>
-                        <li>Mock interview reports</li>
-                        <li>Priority support</li>
+                        <li>Everything in Free</li>
+                        <li>All 5 AI officers with realistic voices</li>
+                        <li>Full mock interviews</li>
+                        <li>N-400 personalization (35 "Have you ever")</li>
+                        <li>Speak-and-respond voice practice</li>
                     </ul>
-                    <button class="btn-pricing primary" onclick="selectPlan('pro')">Claim Founder Spot →</button>
+                    <button class="btn-pricing primary" onclick="selectPlan('pro')">Create Free Account →</button>
                 </div>
                 <div class="pricing-card">
                     <h3>Premium</h3>
-                    <p class="description">For serious applicants</p>
+                    <p class="description">For the most lifelike practice</p>
                     <div class="price"><span class="price-amount">$99</span><span class="price-period">/month</span></div>
                     <ul class="features-list">
                         <li>Everything in Professional</li>
-                        <li>1-on-1 expert consultation</li>
-                        <li>Custom case analysis</li>
-                        <li>Document review</li>
-                        <li>Mock interview with expert</li>
-                        <li>Money-back guarantee</li>
-                        <li>VIP support 24/7</li>
+                        <li class="soon">Ultra-realistic premium voices (coming soon)</li>
+                        <li class="soon">Progress reports & analytics (coming soon)</li>
                     </ul>
-                    <button class="btn-pricing secondary" onclick="selectPlan('premium')">Get Premium</button>
+                    <button class="btn-pricing disabled" disabled>Coming Soon</button>
                 </div>
             </div>
         </div>
@@ -948,18 +948,19 @@
 
     <section class="cta-section">
         <div class="cta-container">
-            <h2>Ready to Pass Your Interview?</h2>
-            <p>Join 5,000+ students who passed their USCIS interview on the first try</p>
-            <button class="btn-cta" onclick="openModal('signup')">Start Your Free Trial Now →</button>
+            <h2>Ready to Practice?</h2>
+            <p>Create a free account and start practicing with your AI officer today.</p>
+            <button class="btn-cta" onclick="openModal('signup')">Get Started Free →</button>
         </div>
     </section>
 
     <footer class="footer">
         <div class="footer-content">
+            <img src="uscisinterviews_ai_logo.png" alt="USCIS Interviews.AI" class="footer-logo">
             <div class="footer-links">
-                <a>About</a><a>Privacy Policy</a><a>Terms of Service</a><a>Contact</a><a>Refund Policy</a>
+                <a>About</a><a>Privacy Policy</a><a>Terms of Service</a><a>Contact</a>
             </div>
-            <p>© 2025 USCIS Interviews.AI by Escuela de Bookkeepers. All rights reserved.</p>
+            <p>© 2026 USCIS Interviews.AI by Escuela de Bookkeepers. All rights reserved.</p>
             <p style="margin-top: 1rem; font-size: 0.875rem;">This service is for educational purposes only and does not constitute legal advice.</p>
         </div>
     </footer>
@@ -988,8 +989,8 @@
     <div class="modal-overlay" id="signupModal">
         <div class="modal">
             <button class="modal-close" onclick="closeModal('signup')">×</button>
-            <h2>Start Your Free Trial</h2>
-            <p>3 days free • No credit card required</p>
+            <h2>Create Your Free Account</h2>
+            <p>Free during early access — no credit card needed</p>
             <div class="alert error" id="signupError"></div>
             <div class="alert success" id="signupSuccess"></div>
             <form id="signupForm" onsubmit="handleSignup(event)">
