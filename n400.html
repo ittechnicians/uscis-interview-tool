@@ -266,19 +266,45 @@
             if (!voices.length) return null;
             return voices[Math.abs(hashString(officer.id || officer.name)) % voices.length];
         }
-        function speak(text) {
-            if (!('speechSynthesis' in window)) return;
+        let currentAudio = null;
+        function stopSpeaking() {
+            if (currentAudio) { try { currentAudio.pause(); } catch (e) {} currentAudio = null; }
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        }
+        async function speak(text) {
+            stopSpeaking();
+            document.getElementById('officerAvatar').classList.add('speaking');
+            setStatus(t('speaking'), 'live');
+            const done = () => {
+                document.getElementById('officerAvatar').classList.remove('speaking');
+                setStatus(t('yourTurn'), '');
+            };
+            try {
+                const res = await fetch('/api/tts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text, officer: officer })
+                });
+                if (!res.ok) throw new Error('tts http ' + res.status);
+                const data = await res.json();
+                if (!data || !data.audio) throw new Error('no audio');
+                const audio = new Audio('data:audio/mp3;base64,' + data.audio);
+                currentAudio = audio;
+                audio.onended = () => { currentAudio = null; done(); };
+                audio.onerror = () => { currentAudio = null; speakBrowser(text, done); };
+                await audio.play();
+            } catch (e) {
+                speakBrowser(text, done);
+            }
+        }
+        function speakBrowser(text, done) {
+            if (!('speechSynthesis' in window)) { if (done) done(); return; }
             window.speechSynthesis.cancel();
             const u = new SpeechSynthesisUtterance(text);
             const v = pickVoice(); if (v) u.voice = v;
             u.lang = 'en-US'; u.rate = 0.98;
             u.pitch = 1 + ((Math.abs(hashString(officer.id || 'x')) % 5) - 2) * 0.06;
-            document.getElementById('officerAvatar').classList.add('speaking');
-            setStatus(t('speaking'), 'live');
-            u.onend = () => {
-                document.getElementById('officerAvatar').classList.remove('speaking');
-                setStatus(t('yourTurn'), '');
-            };
+            u.onend = () => { if (done) done(); };
             window.speechSynthesis.speak(u);
         }
 
@@ -372,7 +398,7 @@
         function toggleListening() {
             if (busy || !recognition) return;
             if (listening) { recognition.stop(); setStatus(t('gotIt'), ''); return; }
-            window.speechSynthesis.cancel();
+            stopSpeaking();
             finalTranscript = '';
             document.getElementById('textInput').value = '';
             try {
@@ -386,7 +412,7 @@
         }
 
         function endInterview() {
-            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            stopSpeaking();
             if (recognition && listening) recognition.stop();
             window.location.href = 'dashboard.html';
         }
