@@ -80,8 +80,8 @@
         .upload-card { border: 1px dashed #93c5fd; background: #f8fbff; margin-bottom: 1rem; }
         .upload-title { font-weight: 800; color: #1e40af; margin-bottom: 0.4rem; }
         .upload-desc { color: #475569; font-size: 0.88rem; margin-bottom: 1rem; }
-        .upload-btn { display: inline-block; background: #1e40af; color: white; padding: 0.7rem 1.4rem; border-radius: 0.6rem; font-weight: 700; cursor: pointer; font-size: 0.95rem; }
-        .upload-btn:hover { background: #1e3a8a; }
+        .upload-btn { display: inline-block; background: white; color: #1e40af; border: 2px solid #93c5fd; padding: 0.6rem 1.3rem; border-radius: 0.6rem; font-weight: 700; cursor: pointer; font-size: 0.9rem; }
+        .upload-btn:hover { background: #eff6ff; }
         .upload-msg { margin-top: 1rem; padding: 0.75rem 1rem; border-radius: 0.6rem; font-size: 0.88rem; font-weight: 600; }
         .upload-msg.info { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
         .upload-msg.warn { background: #fff7ed; border: 1px solid #fed7aa; color: #c2410c; }
@@ -126,12 +126,12 @@
                 consentCheck: 'I understand and accept.',
                 consentBtn: 'Continue →',
                 formTitle: 'Your application details',
-                uploadTitle: 'Auto-fill from your N-400 (optional)',
-                uploadDesc: 'Upload the official fillable USCIS N-400 PDF — the form you type into on a computer, NOT a scan or photo. It is read on your device only and is never uploaded.',
+                uploadTitle: 'Auto-fill from your N-400 (optional shortcut)',
+                uploadDesc: 'If you have the official fillable USCIS N-400 PDF (the blank form you typed into), upload it to auto-fill. If you filed online, that PDF cannot be read automatically — just fill in the form below. Files are read on your device only and are never uploaded.',
                 uploadBtn: 'Choose PDF file',
                 uploadDone: (n) => 'Auto-filled ' + n + ' field(s) from your PDF. Please review everything below and complete the "Have you ever" section.',
                 uploadReading: 'Reading your PDF…',
-                uploadNone: 'We could not read fields from this file. Make sure it is the fillable USCIS N-400 PDF (not a scan or photo), or just fill in the form below.',
+                uploadNone: 'We could not read fields from this file. If you filed your N-400 online, its PDF is "flattened" and cannot be read automatically — please just fill in the form below (it only takes a few minutes).',
                 uploadFail: 'Could not open this file. Please upload the fillable USCIS N-400 PDF, or fill in the form manually below.',
                 formNote: 'All fields are optional — fill in what you want to practice. Nothing here is saved to our servers.',
                 secIdentity: 'Identity', secAddress: 'Address', secMarital: 'Marital', secWork: 'Employment', secEligibility: 'Eligibility', secTravel: 'Travel',
@@ -165,12 +165,12 @@
                 consentCheck: 'Entiendo y acepto.',
                 consentBtn: 'Continuar →',
                 formTitle: 'Datos de tu solicitud',
-                uploadTitle: 'Autocompletar desde tu N-400 (opcional)',
-                uploadDesc: 'Sube el formulario N-400 rellenable oficial de USCIS — el que se escribe en computadora, NO un escaneo ni foto. Se lee solo en tu dispositivo y nunca se sube.',
+                uploadTitle: 'Autocompletar desde tu N-400 (atajo opcional)',
+                uploadDesc: 'Si tienes el formulario N-400 rellenable oficial de USCIS (el formulario en blanco que llenaste), súbelo para autocompletar. Si aplicaste en línea, ese PDF no se puede leer automáticamente — solo llena el formulario abajo. Los archivos se leen solo en tu dispositivo y nunca se suben.',
                 uploadBtn: 'Elegir archivo PDF',
                 uploadDone: (n) => 'Autocompletamos ' + n + ' campo(s) desde tu PDF. Revisa todo abajo y completa la sección "Have you ever".',
                 uploadReading: 'Leyendo tu PDF…',
-                uploadNone: 'No pudimos leer campos de este archivo. Asegúrate de que sea el N-400 rellenable de USCIS (no un escaneo ni foto), o simplemente llena el formulario abajo.',
+                uploadNone: 'No pudimos leer campos de este archivo. Si llenaste tu N-400 en línea, su PDF está "aplanado" y no se puede leer automáticamente — por favor solo llena el formulario abajo (toma unos minutos).',
                 uploadFail: 'No se pudo abrir este archivo. Sube el N-400 rellenable de USCIS, o llena el formulario manualmente abajo.',
                 formNote: 'Todos los campos son opcionales — llena lo que quieras practicar. Nada de esto se guarda en nuestros servidores.',
                 secIdentity: 'Identidad', secAddress: 'Dirección', secMarital: 'Estado civil', secWork: 'Empleo', secEligibility: 'Elegibilidad', secTravel: 'Viajes',
