@@ -38,6 +38,7 @@
             display: flex; justify-content: space-between; align-items: center;
         }
         .logo { font-size: 1.2rem; font-weight: 800; color: #0f172a; text-decoration: none; display: flex; align-items: center; gap: 0.4rem; }
+        .brand-text { white-space: nowrap; line-height: 1.1; }
         .btn-end {
             background: white; color: #dc2626; border: 1px solid #fecaca;
             padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s;
@@ -140,7 +141,12 @@
         }
     
         .brand-logo { height: 104px; width: 104px; object-fit: contain; vertical-align: middle; margin-right: 0.45rem; }
-        @media (max-width: 600px) { .brand-logo { height: 56px; width: 56px; } .logo { font-size: 1.15rem; } }
+        @media (max-width: 600px) {
+            .brand-logo { height: 44px; width: 44px; margin-right: 0.3rem; }
+            .logo { font-size: 0.95rem; }
+            .btn-end { padding: 0.4rem 0.7rem; font-size: 0.8rem; }
+            .topbar-inner { padding: 0 0.9rem; }
+        }
         </style>
 </head>
 <body>
@@ -151,7 +157,7 @@
 
     <div class="topbar">
         <div class="topbar-inner">
-            <a href="dashboard.html" class="logo"><img src="uscisinterviews_ai_logo.png" alt="USCIS Interviews.AI" class="brand-logo"> USCIS Interviews<span style="color:#dc2626;">.AI</span></a>
+            <a href="dashboard.html" class="logo"><img src="uscisinterviews_ai_logo.png" alt="USCIS Interviews.AI" class="brand-logo"><span class="brand-text">USCIS Interviews<span style="color:#dc2626;">.AI</span></span></a>
             <button class="btn-end" onclick="endInterview()">End Interview</button>
         </div>
     </div>
