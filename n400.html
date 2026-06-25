@@ -170,6 +170,8 @@
                 cleared:'Cleared. Tap the mic to speak, or type your answer.',
                 micBlocked:'Microphone access was blocked. Allow it in your browser, or type your answers below.',
                 voiceUnsupported:'Voice input is not supported in this browser \u2014 please type your answers below.',
+                recording:'Recording \u2014 tap \u23f9 when done', recordingHint:'Recording\u2026 tap the button again when you finish speaking.',
+                transcribing:'Transcribing your answer\u2026', transcribeFail:'Could not transcribe \u2014 please type your answer below, or try again.',
                 reachErr:'There was a problem reaching the interviewer. Please try again.'
             },
             es: {
@@ -192,6 +194,8 @@
                 cleared:'Borrado. Toca el micr\u00f3fono o escribe tu respuesta.',
                 micBlocked:'Se bloque\u00f3 el acceso al micr\u00f3fono. Perm\u00edtelo en tu navegador o escribe tus respuestas abajo.',
                 voiceUnsupported:'Este navegador no soporta entrada por voz \u2014 escribe tus respuestas abajo.',
+                recording:'Grabando \u2014 toca \u23f9 al terminar', recordingHint:'Grabando\u2026 toca el bot\u00f3n otra vez al terminar de hablar.',
+                transcribing:'Transcribiendo tu respuesta\u2026', transcribeFail:'No se pudo transcribir \u2014 escribe tu respuesta abajo o intenta de nuevo.',
                 reachErr:'Hubo un problema al contactar al oficial. Int\u00e9ntalo de nuevo.'
             }
         };
@@ -204,10 +208,11 @@
         let n400Seed = 1;
         let profile = null;        // personalized N-400 profile (from device)
         let personalized = false;
-        let recognition = null;
-        let listening = false;
+        let mediaRecorder = null;
+        let recording = false;
+        let audioChunks = [];
+        let audioStream = null;
         let busy = false;
-        let finalTranscript = '';
         let started = false;
 
         function setLang(l) {
@@ -355,31 +360,86 @@
         function clearInput() { const i = document.getElementById('textInput'); i.value = ''; i.focus(); document.getElementById('micHint').textContent = t('cleared'); }
 
         function setupRecognition() {
-            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SR) {
+            const ok = navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder;
+            if (!ok) {
                 document.getElementById('micBtn').style.display = 'none';
                 document.getElementById('micHint').textContent = t('voiceUnsupported');
+            }
+        }
+
+        function pickAudioMime() {
+            const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg'];
+            if (window.MediaRecorder && MediaRecorder.isTypeSupported) {
+                for (let i = 0; i < candidates.length; i++) {
+                    if (MediaRecorder.isTypeSupported(candidates[i])) return candidates[i];
+                }
+            }
+            return '';
+        }
+
+        function blobToBase64(blob) {
+            return new Promise(function (resolve, reject) {
+                const r = new FileReader();
+                r.onloadend = function () { resolve(('' + r.result).split(',')[1]); };
+                r.onerror = reject;
+                r.readAsDataURL(blob);
+            });
+        }
+
+        async function toggleListening() {
+            if (busy) return;
+            if (recording) { try { mediaRecorder.stop(); } catch (e) {} setStatus(t('gotIt'), ''); return; }
+            stopSpeaking();
+            document.getElementById('textInput').value = '';
+            let stream;
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            } catch (e) {
+                showError(t('micBlocked'));
                 return;
             }
-            recognition = new SR();
-            recognition.lang = 'en-US';
-            recognition.continuous = true;
-            recognition.interimResults = true;
-            recognition.maxAlternatives = 1;
-            recognition.onresult = (e) => {
-                let interim = '';
-                for (let i = e.resultIndex; i < e.results.length; i++) {
-                    const chunk = e.results[i][0].transcript;
-                    if (e.results[i].isFinal) finalTranscript += chunk + ' '; else interim += chunk;
-                }
-                const shown = (finalTranscript + interim).trim();
-                document.getElementById('micHint').textContent = shown ? (t('hearing') + shown) : t('listenTap');
-            };
-            recognition.onend = () => {
-                listening = false;
-                const btn = document.getElementById('micBtn');
-                btn.classList.remove('listening'); btn.textContent = '🎤';
-                const text = finalTranscript.trim(); finalTranscript = '';
+            audioStream = stream;
+            audioChunks = [];
+            const mime = pickAudioMime();
+            try {
+                mediaRecorder = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+            } catch (e) {
+                mediaRecorder = new MediaRecorder(stream);
+            }
+            mediaRecorder.ondataavailable = function (ev) { if (ev.data && ev.data.size) audioChunks.push(ev.data); };
+            mediaRecorder.onstop = handleRecordingStop;
+            mediaRecorder.start();
+            recording = true;
+            const btn = document.getElementById('micBtn');
+            btn.classList.add('listening'); btn.textContent = '⏹';
+            setStatus(t('recording'), 'listening');
+            document.getElementById('micHint').textContent = t('recordingHint');
+        }
+
+        async function handleRecordingStop() {
+            recording = false;
+            const btn = document.getElementById('micBtn');
+            btn.classList.remove('listening'); btn.textContent = '🎤';
+            if (audioStream) { audioStream.getTracks().forEach(function (tr) { tr.stop(); }); audioStream = null; }
+            if (!audioChunks.length) {
+                document.getElementById('micHint').textContent = t('didntCatch');
+                setStatus(t('yourTurn'), '');
+                return;
+            }
+            const blob = new Blob(audioChunks, { type: (mediaRecorder && mediaRecorder.mimeType) || 'audio/webm' });
+            audioChunks = [];
+            setStatus(t('transcribing'), 'live');
+            document.getElementById('micHint').textContent = t('transcribing');
+            try {
+                const base64 = await blobToBase64(blob);
+                const res = await fetch('/api/transcribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ audio: base64, mimeType: blob.type })
+                });
+                if (!res.ok) throw new Error('transcribe http ' + res.status);
+                const data = await res.json();
+                const text = (data.text || '').trim();
                 if (text) {
                     const i = document.getElementById('textInput');
                     i.value = text; i.focus();
@@ -389,34 +449,17 @@
                     document.getElementById('micHint').textContent = t('didntCatch');
                     setStatus(t('yourTurn'), '');
                 }
-            };
-            recognition.onerror = (e) => {
-                listening = false;
-                const btn = document.getElementById('micBtn');
-                btn.classList.remove('listening'); btn.textContent = '🎤';
-                if (e.error === 'not-allowed') showError(t('micBlocked'));
-            };
-        }
-
-        function toggleListening() {
-            if (busy || !recognition) return;
-            if (listening) { recognition.stop(); setStatus(t('gotIt'), ''); return; }
-            stopSpeaking();
-            finalTranscript = '';
-            document.getElementById('textInput').value = '';
-            try {
-                recognition.start();
-                listening = true;
-                const btn = document.getElementById('micBtn');
-                btn.classList.add('listening'); btn.textContent = '⏹';
-                setStatus(t('listening'), 'listening');
-                document.getElementById('micHint').textContent = t('listenAgain');
-            } catch (e) {}
+            } catch (e) {
+                console.error(e);
+                document.getElementById('micHint').textContent = t('transcribeFail');
+                setStatus(t('yourTurn'), '');
+            }
         }
 
         function endInterview() {
             stopSpeaking();
-            if (recognition && listening) recognition.stop();
+            if (recording && mediaRecorder) { try { mediaRecorder.stop(); } catch (e) {} }
+            if (audioStream) { audioStream.getTracks().forEach(function (tr) { tr.stop(); }); audioStream = null; }
             window.location.href = 'dashboard.html';
         }
 
