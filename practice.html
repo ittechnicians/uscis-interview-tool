@@ -209,10 +209,11 @@
         let history = [];          // [{role:'assistant'|'user', content:'...'}]
         let testVersion = '100';   // '100' (2008 test) or '128' (2020 test)
         let n400Seed = 1;          // randomized once per interview so N-400 questions vary
-        let recognition = null;
-        let listening = false;
+        let mediaRecorder = null;
+        let recording = false;
+        let audioChunks = [];
+        let audioStream = null;
         let busy = false;          // waiting for the officer / speaking
-        let finalTranscript = '';  // accumulates speech until the user taps to send
 
         function selectTest(v) {
             testVersion = v;
@@ -371,39 +372,98 @@
             document.getElementById('micHint').textContent = 'Cleared. Tap the mic to speak, or type your answer.';
         }
 
-        // ---------- Speech-to-text (push to talk: tap to start, tap to send) ----------
+        // ---------- Voice input: record, then transcribe with Whisper ----------
+        // (Works reliably on iPhone/Safari, unlike the browser's live dictation.)
         function setupRecognition() {
-            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SR) {
+            const ok = navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder;
+            if (!ok) {
                 document.getElementById('micBtn').style.display = 'none';
                 document.getElementById('micHint').textContent = 'Voice input is not supported in this browser — please type your answers below.';
+            }
+        }
+
+        function pickAudioMime() {
+            const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg'];
+            if (window.MediaRecorder && MediaRecorder.isTypeSupported) {
+                for (let i = 0; i < candidates.length; i++) {
+                    if (MediaRecorder.isTypeSupported(candidates[i])) return candidates[i];
+                }
+            }
+            return '';
+        }
+
+        function blobToBase64(blob) {
+            return new Promise(function (resolve, reject) {
+                const r = new FileReader();
+                r.onloadend = function () { resolve(('' + r.result).split(',')[1]); };
+                r.onerror = reject;
+                r.readAsDataURL(blob);
+            });
+        }
+
+        async function toggleListening() {
+            if (busy) return;
+            if (recording) {
+                // User finished talking -> stop; onstop transcribes and fills the box
+                try { mediaRecorder.stop(); } catch (e) {}
+                setStatus('Got it — transcribing…', 'live');
                 return;
             }
-            recognition = new SR();
-            recognition.lang = 'en-US';
-            recognition.continuous = true;      // keep listening through pauses
-            recognition.interimResults = true;  // show words as they are heard
-            recognition.maxAlternatives = 1;
+            // Start recording
+            stopSpeaking();
+            document.getElementById('textInput').value = '';
+            let stream;
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            } catch (e) {
+                showError('Microphone access was blocked. Allow it in your browser settings, or type your answers below.');
+                return;
+            }
+            audioStream = stream;
+            audioChunks = [];
+            const mime = pickAudioMime();
+            try {
+                mediaRecorder = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+            } catch (e) {
+                mediaRecorder = new MediaRecorder(stream);
+            }
+            mediaRecorder.ondataavailable = function (ev) { if (ev.data && ev.data.size) audioChunks.push(ev.data); };
+            mediaRecorder.onstop = handleRecordingStop;
+            mediaRecorder.start();
+            recording = true;
+            const btn = document.getElementById('micBtn');
+            btn.classList.add('listening');
+            btn.textContent = '⏹';
+            setStatus('Recording — tap ⏹ when done', 'listening');
+            document.getElementById('micHint').textContent = 'Recording… tap the button again when you finish speaking.';
+        }
 
-            recognition.onresult = (e) => {
-                let interim = '';
-                for (let i = e.resultIndex; i < e.results.length; i++) {
-                    const chunk = e.results[i][0].transcript;
-                    if (e.results[i].isFinal) finalTranscript += chunk + ' ';
-                    else interim += chunk;
-                }
-                const shown = (finalTranscript + interim).trim();
-                document.getElementById('micHint').textContent = shown ? ('Hearing: ' + shown) : 'Listening… tap ⏹ when you finish.';
-            };
-            recognition.onend = () => {
-                // Fires when the user taps stop (or the browser stops).
-                // Put the captured text in the box so the user can REVIEW/EDIT before sending.
-                listening = false;
-                const btn = document.getElementById('micBtn');
-                btn.classList.remove('listening');
-                btn.textContent = '🎤';
-                const text = finalTranscript.trim();
-                finalTranscript = '';
+        async function handleRecordingStop() {
+            recording = false;
+            const btn = document.getElementById('micBtn');
+            btn.classList.remove('listening');
+            btn.textContent = '🎤';
+            if (audioStream) { audioStream.getTracks().forEach(function (t) { t.stop(); }); audioStream = null; }
+
+            if (!audioChunks.length) {
+                document.getElementById('micHint').textContent = "I didn't catch that — tap the mic and try again.";
+                setStatus('Your turn — tap the mic', '');
+                return;
+            }
+            const blob = new Blob(audioChunks, { type: (mediaRecorder && mediaRecorder.mimeType) || 'audio/webm' });
+            audioChunks = [];
+            setStatus('Transcribing…', 'live');
+            document.getElementById('micHint').textContent = 'Transcribing your answer…';
+            try {
+                const base64 = await blobToBase64(blob);
+                const res = await fetch('/api/transcribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ audio: base64, mimeType: blob.type })
+                });
+                if (!res.ok) throw new Error('transcribe http ' + res.status);
+                const data = await res.json();
+                const text = (data.text || '').trim();
                 if (text) {
                     const input = document.getElementById('textInput');
                     input.value = text;
@@ -414,44 +474,18 @@
                     document.getElementById('micHint').textContent = "I didn't catch that — tap the mic and try again.";
                     setStatus('Your turn — tap the mic', '');
                 }
-            };
-            recognition.onerror = (e) => {
-                listening = false;
-                const btn = document.getElementById('micBtn');
-                btn.classList.remove('listening');
-                btn.textContent = '🎤';
-                if (e.error === 'not-allowed') {
-                    showError('Microphone access was blocked. Allow it in your browser, or type your answers below.');
-                }
-            };
-        }
-
-        function toggleListening() {
-            if (busy || !recognition) return;
-            if (listening) {
-                // User finished talking -> stop; onend drops the text into the box for review
-                recognition.stop();
-                setStatus('Got it — review below', '');
-                return;
+            } catch (e) {
+                console.error(e);
+                document.getElementById('micHint').textContent = 'Could not transcribe — please type your answer below, or try again.';
+                setStatus('Your turn — tap the mic', '');
             }
-            stopSpeaking();
-            finalTranscript = '';
-            document.getElementById('textInput').value = '';
-            try {
-                recognition.start();
-                listening = true;
-                const btn = document.getElementById('micBtn');
-                btn.classList.add('listening');
-                btn.textContent = '⏹';
-                setStatus('Listening — tap ⏹ when done', 'listening');
-                document.getElementById('micHint').textContent = 'Listening… tap the button again when you finish speaking.';
-            } catch (e) { /* already started */ }
         }
 
         // ---------- End ----------
         function endInterview() {
             stopSpeaking();
-            if (recognition && listening) recognition.stop();
+            if (recording && mediaRecorder) { try { mediaRecorder.stop(); } catch (e) {} }
+            if (audioStream) { audioStream.getTracks().forEach(function (t) { t.stop(); }); audioStream = null; }
             window.location.href = 'dashboard.html';
         }
 
