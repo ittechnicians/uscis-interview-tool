@@ -30,6 +30,11 @@
         .user-meta .email { font-size: 0.75rem; color: #94a3b8; }
         .btn-logout { background: white; color: #475569; border: 1px solid #e2e8f0; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s; }
         .btn-logout:hover { border-color: #dc2626; color: #dc2626; }
+        .btn-upgrade { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; padding: 0.5rem 1.1rem; border-radius: 0.5rem; font-weight: 700; font-size: 0.875rem; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+        .btn-upgrade:hover { filter: brightness(1.05); box-shadow: 0 4px 12px rgba(217,119,6,0.35); }
+        .notice { display: none; margin: 0 0 1.5rem; padding: 1rem 1.25rem; border-radius: 0.75rem; font-weight: 600; }
+        .notice.ok { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; display: block; }
+        .notice.info { background: #fff7ed; border: 1px solid #fed7aa; color: #c2410c; display: block; }
 
         /* Layout */
         .container { max-width: 1200px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
@@ -123,12 +128,14 @@
                         <span class="email" id="userEmail"></span>
                     </div>
                 </div>
+                <button class="btn-upgrade" id="btnUpgrade" onclick="startCheckout()">⭐ Upgrade</button>
                 <button class="btn-logout" onclick="handleLogout()">Log out</button>
             </div>
         </div>
     </nav>
 
     <div class="container">
+        <div class="notice" id="notice"></div>
         <div class="welcome">
             <h1>Welcome back, <span id="welcomeName">Student</span> 👋</h1>
             <p>Choose how you want to practice today.</p>
@@ -246,6 +253,46 @@
             window.location.href = 'index.html';
         }
 
+        // ---------- Stripe checkout (upgrade to Professional) ----------
+        async function startCheckout() {
+            const btn = document.getElementById('btnUpgrade');
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (!session) { window.location.href = 'index.html'; return; }
+                if (btn) { btn.disabled = true; btn.textContent = '…'; }
+                const res = await fetch('/api/checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: session.user.id, email: session.user.email })
+                });
+                const data = await res.json();
+                if (data && data.url) {
+                    window.location.href = data.url;
+                } else {
+                    alert((data && data.error) || 'Could not start checkout. Please try again.');
+                    if (btn) { btn.disabled = false; btn.textContent = '⭐ Upgrade'; }
+                }
+            } catch (e) {
+                alert('Could not start checkout. Please try again.');
+                if (btn) { btn.disabled = false; btn.textContent = '⭐ Upgrade'; }
+            }
+        }
+
+        function showReturnNotice() {
+            const params = new URLSearchParams(window.location.search);
+            const n = document.getElementById('notice');
+            if (params.get('upgraded') === '1') {
+                n.className = 'notice ok';
+                n.textContent = '🎉 Payment received — thank you! Your Professional plan is being activated.';
+            } else if (params.get('canceled') === '1') {
+                n.className = 'notice info';
+                n.textContent = 'Checkout canceled — no charge was made. You can upgrade anytime.';
+            }
+            if (params.get('upgraded') || params.get('canceled')) {
+                history.replaceState({}, '', 'dashboard.html');
+            }
+        }
+
         // ---------- Auth guard + profile ----------
         async function init() {
             const { data: { session } } = await supabaseClient.auth.getSession();
@@ -277,6 +324,7 @@
 
         renderModes();
         renderOfficers();
+        showReturnNotice();
         init();
     </script>
 </body>
