@@ -199,6 +199,12 @@
                 </div>
             </div>
 
+            <!-- Shown when the interview ends -->
+            <div id="endedRow" style="display:none; text-align:center; padding:1rem;">
+                <p style="font-weight:700; color:#166534; margin-bottom:0.75rem;">✓ The interview has ended. Great work!</p>
+                <button class="btn-start" onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
+            </div>
+
             <p class="err" id="errBox" style="display:none;"></p>
         </div>
     </div>
@@ -220,6 +226,7 @@
         let audioChunks = [];
         let audioStream = null;
         let busy = false;          // waiting for the officer / speaking
+        let interviewEnded = false;
 
         function selectTest(v) {
             testVersion = v;
@@ -331,10 +338,15 @@
                 });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || 'Request failed');
-                const reply = data.reply;
+                let reply = (data.reply || '').replace(/\[\[END\]\]/g, '').trim();
                 history.push({ role: 'assistant', content: reply });
                 addMessage('officer', reply);
-                speak(reply);
+                if (data.ended) {
+                    interviewEnded = true;
+                    speak(reply, concludeInterview);
+                } else {
+                    speak(reply);
+                }
             } catch (err) {
                 console.error(err);
                 showError('There was a problem reaching the interviewer. Please try again.');
@@ -342,6 +354,12 @@
             } finally {
                 busy = false;
             }
+        }
+
+        function concludeInterview() {
+            document.getElementById('micRow').style.display = 'none';
+            document.getElementById('endedRow').style.display = 'block';
+            setStatus('Interview ended', '');
         }
 
         // ---------- Start ----------
@@ -358,7 +376,7 @@
         // ---------- Applicant input ----------
         function handleApplicant(text) {
             const clean = (text || '').trim();
-            if (!clean || busy) return;
+            if (!clean || busy || interviewEnded) return;
             history.push({ role: 'user', content: clean });
             addMessage('user', clean);
             askOfficer();
@@ -408,7 +426,7 @@
         }
 
         async function toggleListening() {
-            if (busy) return;
+            if (busy || interviewEnded) return;
             if (recording) {
                 // User finished talking -> stop; onstop transcribes and fills the box
                 try { mediaRecorder.stop(); } catch (e) {}
