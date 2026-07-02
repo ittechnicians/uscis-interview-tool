@@ -126,10 +126,15 @@
                         <div class="mc-title" id="randomTitle"></div>
                         <div class="mc-desc" id="randomDesc"></div>
                     </button>
-                    <button class="mode-card" id="cardFull" onclick="selectMode('full')">
+                    <button class="mode-card" id="cardFull" onclick="selectMode('full')" style="position:relative;">
+                        <span id="fullProBadge" style="display:none; position:absolute; top:0.5rem; right:0.5rem; background:linear-gradient(135deg,#f59e0b,#d97706); color:white; font-size:0.6rem; font-weight:800; padding:0.15rem 0.5rem; border-radius:1rem;">PRO</span>
                         <div class="mc-title" id="fullTitle"></div>
                         <div class="mc-desc" id="fullDesc"></div>
                     </button>
+                </div>
+                <div id="n400Upgrade" style="display:none; background:#fff7ed; border:1px solid #fed7aa; color:#c2410c; border-radius:0.6rem; padding:0.9rem 1rem; margin-bottom:1rem; font-size:0.9rem;">
+                    <span id="n400UpgradeMsg"></span>
+                    <button onclick="startCheckout()" style="margin-top:0.6rem; background:linear-gradient(135deg,#f59e0b,#d97706); color:white; border:none; padding:0.5rem 1rem; border-radius:0.5rem; font-weight:700; cursor:pointer;" id="n400UpgradeBtn"></button>
                 </div>
                 <button class="btn-start" id="beginBtn" onclick="startN400()"></button>
                 <p class="note" id="startNote"></p>
@@ -168,7 +173,9 @@
                 randomTitle:'Random questions', randomDesc:'A quick, varied set of about 10 application questions.',
                 fullTitle:'Full form', fullDesc:'Go through the entire N-400, section by section, top to bottom.',
                 begin:'Begin \u2192', note:'Best experienced in Google Chrome with your microphone enabled.',
-                badgeRandom:'N-400 \u00b7 ~10 random questions', badgeFull:'N-400 \u00b7 full form, top to bottom', badgePersonal:'N-400 \u00b7 personalized (your answers)',                transcriptEmpty:'Your conversation with the officer will appear here.',
+                badgeRandom:'N-400 \u00b7 ~10 random questions', badgeFull:'N-400 \u00b7 full form, top to bottom', badgePersonal:'N-400 \u00b7 personalized (your answers)',
+                proFull:'The full N-400 (all questions) is a Professional feature. The quick 10-question set is free.', upgradeBtn:'Upgrade to Professional \u2192',
+                transcriptEmpty:'Your conversation with the officer will appear here.',
                 micStart:'Tap the mic, speak your answer, then tap again to review it before sending.',
                 placeholder:'...or type your answer here', send:'Send', you:'You',
                 connecting:'Connecting...', thinking:'Officer is thinking...', speaking:'Officer is speaking...',
@@ -193,6 +200,7 @@
                 fullTitle:'Formulario completo', fullDesc:'Recorre todo el N-400, secci\u00f3n por secci\u00f3n, de arriba a abajo.',
                 begin:'Comenzar \u2192', note:'Mejor en Google Chrome con el micr\u00f3fono activado.',
                 badgeRandom:'N-400 \u00b7 ~10 preguntas al azar', badgeFull:'N-400 \u00b7 formulario completo, de arriba a abajo', badgePersonal:'N-400 \u00b7 personalizada (tus respuestas)',
+                proFull:'El N-400 completo (todas las preguntas) es del plan Professional. El set r\u00e1pido de 10 preguntas es gratis.', upgradeBtn:'Actualizar a Professional \u2192',
                 transcriptEmpty:'Tu conversaci\u00f3n con el oficial aparecer\u00e1 aqu\u00ed.',
                 micStart:'Toca el micr\u00f3fono, di tu respuesta y toca de nuevo para revisarla antes de enviar.',
                 placeholder:'...o escribe tu respuesta aqu\u00ed', send:'Enviar', you:'T\u00fa',
@@ -258,10 +266,33 @@
                 started ? (personalized ? t('badgePersonal') : (n400Mode === 'full' ? t('badgeFull') : t('badgeRandom'))) : '';
         }
 
+        let userPlan = 'free';
+
         function selectMode(m) {
+            if (m === 'full' && userPlan !== 'professional') {
+                document.getElementById('n400UpgradeMsg').textContent = t('proFull');
+                document.getElementById('n400UpgradeBtn').textContent = t('upgradeBtn');
+                document.getElementById('n400Upgrade').style.display = 'block';
+                return; // keep 'random' selected
+            }
+            document.getElementById('n400Upgrade').style.display = 'none';
             n400Mode = m;
             document.getElementById('cardRandom').classList.toggle('sel', m === 'random');
             document.getElementById('cardFull').classList.toggle('sel', m === 'full');
+        }
+
+        async function startCheckout() {
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (!session) { window.location.href = 'index.html'; return; }
+                const res = await fetch('/api/checkout', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: session.user.id, email: session.user.email })
+                });
+                const data = await res.json();
+                if (data && data.url) window.location.href = data.url;
+                else alert((data && data.error) || 'Could not start checkout.');
+            } catch (e) { alert('Could not start checkout. Please try again.'); }
         }
 
         function setStatus(text, type) {
@@ -496,6 +527,11 @@
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (!session) { window.location.href = 'index.html'; return; }
 
+            try {
+                const { data: pr } = await supabaseClient.from('profiles').select('plan').eq('id', session.user.id).single();
+                if (pr && pr.plan) userPlan = pr.plan;
+            } catch (e) {}
+
             try { officer = JSON.parse(localStorage.getItem('selectedOfficer')); } catch (e) { officer = null; }
             if (!officer) {
                 officer = { id: 'MM', name: 'Officer Martinez', office: 'USCIS Field Office', tag: 'warm and encouraging', initials: 'MM', gradient: 'linear-gradient(135deg,#1e40af,#3b82f6)' };
@@ -510,9 +546,15 @@
             if ('speechSynthesis' in window) window.speechSynthesis.onvoiceschanged = () => {};
             document.getElementById('loadingOverlay').classList.add('hidden');
 
+            // Show the PRO lock on the full-form option for free users.
+            if (userPlan !== 'professional') {
+                document.getElementById('fullProBadge').style.display = 'inline-block';
+            }
+
             // Personalized mode: launched from the Personalized N-400 page.
             const params = new URLSearchParams(window.location.search);
             if (params.get('mode') === 'personal') {
+                if (userPlan !== 'professional') { window.location.href = 'n400-personal.html'; return; }
                 let p = null;
                 try { p = JSON.parse(localStorage.getItem('n400Profile:' + session.user.id)); } catch (e) { p = null; }
                 if (!p) { window.location.href = 'n400-personal.html'; return; }
