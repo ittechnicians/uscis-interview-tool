@@ -145,6 +145,11 @@
                 </div>
             </div>
 
+            <div id="endedRow" style="display:none; text-align:center; padding:1rem;">
+                <p style="font-weight:700; color:#166534; margin-bottom:0.75rem;" id="endedMsg">✓ The interview has ended. Great work!</p>
+                <button class="btn-start" onclick="window.location.href='dashboard.html'" id="endedBtn">Back to Dashboard</button>
+            </div>
+
             <p class="err" id="errBox" style="display:none;"></p>
         </div>
     </div>
@@ -178,6 +183,7 @@
                 voiceUnsupported:'Voice input is not supported in this browser \u2014 please type your answers below.',
                 recording:'Recording \u2014 tap \u23f9 when done', recordingHint:'Recording\u2026 tap the button again when you finish speaking.',
                 transcribing:'Transcribing your answer\u2026', transcribeFail:'Could not transcribe \u2014 please type your answer below, or try again.',
+                endedMsg:'\u2713 The interview has ended. Great work!', endedBtn:'Back to Dashboard',
                 reachErr:'There was a problem reaching the interviewer. Please try again.'
             },
             es: {
@@ -202,6 +208,7 @@
                 voiceUnsupported:'Este navegador no soporta entrada por voz \u2014 escribe tus respuestas abajo.',
                 recording:'Grabando \u2014 toca \u23f9 al terminar', recordingHint:'Grabando\u2026 toca el bot\u00f3n otra vez al terminar de hablar.',
                 transcribing:'Transcribiendo tu respuesta\u2026', transcribeFail:'No se pudo transcribir \u2014 escribe tu respuesta abajo o intenta de nuevo.',
+                endedMsg:'\u2713 La entrevista ha terminado. \u00a1Buen trabajo!', endedBtn:'Volver al panel',
                 reachErr:'Hubo un problema al contactar al oficial. Int\u00e9ntalo de nuevo.'
             }
         };
@@ -219,6 +226,7 @@
         let audioChunks = [];
         let audioStream = null;
         let busy = false;
+        let interviewEnded = false;
         let started = false;
 
         function setLang(l) {
@@ -322,6 +330,14 @@
             window.speechSynthesis.speak(u);
         }
 
+        function concludeInterview() {
+            document.getElementById('micRow').style.display = 'none';
+            const em = document.getElementById('endedMsg'); if (em) em.textContent = t('endedMsg');
+            const eb = document.getElementById('endedBtn'); if (eb) eb.textContent = t('endedBtn');
+            document.getElementById('endedRow').style.display = 'block';
+            setStatus(t('endedMsg'), '');
+        }
+
         async function askOfficer() {
             busy = true;
             setStatus(t('thinking'), 'live');
@@ -334,9 +350,16 @@
                 });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || 'Request failed');
-                history.push({ role: 'assistant', content: data.reply });
-                addMessage('officer', data.reply);
-                speak(data.reply);
+                const reply = (data.reply || '').replace(/\[\[END\]\]/g, '').trim();
+                history.push({ role: 'assistant', content: reply });
+                addMessage('officer', reply);
+                if (data.ended) {
+                    interviewEnded = true;
+                    speak(reply);
+                    setTimeout(concludeInterview, 300);
+                } else {
+                    speak(reply);
+                }
             } catch (err) {
                 console.error(err);
                 showError(t('reachErr'));
@@ -357,7 +380,7 @@
 
         function handleApplicant(text) {
             const clean = (text || '').trim();
-            if (!clean || busy) return;
+            if (!clean || busy || interviewEnded) return;
             history.push({ role: 'user', content: clean });
             addMessage('user', clean);
             askOfficer();
@@ -393,7 +416,7 @@
         }
 
         async function toggleListening() {
-            if (busy) return;
+            if (busy || interviewEnded) return;
             if (recording) { try { mediaRecorder.stop(); } catch (e) {} setStatus(t('gotIt'), ''); return; }
             stopSpeaking();
             document.getElementById('textInput').value = '';
