@@ -553,12 +553,54 @@
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (!session) { window.location.href = 'index.html'; return; }
             userId = session.user.id;
+
+            // Personalized N-400 is a Professional feature.
+            try {
+                const { data: p } = await supabaseClient.from('profiles').select('plan').eq('id', userId).single();
+                if (!p || p.plan !== 'professional') {
+                    showProOnly();
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    return;
+                }
+            } catch (e) {}
+
             storageKey = 'n400Profile:' + userId;
             try { const so = JSON.parse(localStorage.getItem('selectedOfficer')); if (so && so.id) selectedOfficerId = so.id; } catch (e) {}
             profile = loadProfile();
             screen = profile ? 'saved' : 'consent';
             setLang(lang);
             document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+
+        function showProOnly() {
+            const esLang = (lang === 'es');
+            app.innerHTML =
+                '<div style="text-align:center; padding:2.5rem 1rem; max-width:480px; margin:0 auto;">' +
+                    '<div style="font-size:2.5rem; margin-bottom:0.5rem;">⭐</div>' +
+                    '<h1 style="font-size:1.6rem; font-weight:800; color:#0f172a; margin-bottom:0.75rem;">' +
+                        (esLang ? 'Función Professional' : 'Professional feature') + '</h1>' +
+                    '<p style="color:#475569; margin-bottom:1.5rem;">' +
+                        (esLang
+                            ? 'El N-400 personalizado (con tus propias respuestas y las 35 preguntas "Have you ever") es parte del plan Professional. Actualiza para desbloquearlo — precio de miembro fundador $19/mes.'
+                            : 'The personalized N-400 (your own answers and the 35 "Have you ever" questions) is part of the Professional plan. Upgrade to unlock it — founding-member price $19/month.') +
+                    '</p>' +
+                    '<button class="btn-primary" onclick="startCheckout()">' + (esLang ? 'Actualizar a Professional →' : 'Upgrade to Professional →') + '</button>' +
+                    '<p style="margin-top:1rem;"><a href="dashboard.html" style="color:#64748b;">' + (esLang ? 'Volver al panel' : 'Back to dashboard') + '</a></p>' +
+                '</div>';
+        }
+
+        async function startCheckout() {
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (!session) { window.location.href = 'index.html'; return; }
+                const res = await fetch('/api/checkout', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: session.user.id, email: session.user.email })
+                });
+                const data = await res.json();
+                if (data && data.url) window.location.href = data.url;
+                else alert((data && data.error) || 'Could not start checkout.');
+            } catch (e) { alert('Could not start checkout. Please try again.'); }
         }
         init();
     </script>
