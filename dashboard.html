@@ -35,6 +35,19 @@
         .notice { display: none; margin: 0 0 1.5rem; padding: 1rem 1.25rem; border-radius: 0.75rem; font-weight: 600; }
         .notice.ok { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; display: block; }
         .notice.info { background: #fff7ed; border: 1px solid #fed7aa; color: #c2410c; display: block; }
+        .plan-badge { font-size: 0.7rem; font-weight: 800; padding: 0.2rem 0.6rem; border-radius: 1rem; letter-spacing: 0.03em; }
+        .plan-badge.free { background: #f1f5f9; color: #475569; }
+        .plan-badge.pro { background: linear-gradient(135deg,#f59e0b,#d97706); color: white; }
+        .badge-pro { position: absolute; top: 0.75rem; right: 0.75rem; background: linear-gradient(135deg,#f59e0b,#d97706); color: white; font-size: 0.65rem; font-weight: 800; padding: 0.2rem 0.55rem; border-radius: 1rem; letter-spacing: 0.03em; }
+        .up-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; justify-content: center; align-items: center; padding: 1rem; backdrop-filter: blur(4px); }
+        .up-overlay.show { display: flex; }
+        .up-modal { background: white; border-radius: 1rem; padding: 2rem; max-width: 400px; width: 100%; text-align: center; }
+        .up-modal h3 { font-size: 1.4rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem; }
+        .up-modal p { color: #475569; margin-bottom: 1.5rem; }
+        .up-modal .up-actions { display: flex; gap: 0.75rem; }
+        .up-modal button { flex: 1; padding: 0.8rem; border-radius: 0.6rem; font-weight: 700; cursor: pointer; font-size: 0.95rem; border: none; }
+        .up-primary { background: linear-gradient(135deg,#f59e0b,#d97706); color: white; }
+        .up-later { background: white; color: #64748b; border: 1px solid #e2e8f0 !important; }
 
         /* Layout */
         .container { max-width: 1200px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
@@ -128,6 +141,7 @@
                         <span class="email" id="userEmail"></span>
                     </div>
                 </div>
+                <span class="plan-badge free" id="planBadge" style="display:none;"></span>
                 <button class="btn-upgrade" id="btnUpgrade" onclick="startCheckout()">⭐ Upgrade</button>
                 <button class="btn-logout" onclick="handleLogout()">Log out</button>
             </div>
@@ -185,15 +199,19 @@
             { id:'full',       icon:'🎙️', bg:'#dbeafe', title:'Full Mock Interview', desc:'A complete interview with an AI officer: oath, your application, civics, and the English test. The real thing.', active:true, real:true },
             { id:'civics',     icon:'📚', bg:'#ede9fe', title:'Civics Practice',     desc:'Quiz yourself on the official civics questions (100 or 128). Choose which ones to study.', active:true, href:'civics.html' },
             { id:'n400',       icon:'📋', bg:'#dcfce7', title:'N-400 Questions',      desc:'Practice the standard application questions an officer asks during the interview.', active:true, href:'n400.html' },
-            { id:'n400upload', icon:'🔐', bg:'#cffafe', title:'Personalized N-400',    desc:'A personalized interview based on your own application. Private, and deleted when you finish.', active:true, href:'n400-personal.html' },
+            { id:'n400upload', icon:'🔐', bg:'#cffafe', title:'Personalized N-400',    desc:'A personalized interview based on your own application. Private, and deleted when you finish.', active:true, href:'n400-personal.html', pro:true },
             { id:'vocab',      icon:'🗂️', bg:'#fef3c7', title:'Vocabulary',          desc:'Study the official USCIS reading and writing word lists.', active:true, href:'vocabulary.html' },
             { id:'writing',    icon:'✍️', bg:'#fce7f3', title:'Writing',             desc:'Practice writing the sentences from the English writing test.', active:true, href:'writing.html' }
         ];
 
+        let userPlan = 'free';
+        let freeInterviewUsed = false;
+
         function renderModes() {
+            const isFree = userPlan !== 'professional';
             document.getElementById('modesGrid').innerHTML = MODES.map(m => `
                 <div class="mode-card ${m.active ? 'active' : 'soon'}" ${m.active ? `onclick="onMode('${m.id}')"` : ''}>
-                    ${m.real ? '<span class="badge-real">The real one</span>' : (m.active ? '' : '<span class="badge-soon">Coming soon</span>')}
+                    ${m.pro && isFree ? '<span class="badge-pro">PRO</span>' : (m.real ? '<span class="badge-real">The real one</span>' : (m.active ? '' : '<span class="badge-soon">Coming soon</span>'))}
                     <div class="mode-icon" style="background:${m.bg};">${m.icon}</div>
                     <h3>${m.title}</h3>
                     <p>${m.desc}</p>
@@ -203,14 +221,27 @@
         }
 
         function onMode(id) {
+            const mode = MODES.find(m => m.id === id);
+            const isFree = userPlan !== 'professional';
+            if (mode && mode.pro && isFree) {
+                showUpgrade('This personalized interview is a Professional feature. Upgrade to unlock it — founding-member price $19/month.');
+                return;
+            }
             if (id === 'full') {
                 const setup = document.getElementById('interviewSetup');
                 setup.classList.add('show');
                 setup.scrollIntoView({ behavior: 'smooth' });
                 return;
             }
-            const mode = MODES.find(m => m.id === id);
             if (mode && mode.href) window.location.href = mode.href;
+        }
+
+        function showUpgrade(msg) {
+            if (msg) document.getElementById('upMsg').textContent = msg;
+            document.getElementById('upOverlay').classList.add('show');
+        }
+        function closeUpgrade() {
+            document.getElementById('upOverlay').classList.remove('show');
         }
 
         // ---------- Officers ----------
@@ -294,6 +325,16 @@
         }
 
         // ---------- Auth guard + profile ----------
+        function applyPlanUI() {
+            const isPro = userPlan === 'professional';
+            const badge = document.getElementById('planBadge');
+            badge.style.display = 'inline-block';
+            badge.textContent = isPro ? 'PROFESSIONAL' : 'FREE';
+            badge.className = 'plan-badge ' + (isPro ? 'pro' : 'free');
+            document.getElementById('btnUpgrade').style.display = isPro ? 'none' : 'inline-block';
+            renderModes();
+        }
+
         async function init() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (!session) { window.location.href = 'index.html'; return; }
@@ -302,9 +343,13 @@
             const email = user.email || '';
             let fullName = (user.user_metadata && user.user_metadata.full_name) || '';
             try {
-                const { data: profile } = await supabaseClient.from('profiles').select('full_name').eq('id', user.id).single();
+                const { data: profile } = await supabaseClient.from('profiles').select('full_name, plan, free_interview_used').eq('id', user.id).single();
                 if (profile && profile.full_name) fullName = profile.full_name;
+                if (profile && profile.plan) userPlan = profile.plan;
+                freeInterviewUsed = !!(profile && profile.free_interview_used);
             } catch (e) { console.log('Profile lookup skipped:', e); }
+
+            applyPlanUI();
 
             const displayName = fullName || email.split('@')[0] || 'Student';
             const firstName = displayName.split(' ')[0];
@@ -326,6 +371,16 @@
         renderOfficers();
         showReturnNotice();
         init();
-    </script>
+    </script>    <div class="up-overlay" id="upOverlay">
+        <div class="up-modal">
+            <h3>⭐ Professional feature</h3>
+            <p id="upMsg">This is part of the Professional plan. Upgrade to unlock it — founding-member price $19/month.</p>
+            <div class="up-actions">
+                <button class="up-later" onclick="closeUpgrade()">Maybe later</button>
+                <button class="up-primary" onclick="startCheckout()">Upgrade</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
