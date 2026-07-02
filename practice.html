@@ -188,6 +188,15 @@
                 <p class="note">Best experienced in Google Chrome with your microphone enabled.</p>
             </div>
 
+            <!-- Shown to free users who already used their trial interview -->
+            <div id="trialBlock" style="display:none; text-align:center; padding:2rem 1rem;">
+                <div style="font-size:2.5rem; margin-bottom:0.5rem;">⭐</div>
+                <h2 style="font-size:1.5rem; font-weight:800; color:#0f172a; margin-bottom:0.5rem;">You've used your free interview</h2>
+                <p style="color:#475569; max-width:440px; margin:0 auto 1.5rem;">Upgrade to Professional for unlimited full mock interviews, realistic voices, and personalized N-400 practice — founding-member price $19/month.</p>
+                <button class="btn-start" onclick="startCheckout()">Upgrade to Professional →</button>
+                <p class="note"><a href="dashboard.html" style="color:#64748b;">Back to dashboard</a></p>
+            </div>
+
             <!-- Voice + text input (shown after start) -->
             <div class="mic-row" id="micRow">
                 <button class="mic-btn" id="micBtn" onclick="toggleListening()">🎤</button>
@@ -364,6 +373,11 @@
 
         // ---------- Start ----------
         function startInterview() {
+            // Free users: this consumes their one lifetime trial interview.
+            if (userPlan !== 'professional' && currentUserId) {
+                freeInterviewUsed = true;
+                supabaseClient.from('profiles').update({ free_interview_used: true }).eq('id', currentUserId).then(function () {}, function () {});
+            }
             n400Seed = Math.floor(Math.random() * 1000000000); // new random N-400 set each interview
             document.getElementById('startRow').style.display = 'none';
             document.getElementById('micRow').style.display = 'flex';
@@ -513,17 +527,36 @@
             window.location.href = 'dashboard.html';
         }
 
-        // ---------- Auth guard + load officer ----------
+        // ---------- Auth guard + plan + load officer ----------
+        let userPlan = 'free';
+        let freeInterviewUsed = false;
+        let currentUserId = null;
+
         async function init() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (!session) { window.location.href = 'index.html'; return; }
+            currentUserId = session.user.id;
+
+            // Read the plan + whether the free trial interview was already used.
+            try {
+                const { data: p } = await supabaseClient.from('profiles').select('plan, free_interview_used').eq('id', currentUserId).single();
+                if (p && p.plan) userPlan = p.plan;
+                freeInterviewUsed = !!(p && p.free_interview_used);
+            } catch (e) {}
+
+            // Free users get ONE trial full mock interview (lifetime).
+            if (userPlan !== 'professional' && freeInterviewUsed) {
+                document.getElementById('startRow').style.display = 'none';
+                document.getElementById('trialBlock').style.display = 'block';
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                return;
+            }
 
             // Load the officer chosen on the dashboard
             try {
                 officer = JSON.parse(localStorage.getItem('selectedOfficer'));
             } catch (e) { officer = null; }
             if (!officer) {
-                // No officer selected -> go pick one
                 window.location.href = 'dashboard.html';
                 return;
             }
@@ -535,10 +568,23 @@
             setStatus('Ready', '');
 
             setupRecognition();
-            // Some browsers load TTS voices asynchronously
             if ('speechSynthesis' in window) window.speechSynthesis.onvoiceschanged = () => {};
 
             document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+
+        async function startCheckout() {
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (!session) { window.location.href = 'index.html'; return; }
+                const res = await fetch('/api/checkout', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: session.user.id, email: session.user.email })
+                });
+                const data = await res.json();
+                if (data && data.url) window.location.href = data.url;
+                else alert((data && data.error) || 'Could not start checkout.');
+            } catch (e) { alert('Could not start checkout. Please try again.'); }
         }
 
         init();
