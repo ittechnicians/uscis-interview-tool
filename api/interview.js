@@ -7,6 +7,17 @@
 // swap it for 'gpt-4o-mini' or 'gpt-5.4-mini'.
 const MODEL = 'gpt-4.1-mini';
 
+// Hard safety cap so a single interview can never loop forever (protects cost).
+// A full mock (oath + N-400 + up to 20 civics + English + closing) fits well under this.
+const MAX_USER_TURNS = 55;
+
+// Shared rules that keep the applicant on task and let the officer end the session.
+// (Prevents someone from chatting like a chatbot and burning tokens.)
+const FOCUS_RULES = `
+- STAY ON TASK: This is a citizenship interview, not a general chat. If the applicant goes off-topic, makes small talk, asks you unrelated questions, or tries to discuss things that are not part of the interview, do not engage with the off-topic content. Politely but firmly redirect them back to the current question (for example: "Let's stay focused on your interview. [repeat your question]").
+- ENDING FOR OFF-TASK BEHAVIOR: If the applicant keeps going off-topic or will not answer seriously after you have redirected them about four times, tell them the practice interview will end here, give one short piece of encouragement, and end that message with the token [[END]].
+- COMPLETION: When the interview genuinely finishes (after your closing/feedback), end your final message with the token [[END]]. Only ever include [[END]] when the interview is actually over.`;
+
 const { CIVICS_2008, CIVICS_2020, STATE_INFO, STATE } = require('./civics.js');
 const { selectN400, allN400, selectN400Random, selectDefinitions } = require('./n400.js');
 
@@ -35,10 +46,22 @@ module.exports = async function handler(req, res) {
       ? [{ role: 'user', content: '[The applicant has just sat down for the interview. Greet them and begin.]' }]
       : history;
 
+    // Hard safety cap: count how many times the applicant has spoken.
+    const userTurns = conversation.filter(function (m) { return m && m.role === 'user'; }).length;
+    const atLimit = userTurns >= MAX_USER_TURNS;
+
     const messages = [
       { role: 'system', content: buildSystemPrompt(officer, testVersion, n400Seed, mode, n400Mode, profile) },
       ...conversation
     ];
+
+    // When the limit is reached, instruct the officer to wrap up now.
+    if (atLimit) {
+      messages.push({
+        role: 'system',
+        content: 'The interview has reached its length limit. Give a brief, warm closing with one or two sentences of feedback now, and end your message with the token [[END]]. Do not ask any more questions.'
+      });
+    }
 
     const openaiRes = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -61,11 +84,20 @@ module.exports = async function handler(req, res) {
     }
 
     const data = await openaiRes.json();
-    const reply = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content)
+    let reply = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content)
       ? data.choices[0].message.content.trim()
       : "Let's continue. Please tell me a little about yourself.";
 
-    return res.status(200).json({ reply });
+    // The officer marks the end of the interview with [[END]]. Detect it, then
+    // strip the token so it is never shown or spoken. The hard cap also ends it.
+    let ended = false;
+    if (reply.indexOf('[[END]]') !== -1) {
+      ended = true;
+      reply = reply.replace(/\[\[END\]\]/g, '').trim();
+    }
+    if (atLimit) ended = true;
+
+    return res.status(200).json({ reply: reply, ended: ended });
   } catch (err) {
     console.error('Handler error:', err);
     return res.status(500).json({ error: 'Unexpected server error.' });
@@ -114,7 +146,7 @@ CRITICAL RULES:
 - Match your tone to your style (${officer.tag}), but always stay professional and respectful.
 - During the civics test, grade strictly against the official accepted answers — do not accept a wrong answer as correct.
 - Never break character. Never say you are an AI or a language model — you are the officer.
-- Do NOT list multiple questions at once. One question, then wait.`;
+- Do NOT list multiple questions at once. One question, then wait.${FOCUS_RULES}`;
 }
 
 function planToList(plan) {
@@ -237,7 +269,7 @@ CRITICAL RULES:
 - Speak in clear, simple English (the real interview is conducted in English).
 - Match your tone to your style (${officer.tag}), but always stay professional and respectful.
 - Never break character. Never say you are an AI or a language model — you are the officer.
-- Do NOT list multiple questions at once. One question, then wait.${personalizeRule}`;
+- Do NOT list multiple questions at once. One question, then wait.${FOCUS_RULES}${personalizeRule}`;
 }
 
 // Seeded shuffle so the civics selection is random per interview but stable across turns.
