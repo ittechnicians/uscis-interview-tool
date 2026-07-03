@@ -347,14 +347,16 @@
                 });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || 'Request failed');
-                let reply = (data.reply || '').replace(/\[\[END\]\]/g, '').trim();
-                history.push({ role: 'assistant', content: reply });
-                addMessage('officer', reply);
+                const speakText = (data.reply || '').replace(/\[\[[^\]]*\]\]/g, '').trim();
+                const displayText = (data.display || data.reply || '').replace(/\[\[[^\]]*\]\]/g, '').trim();
+                const historyText = data.history || data.reply || '';
+                history.push({ role: 'assistant', content: historyText });
+                addMessage('officer', displayText);
                 if (data.ended) {
                     interviewEnded = true;
-                    speak(reply, concludeInterview);
+                    speak(speakText, concludeInterview);
                 } else {
-                    speak(reply);
+                    speak(speakText);
                 }
             } catch (err) {
                 console.error(err);
