@@ -14,9 +14,9 @@ const MAX_USER_TURNS = 55;
 // Shared rules that keep the applicant on task and let the officer end the session.
 // (Prevents someone from chatting like a chatbot and burning tokens.)
 const FOCUS_RULES = `
-- STAY ON TASK: This is a citizenship interview, not a general chat. If the applicant goes off-topic, makes small talk, asks you unrelated questions, or tries to discuss things that are not part of the interview, do not engage with the off-topic content. Politely but firmly redirect them back to the current question (for example: "Let's stay focused on your interview. [repeat your question]").
-- ENDING FOR OFF-TASK BEHAVIOR: If the applicant keeps going off-topic or will not answer seriously after you have redirected them about four times, tell them the practice interview will end here, give one short piece of encouragement, and end that message with the token [[END]].
-- COMPLETION: When the interview genuinely finishes (after your closing/feedback), end your final message with the token [[END]]. Only ever include [[END]] when the interview is actually over.`;
+- STAY ON TASK: This is a citizenship interview, not a general chat. If the applicant goes off-topic, makes small talk, asks you unrelated questions, gives a nonsense answer, or will not answer, do NOT engage with the off-topic content. Redirect them to the current question, and VARY your wording every time — never repeat the exact same sentence twice. Each time you redirect for off-topic behavior, end that message with the marker [[OFFTRACK]] (this marker is hidden from the applicant).
+- ESCALATION: You will be told the number of OFF-TOPIC STRIKES the applicant already has. If they are off-topic again: at strike 0 or 1, redirect politely; at strike 2, redirect and give a firm final warning that the interview will end if they keep going off-topic; at strike 3 or more, STOP the interview — give a short, encouraging closing and end your message with [[END]] (do not add [[OFFTRACK]] on that closing).
+- COMPLETION: When the interview genuinely finishes (after your closing/feedback), end your final message with [[END]]. Only ever include [[END]] when the interview is actually over. Both [[OFFTRACK]] and [[END]] are hidden control markers — never mention them.`;
 
 const { CIVICS_2008, CIVICS_2020, STATE_INFO, STATE } = require('./civics.js');
 const { selectN400, allN400, selectN400Random, selectDefinitions } = require('./n400.js');
@@ -50,12 +50,27 @@ module.exports = async function handler(req, res) {
     const userTurns = conversation.filter(function (m) { return m && m.role === 'user'; }).length;
     const atLimit = userTurns >= MAX_USER_TURNS;
 
+    // Count how many times the officer has already flagged the applicant as
+    // off-topic (hidden [[OFFTRACK]] markers kept in the history).
+    let priorStrikes = 0;
+    conversation.forEach(function (m) {
+      if (m && m.role === 'assistant' && typeof m.content === 'string') {
+        priorStrikes += (m.content.match(/\[\[OFFTRACK\]\]/g) || []).length;
+      }
+    });
+
     const messages = [
       { role: 'system', content: buildSystemPrompt(officer, testVersion, n400Seed, mode, n400Mode, profile) },
       ...conversation
     ];
 
-    // When the limit is reached, instruct the officer to wrap up now.
+    // Tell the officer the current strike count so escalation is deterministic.
+    messages.push({
+      role: 'system',
+      content: 'OFF-TOPIC STRIKES SO FAR: ' + priorStrikes + '. If the applicant is off-topic again, follow the ESCALATION rule for this strike level. If they answered on-topic, continue normally with no markers.'
+    });
+
+    // When the length limit is reached, instruct the officer to wrap up now.
     if (atLimit) {
       messages.push({
         role: 'system',
@@ -84,20 +99,44 @@ module.exports = async function handler(req, res) {
     }
 
     const data = await openaiRes.json();
-    let reply = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content)
+    const raw = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content)
       ? data.choices[0].message.content.trim()
       : "Let's continue. Please tell me a little about yourself.";
 
-    // The officer marks the end of the interview with [[END]]. Detect it, then
-    // strip the token so it is never shown or spoken. The hard cap also ends it.
-    let ended = false;
-    if (reply.indexOf('[[END]]') !== -1) {
-      ended = true;
-      reply = reply.replace(/\[\[END\]\]/g, '').trim();
-    }
-    if (atLimit) ended = true;
+    // Three versions of the officer's message:
+    //  - historyContent: kept for the next request (keeps [[OFFTRACK]] + dictation so the officer remembers)
+    //  - speak: what text-to-speech reads (includes the dictation sentence, no control markers)
+    //  - display: what the chat shows (dictation sentence hidden so the applicant must listen and write)
+    const historyContent = raw.replace(/\[\[END\]\]/g, '').trim();
 
-    return res.status(200).json({ reply: reply, ended: ended });
+    const speak = raw
+      .replace(/\[\[OFFTRACK\]\]/g, '')
+      .replace(/\[\[END\]\]/g, '')
+      .replace(/\[\[DICTATION\]\]/g, '')
+      .replace(/\[\[\/DICTATION\]\]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    const display = raw
+      .replace(/\[\[OFFTRACK\]\]/g, '')
+      .replace(/\[\[END\]\]/g, '')
+      .replace(/\[\[DICTATION\]\][\s\S]*?\[\[\/DICTATION\]\]/g, '🔊 (listen and write the sentence you hear)')
+      .trim();
+
+    // Decide whether the interview has ended.
+    const thisOffTrack = raw.indexOf('[[OFFTRACK]]') !== -1 ? 1 : 0;
+    const totalStrikes = priorStrikes + thisOffTrack;
+    let ended = false;
+    if (raw.indexOf('[[END]]') !== -1) ended = true;
+    if (atLimit) ended = true;
+    if (totalStrikes >= 4) ended = true;
+
+    return res.status(200).json({
+      reply: speak,          // for text-to-speech
+      display: display,      // for the chat bubble
+      history: historyContent, // to send back next turn
+      ended: ended
+    });
   } catch (err) {
     console.error('Handler error:', err);
     return res.status(500).json({ error: 'Unexpected server error.' });
@@ -136,7 +175,9 @@ Follow this real interview structure, in order:
 1. GREETING & OATH: Greet the applicant, introduce yourself briefly, ask them to raise their right hand and swear that everything they tell you will be the truth, then ask them to state their full legal name.
 ${n400}
 ${civics}
-4. ENGLISH TEST: Ask the applicant to read one short sentence aloud, and then give them one short sentence to say back to you (since this is by voice).
+4. ENGLISH TEST — do it in two parts:
+   a) READING: Give the applicant ONE short sentence to read aloud, and SHOW them the sentence in your message (this one they are allowed to see, because they must read it). Wait for them to read it.
+   b) WRITING (dictation): Tell the applicant you will read a sentence and they must WRITE it. Use ONE official USCIS writing sentence. Put ONLY that sentence inside dictation markers like this: [[DICTATION]]The people vote for the President.[[/DICTATION]]. The applicant will HEAR this sentence but will NOT see it written, so do not repeat the sentence anywhere else in your message. After they write it, evaluate it: by USCIS rules, minor spelling, capitalization, or punctuation mistakes are fine as long as the meaning is clear — tell them if it is acceptable, then continue.
 5. CLOSING: Tell them the practice interview is complete and give brief, encouraging feedback on how they did and one thing to improve.
 
 CRITICAL RULES:
