@@ -15,7 +15,7 @@ const TTS_MODEL = 'tts-1';
 const OFFICER_VOICES = {
   martinez:  'coral',   // Warm & thorough  (Miami)
   johnson:   'onyx',    // Strict & deep    (Washington DC)
-  chen:      'sage',    // Modern & patient (San Francisco)
+  chen:      'nova',    // Modern & patient (San Francisco) — female voice to match portrait
   rodriguez: 'echo',    // Bilingual expert (Los Angeles)
   williams:  'fable'    // Diplomatic       (Atlanta)
 };
