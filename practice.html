@@ -288,8 +288,7 @@
         }
         // ---------- Officer avatar (stylized, auto-generated) + talking animation ----------
         function officerAvatarUrl(off) {
-            const seed = encodeURIComponent((off && (off.name || off.id)) || 'officer');
-            return 'https://api.dicebear.com/9.x/avataaars/svg?seed=' + seed;
+            return ((off && off.id) ? off.id : 'martinez') + '.png';
         }
         function setAvatar(el, off) {
             el.style.background = (off && off.gradient) || 'linear-gradient(135deg,#1e40af,#3b82f6)';
