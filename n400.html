@@ -28,7 +28,9 @@
 
         .stage-wrap { max-width: 900px; margin: 0 auto; padding: 1.5rem; }
         .officer-stage { background: linear-gradient(160deg, #0f172a 0%, #1e293b 100%); border-radius: 1.25rem; padding: 2rem; text-align: center; color: white; }
-        .officer-avatar { width: 110px; height: 110px; border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 2.25rem; border: 4px solid rgba(255,255,255,0.15); }
+        .officer-avatar { width: 110px; height: 110px; border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 2.25rem; border: 4px solid rgba(255,255,255,0.15); position: relative; overflow: hidden; transition: box-shadow 0.12s, transform 0.12s; }
+        .officer-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+        .officer-avatar .av-initials { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
         .officer-avatar.speaking { animation: glow 1.2s ease-in-out infinite; }
         @keyframes glow { 0%,100% { box-shadow: 0 0 0 0 rgba(96,165,250,0.5); } 50% { box-shadow: 0 0 0 16px rgba(96,165,250,0); } }
         .officer-stage h2 { font-size: 1.35rem; font-weight: 800; }
@@ -319,10 +321,48 @@
             if (!voices.length) return null;
             return voices[Math.abs(hashString(officer.id || officer.name)) % voices.length];
         }
+        function officerAvatarUrl(off) {
+            const seed = encodeURIComponent((off && (off.name || off.id)) || 'officer');
+            return 'https://api.dicebear.com/9.x/avataaars/svg?seed=' + seed;
+        }
+        function setAvatar(el, off) {
+            el.style.background = (off && off.gradient) || 'linear-gradient(135deg,#1e40af,#3b82f6)';
+            el.innerHTML =
+                '<span class="av-initials">' + ((off && off.initials) || 'OF') + '</span>' +
+                '<img src="' + officerAvatarUrl(off) + '" alt="" onerror="this.style.display=\'none\'">';
+        }
+        let audioCtx = null, vizRaf = null;
+        function startAvatarViz(audioEl) {
+            try {
+                audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const src = audioCtx.createMediaElementSource(audioEl);
+                const analyser = audioCtx.createAnalyser();
+                analyser.fftSize = 256;
+                src.connect(analyser); analyser.connect(audioCtx.destination);
+                const buf = new Uint8Array(analyser.frequencyBinCount);
+                const av = document.getElementById('officerAvatar');
+                const loop = () => {
+                    analyser.getByteFrequencyData(buf);
+                    let sum = 0; for (let i = 0; i < buf.length; i++) sum += buf[i];
+                    const level = Math.min(1, (sum / buf.length) / 85);
+                    av.style.boxShadow = '0 0 0 ' + (6 + level * 22) + 'px rgba(96,165,250,' + (0.05 + level * 0.28) + ')';
+                    av.style.transform = 'scale(' + (1 + level * 0.05) + ')';
+                    vizRaf = requestAnimationFrame(loop);
+                };
+                loop();
+            } catch (e) {}
+        }
+        function stopAvatarViz() {
+            if (vizRaf) { cancelAnimationFrame(vizRaf); vizRaf = null; }
+            const av = document.getElementById('officerAvatar');
+            if (av) { av.style.boxShadow = ''; av.style.transform = ''; }
+        }
         let currentAudio = null;
         function stopSpeaking() {
             if (currentAudio) { try { currentAudio.pause(); } catch (e) {} currentAudio = null; }
             if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            stopAvatarViz();
         }
         async function speak(text) {
             stopSpeaking();
@@ -330,6 +370,7 @@
             setStatus(t('speaking'), 'live');
             const done = () => {
                 document.getElementById('officerAvatar').classList.remove('speaking');
+                stopAvatarViz();
                 setStatus(t('yourTurn'), '');
             };
             try {
@@ -346,6 +387,7 @@
                 audio.onended = () => { currentAudio = null; done(); };
                 audio.onerror = () => { currentAudio = null; speakBrowser(text, done); };
                 await audio.play();
+                startAvatarViz(audio);
             } catch (e) {
                 speakBrowser(text, done);
             }
@@ -538,8 +580,7 @@
             if (!officer) {
                 officer = { id: 'MM', name: 'Officer Martinez', office: 'USCIS Field Office', tag: 'warm and encouraging', initials: 'MM', gradient: 'linear-gradient(135deg,#1e40af,#3b82f6)' };
             }
-            document.getElementById('officerAvatar').textContent = officer.initials || 'OF';
-            document.getElementById('officerAvatar').style.background = officer.gradient || 'linear-gradient(135deg,#1e40af,#3b82f6)';
+            setAvatar(document.getElementById('officerAvatar'), officer);
             document.getElementById('officerName').textContent = officer.name;
             document.getElementById('officerOffice').textContent = officer.office || 'USCIS Field Office';
 
