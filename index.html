@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>USCIS Interviews AI - Master Your Citizenship Interview</title>
-    <meta name="description" content="Practice your USCIS naturalization interview with AI officers that have realistic voices and distinct personalities. Bilingual English/Spanish. Practice, prepare, succeed.">
+    <title>Immigration Interviews — Practice Your U.S. Citizenship Interview with AI</title>
+    <meta name="description" content="Practice your U.S. citizenship (naturalization) interview with AI officers that have realistic voices and distinct personalities. Bilingual English/Spanish. Practice, prepare, succeed.">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -354,6 +354,8 @@
             border: 4px solid white;
         }
         
+        .officer-avatar-pro { overflow: visible; }
+        .officer-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
         .officer-initials {
             color: white;
             font-size: 2rem;
@@ -782,8 +784,8 @@
     <nav class="nav">
         <div class="nav-container">
             <a href="#" class="logo">
-                <img src="uscisinterviews_ai_logo.png" alt="USCIS Interviews.AI" class="logo-img">
-                <span class="brand-text">USCIS Interviews<span style="color: #dc2626;">.AI</span></span>
+                <img src="immigrationinterviews_logo.png" alt="Immigration Interviews" class="logo-img">
+                <span class="brand-text">Immigration <span style="color:#dc2626;">Interviews</span></span>
             </a>
             <div class="nav-links">
                 <a href="#features" class="nav-link">Features</a>
@@ -807,17 +809,17 @@
                 </div>
                 <div class="hero-stats">
                     <div class="stat"><span class="stat-number">5</span><span class="stat-label">AI officers, real voices</span></div>
-                    <div class="stat"><span class="stat-number">100+</span><span class="stat-label">Official civics questions</span></div>
+                    <div class="stat"><span class="stat-number">100 &amp; 128</span><span class="stat-label">Both official civics tests</span></div>
                     <div class="stat"><span class="stat-number">EN · ES</span><span class="stat-label">Fully bilingual</span></div>
                 </div>
             </div>
             <div class="hero-visual">
                 <div class="interview-card">
                     <div class="interview-card-header">
-                        <div class="officer-avatar-large">MM</div>
+                        <div class="officer-avatar-large" style="position:relative; overflow:hidden;">MM<img src="martinez.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'"></div>
                         <div class="officer-info">
                             <h4>Officer M. Martinez</h4>
-                            <p>USCIS Miami Field Office</p>
+                            <p>Miami Field Office</p>
                         </div>
                         <div class="live-indicator"><span class="live-dot"></span>LIVE</div>
                     </div>
@@ -859,35 +861,35 @@
             <div class="officers-grid">
                 <div class="officer-card-display">
                     <div class="officer-avatar-pro" style="background: linear-gradient(135deg, #ec4899, #be185d);">
-                        <span class="officer-initials">MM</span><div class="officer-badge-pro">USCIS</div>
+                        <span class="officer-initials">MM</span><img src="martinez.png" alt="" class="officer-photo" onerror="this.style.display='none'"><div class="officer-badge-pro">AI</div>
                     </div>
                     <h4>Officer M. Martinez</h4><p class="specialty">Miami Field Office</p>
                     <span class="officer-tag">Warm & Thorough</span>
                 </div>
                 <div class="officer-card-display">
                     <div class="officer-avatar-pro" style="background: linear-gradient(135deg, #1e40af, #1e3a8a);">
-                        <span class="officer-initials">RJ</span><div class="officer-badge-pro">USCIS</div>
+                        <span class="officer-initials">RJ</span><img src="johnson.png" alt="" class="officer-photo" onerror="this.style.display='none'"><div class="officer-badge-pro">AI</div>
                     </div>
                     <h4>Officer R. Johnson</h4><p class="specialty">Washington DC Office</p>
                     <span class="officer-tag">Strict & Professional</span>
                 </div>
                 <div class="officer-card-display">
                     <div class="officer-avatar-pro" style="background: linear-gradient(135deg, #7c3aed, #5b21b6);">
-                        <span class="officer-initials">LC</span><div class="officer-badge-pro">USCIS</div>
+                        <span class="officer-initials">LC</span><img src="chen.png" alt="" class="officer-photo" onerror="this.style.display='none'"><div class="officer-badge-pro">AI</div>
                     </div>
                     <h4>Officer L. Chen</h4><p class="specialty">San Francisco Office</p>
                     <span class="officer-tag">Modern & Patient</span>
                 </div>
                 <div class="officer-card-display">
                     <div class="officer-avatar-pro" style="background: linear-gradient(135deg, #16a34a, #15803d);">
-                        <span class="officer-initials">CR</span><div class="officer-badge-pro">USCIS</div>
+                        <span class="officer-initials">CR</span><img src="rodriguez.png" alt="" class="officer-photo" onerror="this.style.display='none'"><div class="officer-badge-pro">AI</div>
                     </div>
                     <h4>Officer C. Rodriguez</h4><p class="specialty">Los Angeles Office</p>
                     <span class="officer-tag">Bilingual Expert</span>
                 </div>
                 <div class="officer-card-display">
                     <div class="officer-avatar-pro" style="background: linear-gradient(135deg, #dc2626, #991b1b);">
-                        <span class="officer-initials">SW</span><div class="officer-badge-pro">USCIS</div>
+                        <span class="officer-initials">SW</span><img src="williams.png" alt="" class="officer-photo" onerror="this.style.display='none'"><div class="officer-badge-pro">AI</div>
                     </div>
                     <h4>Officer S. Williams</h4><p class="specialty">Atlanta Field Office</p>
                     <span class="officer-tag">Diplomatic</span>
@@ -963,12 +965,17 @@
 
     <footer class="footer">
         <div class="footer-content">
-            <img src="uscisinterviews_ai_logo.png" alt="USCIS Interviews.AI" class="footer-logo">
+            <img src="immigrationinterviews_logo.png" alt="Immigration Interviews" class="footer-logo">
             <div class="footer-links">
-                <a>About</a><a>Privacy Policy</a><a>Terms of Service</a><a>Contact</a>
+                <a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Service</a><a href="refunds.html">Refund Policy</a><a href="mailto:oscaralvarezdosa@gmail.com">Contact</a>
             </div>
-            <p>© 2026 USCIS Interviews.AI by Escuela de Bookkeepers. All rights reserved.</p>
-            <p style="margin-top: 1rem; font-size: 0.875rem;">This service is for educational purposes only and does not constitute legal advice.</p>
+            <p style="max-width: 720px; margin: 0 auto 1.25rem; font-size: 0.875rem; line-height: 1.7; color: #cbd5e1;">
+                <strong style="color:#f1f5f9;">Not affiliated with the U.S. government.</strong> Immigration Interviews is an independent practice tool and is not affiliated with, endorsed by, or connected to U.S. Citizenship and Immigration Services (USCIS), the Department of Homeland Security, or any government agency. The officers shown are fictional AI characters.
+            </p>
+            <p style="max-width: 720px; margin: 0 auto 1.5rem; font-size: 0.875rem; line-height: 1.7; color: #cbd5e1;">
+                <strong style="color:#f1f5f9;">Not legal advice.</strong> We are not attorneys or accredited representatives. This service is for educational practice only and does not constitute legal advice. For advice about your case, consult a licensed immigration attorney or a DOJ-accredited representative. Using this service does not guarantee any interview or application outcome.
+            </p>
+            <p>© 2026 Immigration Interviews, operated by Cyberdefen, Inc. All rights reserved.</p>
         </div>
     </footer>
     
@@ -1013,6 +1020,10 @@
                     <label for="signupPassword">Password</label>
                     <input type="password" id="signupPassword" class="form-input" placeholder="Minimum 6 characters" minlength="6" required>
                 </div>
+                <label style="display:flex; gap:0.6rem; align-items:flex-start; font-size:0.82rem; color:#475569; line-height:1.5; margin-top:0.25rem; cursor:pointer;">
+                    <input type="checkbox" id="agreeTerms" required style="margin-top:0.2rem; width:16px; height:16px; flex-shrink:0;">
+                    <span>I am 18 or older and I agree to the <a href="terms.html" target="_blank" style="color:#1e40af; font-weight:600;">Terms of Service</a> and <a href="privacy.html" target="_blank" style="color:#1e40af; font-weight:600;">Privacy Policy</a>. I understand this is a practice tool, not legal advice, and is not affiliated with USCIS.</span>
+                </label>
                 <button type="submit" class="modal-submit" id="signupButton">Create Free Account</button>
             </form>
             <p class="modal-switch">Already have an account? <a onclick="switchModal('login')">Login</a></p>
