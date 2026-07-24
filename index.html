@@ -996,6 +996,8 @@
                 </div>
                 <button type="submit" class="modal-submit" id="loginButton">Login</button>
             </form>
+            <div class="alert success" id="resetSuccess" style="margin-top:1rem;"></div>
+            <p class="modal-switch" style="margin-top:1rem;"><a onclick="handleForgotPassword()">Forgot your password?</a></p>
             <p class="modal-switch">Don't have an account? <a onclick="switchModal('signup')">Sign up free</a></p>
         </div>
     </div>
@@ -1125,6 +1127,33 @@
             }
         }
         
+        async function handleForgotPassword() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const errorAlert = document.getElementById('loginError');
+            const okAlert = document.getElementById('resetSuccess');
+            errorAlert.style.display = 'none';
+            okAlert.style.display = 'none';
+
+            if (!email) {
+                errorAlert.textContent = 'Please enter your email above first, then tap "Forgot your password?"';
+                errorAlert.style.display = 'block';
+                return;
+            }
+            try {
+                const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                    redirectTo: window.location.origin + '/reset-password.html'
+                });
+                if (error) throw error;
+                okAlert.textContent = 'If an account exists for that email, we just sent a link to reset your password. Please check your inbox (and spam folder).';
+                okAlert.style.display = 'block';
+            } catch (error) {
+                console.error('Reset error:', error);
+                // Show a neutral message either way, so we don't reveal which emails exist.
+                okAlert.textContent = 'If an account exists for that email, we just sent a link to reset your password. Please check your inbox (and spam folder).';
+                okAlert.style.display = 'block';
+            }
+        }
+
         function selectPlan(plan) {
             localStorage.setItem('selectedPlan', plan);
             openModal('signup');
