@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard.html
+Disallow: /practice.html
+Disallow: /civics.html
+Disallow: /vocabulary.html
+Disallow: /writing.html
+Disallow: /n400.html
+Disallow: /n400-personal.html
+Disallow: /reset-password.html
+
+Sitemap: https://www.immigrationinterviews.com/sitemap.xml
