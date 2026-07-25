@@ -89,6 +89,12 @@
         .brand-logo { height: 104px; width: 104px; object-fit: contain; vertical-align: middle; margin-right: 0.45rem; }
         @media (max-width: 600px) { .brand-logo { height: 56px; width: 56px; } .logo { font-size: 1.15rem; } }
             .brand-text { white-space: nowrap; line-height: 1.1; }
+        /* Mobile: solo el sello del logo; el wordmark se oculta para dar aire a los controles */
+        @media (max-width: 600px) {
+            .topbar-inner { padding: 0 1rem; }
+            .brand-text { display: none; }
+            .brand-logo { margin-right: 0; }
+        }
     </style>
 </head>
 <body>
