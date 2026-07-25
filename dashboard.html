@@ -375,8 +375,23 @@
             document.getElementById('welcomeName').textContent = firstName;
 
             try {
-                const { count } = await supabaseClient.from('practice_sessions').select('*', { count:'exact', head:true }).eq('user_id', user.id);
-                if (typeof count === 'number') document.getElementById('statSessions').textContent = count;
+                const { data: sess } = await supabaseClient.from('practice_sessions')
+                    .select('questions, score, created_at').eq('user_id', user.id);
+                if (sess) {
+                    document.getElementById('statSessions').textContent = sess.length;
+                    document.getElementById('statQuestions').textContent =
+                        sess.reduce(function (a, r) { return a + (r.questions || 0); }, 0);
+                    const scored = sess.filter(function (r) { return r.score !== null && r.score !== undefined; });
+                    document.getElementById('statScore').textContent = scored.length
+                        ? Math.round(scored.reduce(function (a, r) { return a + Number(r.score); }, 0) / scored.length) + '%'
+                        : '—';
+                    const dayKey = function (d) { const x = new Date(d); return x.getFullYear() + '-' + (x.getMonth() + 1) + '-' + x.getDate(); };
+                    const days = new Set(sess.map(function (r) { return dayKey(r.created_at); }));
+                    let streak = 0; const cur = new Date();
+                    if (!days.has(dayKey(cur))) cur.setDate(cur.getDate() - 1);
+                    while (days.has(dayKey(cur))) { streak++; cur.setDate(cur.getDate() - 1); }
+                    document.getElementById('statStreak').textContent = streak;
+                }
             } catch (e) { console.log('Stats lookup skipped:', e); }
 
             document.getElementById('loadingOverlay').classList.add('hidden');
