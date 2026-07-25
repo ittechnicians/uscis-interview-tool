@@ -86,11 +86,11 @@
             .btn-end { padding: 0.4rem 0.7rem; font-size: 0.8rem; }
             .topbar-inner { padding: 0 0.9rem; }
         }
-            /* Mobile: solo el sello del logo; el wordmark se oculta para dar aire a los controles */
+            /* Mobile: wordmark en texto (nítido a dos líneas); el sello solo en pantallas grandes */
         @media (max-width: 600px) {
             .topbar-inner { padding: 0 1rem; }
-            .brand-text { display: none; }
-            .brand-logo { margin-right: 0; }
+            .brand-logo { display: none; }
+            .brand-text { display: inline-block; white-space: normal; width: min-content; font-size: 1.05rem; font-weight: 800; line-height: 1.15; }
         }
     </style>
 </head>
