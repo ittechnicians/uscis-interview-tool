@@ -266,6 +266,7 @@
                 return;
             }
             if (q.phase === 'results') {
+                if (!q.statsSaved) { q.statsSaved = true; saveSession('vocabulary', q.questions.length, q.score); }
                 const good = (q.score / q.questions.length) >= 0.6;
                 app.innerHTML = '<h1>' + t('title') + '</h1>' + tabsHtml() +
                     '<div class="result-card"><div class="result-emoji">' + (good ? '\ud83c\udf89' : '\ud83d\udcaa') + '</div>' +
@@ -308,7 +309,7 @@
                 const opts = shuffle([item].concat(others));
                 return { correctObj: item, opts: opts };
             });
-            state.quiz.index = 0; state.quiz.score = 0; state.quiz.answered = false; state.quiz.chosen = null;
+            state.quiz.index = 0; state.quiz.score = 0; state.quiz.answered = false; state.quiz.chosen = null; state.quiz.statsSaved = false;
             state.quiz.phase = 'quiz';
             render();
             speakTerm();
@@ -340,6 +341,19 @@
             document.getElementById('loadingOverlay').classList.add('hidden');
         }
         init();
+
+        // --- Estadísticas: guarda la sesión de práctica en Supabase ---
+        async function saveSession(mode, questions, correct) {
+            try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (!user) return;
+                const score = (correct !== null && correct !== undefined && questions > 0)
+                    ? Math.round((correct / questions) * 100) : null;
+                await supabaseClient.from('practice_sessions').insert({
+                    user_id: user.id, mode: mode, questions: questions, correct: correct, score: score
+                });
+            } catch (e) { console.log('saveSession skipped:', e); }
+        }
     </script>
 </body>
 </html>
