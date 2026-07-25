@@ -86,7 +86,13 @@
             .btn-end { padding: 0.4rem 0.7rem; font-size: 0.8rem; }
             .topbar-inner { padding: 0 0.9rem; }
         }
-        </style>
+            /* Mobile: solo el sello del logo; el wordmark se oculta para dar aire a los controles */
+        @media (max-width: 600px) {
+            .topbar-inner { padding: 0 1rem; }
+            .brand-text { display: none; }
+            .brand-logo { margin-right: 0; }
+        }
+    </style>
 </head>
 <body>
     <div class="loading-overlay" id="loadingOverlay">
