@@ -552,10 +552,14 @@
         }
 
         // ---------- End ----------
-        function endInterview() {
+        async function endInterview() {
             stopSpeaking();
             if (recording && mediaRecorder) { try { mediaRecorder.stop(); } catch (e) {} }
             if (audioStream) { audioStream.getTracks().forEach(function (t) { t.stop(); }); audioStream = null; }
+            try {
+                const n = history.filter(function (m) { return m.role === 'user'; }).length;
+                if (n > 0) await saveSession('full_interview', n, null);
+            } catch (e) {}
             window.location.href = 'dashboard.html';
         }
 
@@ -619,6 +623,19 @@
         }
 
         init();
+
+        // --- Estadísticas: guarda la sesión de práctica en Supabase ---
+        async function saveSession(mode, questions, correct) {
+            try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (!user) return;
+                const score = (correct !== null && correct !== undefined && questions > 0)
+                    ? Math.round((correct / questions) * 100) : null;
+                await supabaseClient.from('practice_sessions').insert({
+                    user_id: user.id, mode: mode, questions: questions, correct: correct, score: score
+                });
+            } catch (e) { console.log('saveSession skipped:', e); }
+        }
     </script>
 </body>
 </html>
