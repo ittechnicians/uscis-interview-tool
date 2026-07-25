@@ -308,6 +308,7 @@
             if (state.count !== 'all') pool = pool.slice(0, state.count);
 
             state.working = pool;
+            state.statsSaved = false;
             state.index = 0;
             state.known = 0;
             state.missed = [];
@@ -378,6 +379,7 @@
             const total = state.working.length;
             const k = state.known;
             const good = (k / total) >= 0.6;
+            if (!state.statsSaved) { state.statsSaved = true; saveSession('civics', total, k); }
             app.innerHTML = `
                 <div class="result-card">
                     <div class="result-emoji">${good ? '🎉' : '💪'}</div>
@@ -394,7 +396,7 @@
 
         function redoMissed() {
             state.working = shuffle(state.missed);
-            state.index = 0; state.known = 0; state.missed = []; state.revealed = false;
+            state.index = 0; state.known = 0; state.missed = []; state.revealed = false; state.statsSaved = false;
             state.screen = 'study'; render();
             speakQuestion();
         }
@@ -409,6 +411,19 @@
             document.getElementById('loadingOverlay').classList.add('hidden');
         }
         init();
+
+        // --- Estadísticas: guarda la sesión de práctica en Supabase ---
+        async function saveSession(mode, questions, correct) {
+            try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (!user) return;
+                const score = (correct !== null && correct !== undefined && questions > 0)
+                    ? Math.round((correct / questions) * 100) : null;
+                await supabaseClient.from('practice_sessions').insert({
+                    user_id: user.id, mode: mode, questions: questions, correct: correct, score: score
+                });
+            } catch (e) { console.log('saveSession skipped:', e); }
+        }
     </script>
 </body>
 </html>
