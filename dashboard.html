@@ -22,15 +22,20 @@
         .nav-container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center; }
         .logo { font-size: 1.4rem; font-weight: 800; color: #0f172a; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
         .logo-flag { font-size: 1.6rem; }
-        .nav-right { display: flex; align-items: center; gap: 1.25rem; }
-        .user-chip { display: flex; align-items: center; gap: 0.625rem; }
-        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.95rem; }
-        .user-meta { display: flex; flex-direction: column; line-height: 1.2; }
-        .user-meta .name { font-weight: 700; font-size: 0.9rem; color: #0f172a; }
-        .user-meta .email { font-size: 0.75rem; color: #94a3b8; }
-        .btn-logout { background: white; color: #475569; border: 1px solid #e2e8f0; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s; }
+        .nav-right { display: flex; align-items: center; }
+        .user-menu { position: relative; }
+        .user-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.95rem; border: 2px solid transparent; cursor: pointer; transition: box-shadow 0.2s, border-color 0.2s; padding: 0; }
+        .user-avatar:hover, .user-menu.open .user-avatar { border-color: #93c5fd; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+        .dropdown { display: none; position: absolute; top: calc(100% + 0.6rem); right: 0; width: 260px; background: #fff; border: 1px solid #e2e8f0; border-radius: 0.9rem; box-shadow: 0 12px 32px rgba(15,23,42,0.14); padding: 1rem; z-index: 2000; }
+        .user-menu.open .dropdown { display: block; }
+        .dropdown-head { display: flex; flex-direction: column; gap: 0.3rem; }
+        .dropdown-head .name { font-weight: 700; font-size: 0.95rem; color: #0f172a; }
+        .dropdown-head .email { font-size: 0.78rem; color: #94a3b8; word-break: break-all; }
+        .dropdown-head .plan-badge { align-self: flex-start; margin-top: 0.2rem; }
+        .dropdown-divider { height: 1px; background: #e2e8f0; margin: 0.85rem 0; }
+        .btn-logout { background: white; color: #475569; border: 1px solid #e2e8f0; padding: 0.55rem 1rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s; width: 100%; }
         .btn-logout:hover { border-color: #dc2626; color: #dc2626; }
-        .btn-upgrade { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; padding: 0.5rem 1.1rem; border-radius: 0.5rem; font-weight: 700; font-size: 0.875rem; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+        .btn-upgrade { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; padding: 0.55rem 1.1rem; border-radius: 0.5rem; font-weight: 700; font-size: 0.875rem; cursor: pointer; transition: all 0.2s; white-space: nowrap; width: 100%; margin-bottom: 0.6rem; }
         .btn-upgrade:hover { filter: brightness(1.05); box-shadow: 0 4px 12px rgba(217,119,6,0.35); }
         .notice { display: none; margin: 0 0 1.5rem; padding: 1rem 1.25rem; border-radius: 0.75rem; font-weight: 600; }
         .notice.ok { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; display: block; }
@@ -107,7 +112,6 @@
             .modes-grid { grid-template-columns: 1fr; }
             .officers-grid { grid-template-columns: repeat(2, 1fr); }
             .welcome h1 { font-size: 1.75rem; }
-            .user-meta { display: none; }
         }
         @media (max-width: 540px) { .officers-grid { grid-template-columns: 1fr; } }
     
@@ -115,8 +119,7 @@
         @media (max-width: 600px) {
             .brand-logo { height: 46px; width: 46px; margin-right: 0.3rem; }
             .logo { font-size: 0.95rem; }
-            .user-meta { display: none; }
-            .btn-logout { padding: 0.4rem 0.7rem; font-size: 0.8rem; }
+            .dropdown { width: 240px; }
         }
             .brand-text { white-space: nowrap; line-height: 1.1; }
     </style>
@@ -134,16 +137,19 @@
                 <span class="brand-text">Immigration <span style="color:#dc2626;">Interviews</span></span>
             </a>
             <div class="nav-right">
-                <div class="user-chip">
-                    <div class="user-avatar" id="userAvatar">U</div>
-                    <div class="user-meta">
-                        <span class="name" id="userName">Student</span>
-                        <span class="email" id="userEmail"></span>
+                <div class="user-menu" id="userMenu">
+                    <button class="user-avatar" id="userAvatar" aria-label="Account menu" onclick="toggleUserMenu(event)">U</button>
+                    <div class="dropdown" id="userDropdown">
+                        <div class="dropdown-head">
+                            <span class="name" id="userName">Student</span>
+                            <span class="email" id="userEmail"></span>
+                            <span class="plan-badge free" id="planBadge" style="display:none;"></span>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <button class="btn-upgrade" id="btnUpgrade" onclick="startCheckout()">⭐ Upgrade to Professional</button>
+                        <button class="btn-logout" onclick="handleLogout()">Log out</button>
                     </div>
                 </div>
-                <span class="plan-badge free" id="planBadge" style="display:none;"></span>
-                <button class="btn-upgrade" id="btnUpgrade" onclick="startCheckout()">⭐ Upgrade</button>
-                <button class="btn-logout" onclick="handleLogout()">Log out</button>
             </div>
         </div>
     </nav>
@@ -278,6 +284,15 @@
             localStorage.setItem('selectedOfficer', JSON.stringify(selectedOfficer));
             window.location.href = 'practice.html';
         }
+
+        function toggleUserMenu(e) {
+            e.stopPropagation();
+            document.getElementById('userMenu').classList.toggle('open');
+        }
+        document.addEventListener('click', (e) => {
+            const menu = document.getElementById('userMenu');
+            if (menu && !menu.contains(e.target)) menu.classList.remove('open');
+        });
 
         async function handleLogout() {
             await supabaseClient.auth.signOut();
