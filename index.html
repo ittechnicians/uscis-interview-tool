@@ -6,6 +6,9 @@
     <title>Immigration Interviews — Practice Your U.S. Citizenship Interview with AI</title>
     <meta name="description" content="Practice your U.S. citizenship (naturalization) interview with AI officers that have realistic voices and distinct personalities. Bilingual English/Spanish. Practice, prepare, succeed.">
     <link rel="canonical" href="https://www.immigrationinterviews.com/">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.immigrationinterviews.com/">
     <meta property="og:title" content="Immigration Interviews — Practice Your U.S. Citizenship Interview with AI">
@@ -785,9 +788,19 @@
             .cta-section h2 { font-size: 2rem; }
         }
         .brand-text { white-space: nowrap; line-height: 1.1; }
+        /* --- Comparador Practice vs Live --- */
+        .interview-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; max-width: 880px; margin: 0 auto 3rem; }
+        .compare-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 1rem; padding: 1.5rem; }
+        .compare-box.live { border: 2px solid #f59e0b; background: #fffbeb; }
+        .compare-tag { display: inline-block; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.05em; padding: 0.25rem 0.65rem; border-radius: 99px; margin-bottom: 0.75rem; background: #dbeafe; color: #1e40af; }
+        .compare-box.live .compare-tag { background: #fef3c7; color: #b45309; }
+        .compare-box h4 { font-weight: 800; margin-bottom: 0.5rem; color: #0f172a; font-size: 1.05rem; }
+        .compare-box p { color: #475569; font-size: 0.95rem; line-height: 1.65; }
+        .price-once { display: block; font-size: 0.8rem; color: #16a34a; font-weight: 700; margin-top: 0.25rem; }
         /* Mobile: wordmark en texto (nítido a dos líneas); el sello solo en pantallas grandes */
         @media (max-width: 600px) {
             .nav-container { padding: 0 1rem; }
+            .interview-compare { grid-template-columns: 1fr; }
             .logo-img { height: 52px; width: 52px; }
             .logo { gap: 0.5rem; }
             .brand-text { display: inline-block; white-space: normal; width: min-content; font-size: 1.05rem; font-weight: 800; line-height: 1.15; }
@@ -916,52 +929,65 @@
         <div class="section-container">
             <div class="section-header">
                 <span class="section-badge">💎 PRICING</span>
-                <h2 class="section-title">Start Free. Lock In Founder Pricing.</h2>
-                <p class="section-subtitle">Everything is free during early access. Founding members lock in a lower price for life when paid plans launch.</p>
+                <h2 class="section-title">Pay Once. Practice Until Your Interview.</h2>
+                <p class="section-subtitle">No subscriptions. One payment covers your full preparation — 90 days of access, more than enough to walk in ready.</p>
             </div>
             <div class="founders-banner">
-                <h3>🔥 Founding-Member Pricing</h3>
-                <p>Early supporters lock in <strong>$19/month for life</strong> (regular price $49/month) when paid plans launch.</p>
+                <h3>🔥 Founding-Member Launch Pricing</h3>
+                <p>Early supporters get <strong>Professional for $19</strong> (regular $29) and <strong>Premium for $39</strong> (regular $49). One-time payment — never a subscription.</p>
+            </div>
+            <div class="interview-compare">
+                <div class="compare-box">
+                    <span class="compare-tag">PRACTICE INTERVIEWS</span>
+                    <h4>Learn at your own pace</h4>
+                    <p>You answer, the officer replies a few seconds later. Perfect for learning the questions, building vocabulary, and gaining confidence — without pressure. Included unlimited in Professional.</p>
+                </div>
+                <div class="compare-box live">
+                    <span class="compare-tag">⚡ LIVE INTERVIEWS</span>
+                    <h4>Feel the real interview</h4>
+                    <p>A natural, flowing conversation — the officer hears you and answers instantly, with follow-up questions on the spot, just like at the real USCIS window. Train your nerves, not just your answers. Exclusive to Premium.</p>
+                </div>
             </div>
             <div class="pricing-grid">
                 <div class="pricing-card">
                     <h3>Free</h3>
-                    <p class="description">Start practicing today</p>
-                    <div class="price"><span class="price-amount">$0</span><span class="price-period">during early access</span></div>
+                    <p class="description">Try the real thing</p>
+                    <div class="price"><span class="price-amount">$0</span><span class="price-period">forever</span></div>
                     <ul class="features-list">
                         <li>Civics practice (100 & 128 versions)</li>
                         <li>Reading, writing & vocabulary</li>
                         <li>N-400 practice — 10-question quick set</li>
+                        <li>1 full mock interview with an AI officer</li>
                         <li>Bilingual English / Spanish</li>
-                        <li>Browser voice</li>
                     </ul>
                     <button class="btn-pricing secondary" onclick="openModal('signup')">Create Free Account</button>
                 </div>
                 <div class="pricing-card featured">
-                    <span class="pricing-badge">⭐ Founding Member</span>
-                    <span class="founder-badge">🔥 Save $30/month for life</span>
+                    <span class="pricing-badge">⭐ Most Popular</span>
+                    <span class="founder-badge">🔥 Founding price: save $10</span>
                     <h3>Professional</h3>
-                    <p class="description">Everything, with realistic voices</p>
-                    <div class="price-original">$49/month</div>
-                    <div class="price"><span class="price-amount">$19</span><span class="price-period">/month</span></div>
-                    <p class="price-note">Founding price locked for life • Launching soon</p>
+                    <p class="description">Everything you need to walk in ready</p>
+                    <div class="price-original">$29</div>
+                    <div class="price"><span class="price-amount">$19</span><span class="price-period">one-time</span><span class="price-once">✓ 90 days of access — not a subscription</span></div>
                     <ul class="features-list">
-                        <li>Everything in Free</li>
-                        <li>All 5 AI officers with realistic voices</li>
-                        <li>Full mock interviews</li>
-                        <li>N-400 personalization (35 "Have you ever")</li>
-                        <li>Speak-and-respond voice practice</li>
+                        <li>Everything in Free, unlimited</li>
+                        <li><strong>Unlimited practice interviews</strong> with all 5 officers</li>
+                        <li>Personal evaluation report after every interview</li>
+                        <li>N-400 personalized (35 "Have you ever" questions)</li>
+                        <li>Realistic officer voices</li>
                     </ul>
                     <button class="btn-pricing primary" onclick="selectPlan('pro')">Create Free Account →</button>
                 </div>
                 <div class="pricing-card">
                     <h3>Premium</h3>
-                    <p class="description">For the most lifelike practice</p>
-                    <div class="price"><span class="price-amount">$99</span><span class="price-period">/month</span></div>
+                    <p class="description">The closest thing to the real window</p>
+                    <div class="price-original">$49</div>
+                    <div class="price"><span class="price-amount">$39</span><span class="price-period">one-time</span><span class="price-once">✓ 90 days of access — not a subscription</span></div>
                     <ul class="features-list">
                         <li>Everything in Professional</li>
-                        <li class="soon">Ultra-realistic premium voices (coming soon)</li>
-                        <li class="soon">Progress reports & analytics (coming soon)</li>
+                        <li><strong>⚡ 8 Live Interviews</strong> — real-time conversation with instant answers, like the real one</li>
+                        <li>Need more? Add 5 extra Live Interviews anytime</li>
+                        <li class="soon">Launching soon</li>
                     </ul>
                     <button class="btn-pricing disabled" disabled>Coming Soon</button>
                 </div>
