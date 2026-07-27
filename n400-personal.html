@@ -562,8 +562,9 @@
 
             // Personalized N-400 is a Professional feature.
             try {
-                const { data: p } = await supabaseClient.from('profiles').select('plan').eq('id', userId).single();
-                if (!p || p.plan !== 'professional') {
+                const { data: p } = await supabaseClient.from('profiles').select('plan, plan_expires_at').eq('id', userId).single();
+                const planActive = p && (p.plan === 'professional' || p.plan === 'premium') && (!p.plan_expires_at || new Date(p.plan_expires_at) > new Date());
+                if (!planActive) {
                     showProOnly();
                     document.getElementById('loadingOverlay').classList.add('hidden');
                     return;
