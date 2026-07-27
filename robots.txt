@@ -9,4 +9,36 @@ Disallow: /n400.html
 Disallow: /n400-personal.html
 Disallow: /reset-password.html
 
+# AI assistants and answer engines are welcome
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
 Sitemap: https://www.immigrationinterviews.com/sitemap.xml
+LLMs: https://www.immigrationinterviews.com/llms.txt
