@@ -22,7 +22,8 @@
         .nav-container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center; }
         .logo { font-size: 1.4rem; font-weight: 800; color: #0f172a; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
         .logo-flag { font-size: 1.6rem; }
-        .nav-right { display: flex; align-items: center; }
+        .nav-right { display: flex; align-items: center; gap: 0.9rem; }
+        @media (min-width: 601px) { .nav-plan-badge { display: inline-block; } }
         .user-menu { position: relative; }
         .user-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.95rem; border: 2px solid transparent; cursor: pointer; transition: box-shadow 0.2s, border-color 0.2s; padding: 0; }
         .user-avatar:hover, .user-menu.open .user-avatar { border-color: #93c5fd; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
@@ -120,6 +121,7 @@
             .brand-logo { height: 46px; width: 46px; margin-right: 0.3rem; }
             .logo { font-size: 0.95rem; }
             .dropdown { width: 240px; }
+            .nav-plan-badge { display: none !important; }
         }
             .brand-text { white-space: nowrap; line-height: 1.1; }
     </style>
@@ -137,13 +139,14 @@
                 <span class="brand-text">Immigration <span style="color:#dc2626;">Interviews</span></span>
             </a>
             <div class="nav-right">
+                <span class="plan-badge free plan-badge-el nav-plan-badge" style="display:none;"></span>
                 <div class="user-menu" id="userMenu">
                     <button class="user-avatar" id="userAvatar" aria-label="Account menu" onclick="toggleUserMenu(event)">U</button>
                     <div class="dropdown" id="userDropdown">
                         <div class="dropdown-head">
                             <span class="name" id="userName">Student</span>
                             <span class="email" id="userEmail"></span>
-                            <span class="plan-badge free" id="planBadge" style="display:none;"></span>
+                            <span class="plan-badge free plan-badge-el" id="planBadge" style="display:none;"></span>
                         </div>
                         <div class="dropdown-divider"></div>
                         <button class="btn-upgrade" id="btnUpgrade" onclick="startCheckout()">⭐ Upgrade to Professional</button>
@@ -230,7 +233,7 @@
             const mode = MODES.find(m => m.id === id);
             const isFree = userPlan !== 'professional';
             if (mode && mode.pro && isFree) {
-                showUpgrade('This personalized interview is a Professional feature. Upgrade to unlock it — founding-member price $19/month.');
+                showUpgrade('This personalized interview is a Professional feature. Upgrade to unlock it — founding-member price: $19 one-time, 90 days of access.');
                 return;
             }
             if (id === 'full') {
@@ -342,10 +345,12 @@
         // ---------- Auth guard + profile ----------
         function applyPlanUI() {
             const isPro = userPlan === 'professional';
-            const badge = document.getElementById('planBadge');
-            badge.style.display = 'inline-block';
-            badge.textContent = isPro ? 'PROFESSIONAL' : 'FREE';
-            badge.className = 'plan-badge ' + (isPro ? 'pro' : 'free');
+            document.querySelectorAll('.plan-badge-el').forEach(function (badge) {
+                const isNav = badge.classList.contains('nav-plan-badge');
+                badge.style.display = 'inline-block';
+                badge.textContent = isPro ? 'PROFESSIONAL' : 'FREE';
+                badge.className = 'plan-badge ' + (isPro ? 'pro' : 'free') + ' plan-badge-el' + (isNav ? ' nav-plan-badge' : '');
+            });
             document.getElementById('btnUpgrade').style.display = isPro ? 'none' : 'inline-block';
             renderModes();
         }
@@ -407,7 +412,7 @@
     </script>    <div class="up-overlay" id="upOverlay">
         <div class="up-modal">
             <h3>⭐ Professional feature</h3>
-            <p id="upMsg">This is part of the Professional plan. Upgrade to unlock it — founding-member price $19/month.</p>
+            <p id="upMsg">This is part of the Professional plan. Upgrade to unlock it — founding-member price: $19 one-time, 90 days of access.</p>
             <div class="up-actions">
                 <button class="up-later" onclick="closeUpgrade()">Maybe later</button>
                 <button class="up-primary" onclick="startCheckout()">Upgrade</button>
