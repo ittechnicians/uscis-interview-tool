@@ -112,31 +112,20 @@ async function handler(req, res) {
       const s = event.data.object;
       const userId = s.client_reference_id || (s.metadata && s.metadata.userId);
       if (userId) {
-        await updateProfile(userId, {
-          plan: 'professional',
+        // One-time payment model: 90 days of access from the moment of purchase.
+        const plan = (s.metadata && s.metadata.plan) === 'premium' ? 'premium' : 'professional';
+        const expires = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString();
+        const fields = {
+          plan: plan,
+          plan_expires_at: expires,
           stripe_customer_id: s.customer || null,
-          subscription_status: 'active'
-        });
-        console.log('Upgraded user to professional:', userId);
+          subscription_status: 'paid'
+        };
+        if (plan === 'premium') fields.live_credits = 8;
+        await updateProfile(userId, fields);
+        console.log('Activated plan', plan, 'until', expires, 'for user:', userId);
       } else {
         console.error('checkout.session.completed without userId');
-      }
-    } else if (event.type === 'customer.subscription.updated') {
-      const sub = event.data.object;
-      const userId = sub.metadata && sub.metadata.userId;
-      if (userId) {
-        const active = (sub.status === 'active' || sub.status === 'trialing');
-        await updateProfile(userId, {
-          plan: active ? 'professional' : 'free',
-          subscription_status: sub.status
-        });
-      }
-    } else if (event.type === 'customer.subscription.deleted') {
-      const sub = event.data.object;
-      const userId = sub.metadata && sub.metadata.userId;
-      if (userId) {
-        await updateProfile(userId, { plan: 'free', subscription_status: 'canceled' });
-        console.log('Downgraded user to free:', userId);
       }
     }
     // Other event types are acknowledged and ignored.
