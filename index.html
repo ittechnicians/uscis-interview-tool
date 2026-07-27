@@ -15,6 +15,39 @@
     <meta property="og:description" content="Practice your U.S. citizenship interview with AI officers. Realistic voices, instant feedback, bilingual English/Spanish.">
     <meta property="og:image" content="https://www.immigrationinterviews.com/immigrationinterviews_logo.png">
     <meta name="twitter:card" content="summary">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "name": "Immigration Interviews",
+          "url": "https://www.immigrationinterviews.com/",
+          "applicationCategory": "EducationalApplication",
+          "operatingSystem": "Web browser",
+          "description": "AI-powered practice for the U.S. citizenship (naturalization) interview. Talk to AI officers with realistic voices, practice the official civics questions (100 and 128 versions), reading, writing, vocabulary and the N-400. Fully bilingual English and Spanish.",
+          "inLanguage": ["en", "es"],
+          "offers": [
+            { "@type": "Offer", "name": "Free", "price": "0", "priceCurrency": "USD" },
+            { "@type": "Offer", "name": "Professional (one-time, 90 days)", "price": "19", "priceCurrency": "USD" },
+            { "@type": "Offer", "name": "Premium (one-time, 90 days)", "price": "39", "priceCurrency": "USD" }
+          ],
+          "publisher": { "@type": "Organization", "name": "Cyberdefen, Inc.", "url": "https://www.immigrationinterviews.com/" }
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            { "@type": "Question", "name": "What is Immigration Interviews?", "acceptedAnswer": { "@type": "Answer", "text": "Immigration Interviews (immigrationinterviews.com) is an AI-powered practice platform for the U.S. citizenship (naturalization) interview. You practice with AI officers that have realistic voices and distinct personalities, get an evaluation report after each mock interview, and study the official civics questions, reading, writing and vocabulary. It is fully bilingual in English and Spanish." } },
+            { "@type": "Question", "name": "How does the AI mock citizenship interview work?", "acceptedAnswer": { "@type": "Answer", "text": "You choose one of five AI officers, speak your answers out loud using your microphone, and the officer responds with voice — asking the same types of questions asked in a real USCIS naturalization interview, including N-400 questions and civics. At the end you receive a personal evaluation with a score, your strengths, and the three most important things to improve." } },
+            { "@type": "Question", "name": "Is it available in Spanish?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. The entire platform is bilingual English/Spanish, designed especially for Spanish-speaking immigrants preparing for the naturalization interview. The mock interview itself is conducted in English, like the real one, while instructions and feedback can be in Spanish." } },
+            { "@type": "Question", "name": "Does it include the official civics test questions?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. It includes both official versions of the civics test: the 100-question version (2008 test) and the 128-question version, plus reading, writing and vocabulary practice for the English portion of the naturalization exam." } },
+            { "@type": "Question", "name": "How much does it cost?", "acceptedAnswer": { "@type": "Answer", "text": "There is a free plan that includes civics, reading, writing and vocabulary practice plus one full mock interview. Paid plans are one-time payments (not subscriptions) with 90 days of access: Professional at $19 founding price (regular $29) with unlimited practice interviews, and Premium at $39 founding price (regular $49) which adds live real-time interviews." } },
+            { "@type": "Question", "name": "Is Immigration Interviews affiliated with USCIS or the U.S. government?", "acceptedAnswer": { "@type": "Answer", "text": "No. Immigration Interviews is an independent educational practice tool operated by Cyberdefen, Inc. It is not affiliated with, endorsed by, or connected to USCIS, the Department of Homeland Security, or any government agency, and it does not provide legal advice." } }
+          ]
+        }
+      ]
+    }
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -788,6 +821,15 @@
             .cta-section h2 { font-size: 2rem; }
         }
         .brand-text { white-space: nowrap; line-height: 1.1; }
+        /* --- FAQ --- */
+        .faq-section { padding: 5rem 2rem; background: #f8fafc; }
+        .faq-list { max-width: 760px; margin: 0 auto; }
+        .faq-list details { background: #fff; border: 1px solid #e2e8f0; border-radius: 0.75rem; margin-bottom: 0.75rem; padding: 0; overflow: hidden; }
+        .faq-list summary { cursor: pointer; font-weight: 700; color: #0f172a; padding: 1.1rem 1.25rem; list-style: none; position: relative; }
+        .faq-list summary::-webkit-details-marker { display: none; }
+        .faq-list summary::after { content: '+'; position: absolute; right: 1.25rem; color: #1e40af; font-weight: 800; }
+        .faq-list details[open] summary::after { content: '\2212'; }
+        .faq-list details p { padding: 0 1.25rem 1.1rem; color: #475569; line-height: 1.7; }
         /* --- Comparador Practice vs Live --- */
         .interview-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; max-width: 880px; margin: 0 auto 3rem; }
         .compare-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 1rem; padding: 1.5rem; }
@@ -991,6 +1033,23 @@
                     </ul>
                     <button class="btn-pricing disabled" disabled>Coming Soon</button>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="faq-section" id="faq">
+        <div class="section-container">
+            <div class="section-header">
+                <span class="section-badge">❓ FAQ</span>
+                <h2 class="section-title">Questions? Answers.</h2>
+            </div>
+            <div class="faq-list">
+                <details><summary>What is Immigration Interviews?</summary><p>An AI-powered practice platform for the U.S. citizenship (naturalization) interview. Practice with AI officers with realistic voices, get an evaluation report after each mock interview, and study the official civics questions, reading, writing and vocabulary — fully bilingual English/Spanish.</p></details>
+                <details><summary>How does the AI mock interview work?</summary><p>Choose one of five AI officers, speak your answers out loud, and the officer responds with voice — asking the same types of questions as a real USCIS naturalization interview. At the end you get a personal evaluation: your score, your strengths, and the 3 most important things to improve.</p></details>
+                <details><summary>Is it available in Spanish?</summary><p>Yes — the whole platform is bilingual English/Spanish, built especially for Spanish-speaking immigrants. The mock interview is in English, like the real one; instructions and feedback can be in Spanish.</p></details>
+                <details><summary>Does it include the official civics questions?</summary><p>Yes — both official versions: the 100-question (2008) test and the 128-question test, plus reading, writing and vocabulary practice.</p></details>
+                <details><summary>How much does it cost?</summary><p>The Free plan includes civics, reading, writing, vocabulary and one full mock interview. Paid plans are one-time payments with 90 days of access — never a subscription: Professional $19 founding price (regular $29), Premium $39 founding price (regular $49) with live real-time interviews.</p></details>
+                <details><summary>Is this affiliated with USCIS?</summary><p>No. Immigration Interviews is an independent educational practice tool. It is not affiliated with, endorsed by, or connected to USCIS or any government agency, and does not provide legal advice.</p></details>
             </div>
         </div>
     </section>
