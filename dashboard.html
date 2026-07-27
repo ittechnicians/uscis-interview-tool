@@ -309,7 +309,7 @@
                 const res = await fetch('/api/checkout', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: session.user.id, email: session.user.email })
+                    body: JSON.stringify({ userId: session.user.id, email: session.user.email, plan: 'pro' })
                 });
                 const data = await res.json();
                 if (data && data.url) {
@@ -358,9 +358,12 @@
             const email = user.email || '';
             let fullName = (user.user_metadata && user.user_metadata.full_name) || '';
             try {
-                const { data: profile } = await supabaseClient.from('profiles').select('full_name, plan, free_interview_used').eq('id', user.id).single();
+                const { data: profile } = await supabaseClient.from('profiles').select('full_name, plan, plan_expires_at, free_interview_used').eq('id', user.id).single();
                 if (profile && profile.full_name) fullName = profile.full_name;
-                if (profile && profile.plan) userPlan = profile.plan;
+                if (profile && profile.plan) {
+                    const notExpired = !profile.plan_expires_at || new Date(profile.plan_expires_at) > new Date();
+                    userPlan = ((profile.plan === 'professional' || profile.plan === 'premium') && notExpired) ? 'professional' : 'free';
+                }
                 freeInterviewUsed = !!(profile && profile.free_interview_used);
             } catch (e) { console.log('Profile lookup skipped:', e); }
 
