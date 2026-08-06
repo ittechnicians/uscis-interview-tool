@@ -114,7 +114,7 @@ async function handler(req, res) {
       if (userId) {
         // One-time payment model: 90 days of access from the moment of purchase.
         const plan = (s.metadata && s.metadata.plan) === 'premium' ? 'premium' : 'professional';
-        const expires = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString();
+        const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
         const fields = {
           plan: plan,
           plan_expires_at: expires,
