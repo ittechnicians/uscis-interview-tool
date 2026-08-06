@@ -1270,7 +1270,7 @@
         async function checkSession() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
-                console.log('Usuario logueado:', session.user.email);
+                window.location.replace('/dashboard.html');
             }
         }
         
