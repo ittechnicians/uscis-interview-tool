@@ -233,7 +233,7 @@
             const mode = MODES.find(m => m.id === id);
             const isFree = userPlan !== 'professional';
             if (mode && mode.pro && isFree) {
-                showUpgrade('This personalized interview is a Professional feature. Upgrade to unlock it — founding-member price: $19 one-time, 90 days of access.');
+                showUpgrade('This personalized interview is a Professional feature. Upgrade to unlock it — founding-member price: $19 — 30 days of access, no subscription.');
                 return;
             }
             if (id === 'full') {
@@ -412,7 +412,7 @@
     </script>    <div class="up-overlay" id="upOverlay">
         <div class="up-modal">
             <h3>⭐ Professional feature</h3>
-            <p id="upMsg">This is part of the Professional plan. Upgrade to unlock it — founding-member price: $19 one-time, 90 days of access.</p>
+            <p id="upMsg">This is part of the Professional plan. Upgrade to unlock it — founding-member price: $19 — 30 days of access, no subscription.</p>
             <div class="up-actions">
                 <button class="up-later" onclick="closeUpgrade()">Maybe later</button>
                 <button class="up-primary" onclick="startCheckout()">Upgrade</button>
