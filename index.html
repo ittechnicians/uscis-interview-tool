@@ -1331,6 +1331,16 @@
             footerDisclaimer2: '<strong style="color:#f1f5f9;">Not legal advice.</strong> We are not attorneys or accredited representatives. This service is for educational practice only and does not constitute legal advice. For advice about your case, consult a licensed immigration attorney or a DOJ-accredited representative. Using this service does not guarantee any interview or application outcome.',
             footerCopy: '© 2026 Immigration Interviews, operated by Cyberdefen, Inc. All rights reserved.',
             footerContact: 'Contact',
+            heroSubtitle: 'Practice with five AI officers \u2014 each with a realistic voice and a distinct personality. Get instant feedback and walk into your real interview prepared and confident.',
+            statLabel1: 'AI officers, real voices',
+            statLabel2: 'Both official civics tests',
+            statLabel3: 'Fully bilingual',
+            featSubtitle: 'Unlike basic flashcard apps, you have a back-and-forth conversation with an AI officer \u2014 out loud, just like the real thing.',
+            officersSubtitle: 'Each officer has a distinct personality, voice, and interview style',
+            offTag1: 'Warm & Thorough', offTag2: 'Strict & Professional', offTag3: 'Modern & Patient',
+            offTag4: 'Bilingual Expert', offTag5: 'Diplomatic',
+            proF4en: 'N-400 personalized (35 \u201cHave you ever\u201d questions)',
+            properiod: 'one-time', ctaBtn: 'Get Started Free \u2192',
           },
           es: {
             navCta: 'Comenzar Gratis',
@@ -1378,6 +1388,16 @@
             footerDisclaimer2: '<strong style="color:#f1f5f9;">No es asesoramiento legal.</strong> No somos abogados ni representantes acreditados. Este servicio es solo para práctica educativa y no constituye asesoramiento legal. Para asesoramiento sobre tu caso, consulta a un abogado de inmigración licenciado o un representante acreditado por el DOJ. El uso de este servicio no garantiza ningún resultado en entrevistas o solicitudes.',
             footerCopy: '© 2026 Immigration Interviews, operado por Cyberdefen, Inc. Todos los derechos reservados.',
             footerContact: 'Contacto',
+            heroSubtitle: 'Practica con cinco oficiales de IA \u2014 cada uno con voz realista y personalidad distinta. Recibe retroalimentaci\u00f3n instant\u00e1nea y llega a tu entrevista preparado y seguro.',
+            statLabel1: 'Oficiales de IA, voces reales',
+            statLabel2: 'Ambas pruebas c\u00edvicas oficiales',
+            statLabel3: 'Completamente biling\u00fce',
+            featSubtitle: 'A diferencia de las tarjetas de estudio, tienes una conversaci\u00f3n real con un oficial de IA \u2014 en voz alta, como en la entrevista de verdad.',
+            officersSubtitle: 'Cada oficial tiene una personalidad, voz y estilo de entrevista distintos',
+            offTag1: 'C\u00e1lida y detallista', offTag2: 'Estricto y profesional', offTag3: 'Moderna y paciente',
+            offTag4: 'Experta biling\u00fce', offTag5: 'Diplom\u00e1tico',
+            proF4en: 'N-400 personalizado (35 preguntas de \u00bf\u201cAlguna vez...?\u201d)',
+            properiod: 'pago \u00fanico', ctaBtn: 'Comenzar Gratis \u2192',
           }
         };
 
@@ -1423,6 +1443,12 @@
             setText('statLabel1', T.statLabel1); setText('statLabel2', T.statLabel2); setText('statLabel3', T.statLabel3);
             setText('offTag1', T.offTag1); setText('offTag2', T.offTag2); setText('offTag3', T.offTag3);
             setText('offTag4', T.offTag4); setText('offTag5', T.offTag5);
+            setText('proF4', T.proF4en);
+            // CTA button final
+            const ctaFinal = document.querySelector('.btn-cta');
+            if (ctaFinal) ctaFinal.textContent = T.ctaBtn;
+            // "one-time" period labels
+            document.querySelectorAll('.price-period').forEach(function(el) { el.textContent = T.properiod; });
 
             // Pricing
             set('pricingTitle', T.pricingTitle); set('pricingSubtitle', T.pricingSubtitle);
