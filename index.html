@@ -25,7 +25,7 @@
           "url": "https://www.immigrationinterviews.com/",
           "applicationCategory": "EducationalApplication",
           "operatingSystem": "Web browser",
-          "description": "AI-powered practice for the U.S. citizenship (naturalization) interview. Talk to AI officers with realistic voices, practice the official civics questions (100 and 128 versions), reading, writing, vocabulary and the N-400. Fully bilingual English and Spanish.",
+          "description": "AI-powered practice for the U.S. citizenship (naturalization) interview. Talk to AI officers with realistic voices, practice the official civics questions (100 and 128 versions), reading, writing, vocabulary and the N-400. data-en="Fully bilingual" data-es="Completamente bilingüe">Fully bilingual English and Spanish.",
           "inLanguage": ["en", "es"],
           "offers": [
             { "@type": "Offer", "name": "Free", "price": "0", "priceCurrency": "USD" },
@@ -839,6 +839,11 @@
         .compare-box h4 { font-weight: 800; margin-bottom: 0.5rem; color: #0f172a; font-size: 1.05rem; }
         .compare-box p { color: #475569; font-size: 0.95rem; line-height: 1.65; }
         .price-once { display: block; font-size: 0.8rem; color: #16a34a; font-weight: 700; margin-top: 0.25rem; }
+        /* --- Toggle idioma landing --- */
+        .lang-toggle { display: flex; align-items: center; background: #f1f5f9; border-radius: 99px; padding: 3px; gap: 2px; margin-left: 0.5rem; }
+        .lang-btn { border: none; background: transparent; padding: 0.25rem 0.65rem; border-radius: 99px; font-weight: 700; font-size: 0.8rem; cursor: pointer; color: #64748b; transition: all 0.18s; }
+        .lang-btn.active { background: #1e40af; color: #fff; box-shadow: 0 1px 4px rgba(30,64,175,0.25); }
+        @media (max-width: 600px) { .lang-toggle { margin-left: 0; } }
         /* Mobile: wordmark en texto (nítido a dos líneas); el sello solo en pantallas grandes */
         @media (max-width: 600px) {
             .nav-container { padding: 0 1rem; }
@@ -857,11 +862,15 @@
                 <span class="brand-text">Immigration <span style="color:#dc2626;">Interviews</span></span>
             </a>
             <div class="nav-links">
-                <a href="#features" class="nav-link">Features</a>
-                <a href="#officers" class="nav-link">Officers</a>
-                <a href="#pricing" class="nav-link">Pricing</a>
-                <a class="nav-link nav-login" onclick="openModal('login')">Login</a>
-                <a class="btn-primary" onclick="openModal('signup')">Get Started Free</a>
+                <a href="#features" class="nav-link" data-en="Features" data-es="Funciones">Features</a>
+                <a href="#officers" class="nav-link" data-en="Officers" data-es="Oficiales">Officers</a>
+                <a href="#pricing" class="nav-link" data-en="Pricing" data-es="Precios">Pricing</a>
+                <a class="nav-link nav-login" onclick="openModal('login')" data-en="Login" data-es="Entrar">Login</a>
+                <div class="lang-toggle" role="group" aria-label="Language">
+                    <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+                    <button class="lang-btn" id="btnES" onclick="setLang('es')">ES</button>
+                </div>
+                <a class="btn-primary" onclick="openModal('signup')" id="navCta">Get Started Free</a>
             </div>
         </div>
     </nav>
@@ -869,16 +878,16 @@
     <section class="hero">
         <div class="hero-container">
             <div>
-                <div class="hero-badge">🔥 Founding-member early access</div>
-                <h1>Master Your <span class="highlight">Citizenship Interview</span> with AI</h1>
-                <p>Practice with five AI officers — each with a realistic voice and a distinct personality. Get instant feedback and walk into your real interview prepared and confident.</p>
+                <div class="hero-badge" data-en="🔥 Founding-member early access" data-es="🔥 Acceso anticipado para miembros fundadores">🔥 Founding-member early access</div>
+                <h1 id="heroH1">Master Your <span class="highlight">Citizenship Interview</span> with AI</h1>
+                <p>data-en-parent data-en="Practice with five AI officers — each with a realistic voice and a distinct personality. Get instant feedback and walk into your real interview prepared and confident." data-es="Practica con cinco oficiales de IA — cada uno con voz realista y personalidad distinta. Recibe retroalimentación instantánea y llega a tu entrevista preparado y seguro." class="hero-desc-p">Practice with five AI officers — each with a realistic voice and a distinct personality. Get instant feedback and walk into your real interview prepared and confident.</p>
                 <div class="hero-buttons">
-                    <button class="btn-primary btn-large" onclick="openModal('signup')">Get Started Free →</button>
-                    <a href="#features" class="btn-secondary">See how it works</a>
+                    <button class="btn-primary btn-large" id="heroBtnStart" onclick="openModal('signup')">Get Started Free →</button>
+                    <a href="#features" class="btn-secondary" id="heroBtnHow">See how it works</a>
                 </div>
                 <div class="hero-stats">
-                    <div class="stat"><span class="stat-number">5</span><span class="stat-label">AI officers, real voices</span></div>
-                    <div class="stat"><span class="stat-number">100 &amp; 128</span><span class="stat-label">Both official civics tests</span></div>
+                    <div class="stat"><span class="stat-number">5</span><span class="stat-label">data-en="AI officers, real voices" data-es="Oficiales de IA, voces reales">AI officers, real voices</span></div>
+                    <div class="stat"><span class="stat-number">100 &amp; 128</span><span class="stat-label">data-en="Both official civics tests" data-es="Ambas pruebas cívicas oficiales">Both official civics tests</span></div>
                     <div class="stat"><span class="stat-number">EN · ES</span><span class="stat-label">Fully bilingual</span></div>
                 </div>
             </div>
@@ -905,17 +914,17 @@
     <section class="features" id="features">
         <div class="section-container">
             <div class="section-header">
-                <span class="section-badge">⚡ AI-POWERED</span>
-                <h2 class="section-title">Real AI. Real Practice.</h2>
-                <p class="section-subtitle">Unlike basic flashcard apps, you have a back-and-forth conversation with an AI officer — out loud, just like the real thing.</p>
+                <span class="section-badge" data-en="⚡ AI-POWERED" data-es="⚡ CON INTELIGENCIA ARTIFICIAL">⚡ AI-POWERED</span>
+                <h2 class="section-title" data-en="Real AI. Real Practice." data-es="IA Real. Práctica Real.">Real AI. Real Practice.</h2>
+                <p class="section-subtitle">data-en="Unlike basic flashcard apps, you have a back-and-forth conversation with an AI officer — out loud, just like the real thing." data-es="A diferencia de las tarjetas de estudio, tienes una conversación real con un oficial de IA — en voz alta, como en la entrevista de verdad." class="section-subtitle">Unlike basic flashcard apps, you have a back-and-forth conversation with an AI officer — out loud, just like the real thing.</p>
             </div>
             <div class="features-grid">
-                <div class="feature-card"><div class="feature-icon">🎤</div><h3>Voice Practice</h3><p>Speak your answers out loud and the officer responds. Practice your pronunciation, fluency, and confidence in a real conversation.</p></div>
-                <div class="feature-card"><div class="feature-icon">🧠</div><h3>Smart AI Officer</h3><p>The officer asks natural follow-up questions, checks your answers against your application, and points out inconsistencies — just like a real interview.</p></div>
-                <div class="feature-card"><div class="feature-icon">🗣️</div><h3>Realistic Voices</h3><p>Five distinct officers, each with a realistic AI voice and personality. Train your ear and get used to being asked out loud.</p></div>
-                <div class="feature-card"><div class="feature-icon">📚</div><h3>Complete Study Tools</h3><p>Civics (both the 100 and 128-question versions), reading, writing, and vocabulary practice — all bilingual English/Spanish.</p></div>
-                <div class="feature-card"><div class="feature-icon">📋</div><h3>N-400 Personalization</h3><p>Enter your N-400 details (or auto-fill from the official fillable PDF) and the officer interviews you on your own answers — including all 35 "Have you ever" questions.</p></div>
-                <div class="feature-card"><div class="feature-icon">🔒</div><h3>Private by Design</h3><p>Your N-400 answers stay on your own device — they're never uploaded to our servers. You decide what to enter, and you can delete it anytime.</p></div>
+                <div class="feature-card"><div class="feature-icon">🎤</div><h3 id="feat1Title">Voice Practice</h3><p id="feat1Desc">Speak your answers out loud and the officer responds. Practice your pronunciation, fluency, and confidence in a real conversation.</p></div>
+                <div class="feature-card"><div class="feature-icon">🧠</div><h3 id="feat2Title">Smart AI Officer</h3><p id="feat2Desc">The officer asks natural follow-up questions, checks your answers against your application, and points out inconsistencies — just like a real interview.</p></div>
+                <div class="feature-card"><div class="feature-icon">🗣️</div><h3 id="feat3Title">Realistic Voices</h3><p id="feat3Desc">Five distinct officers, each with a realistic AI voice and personality. Train your ear and get used to being asked out loud.</p></div>
+                <div class="feature-card"><div class="feature-icon">📚</div><h3 id="feat4Title">Complete Study Tools</h3><p id="feat4Desc">Civics (both the 100 and 128-question versions), reading, writing, and vocabulary practice — all bilingual English/Spanish.</p></div>
+                <div class="feature-card"><div class="feature-icon">📋</div><h3 id="feat5Title">N-400 Personalization</h3><p id="feat5Desc">Enter your N-400 details (or auto-fill from the official fillable PDF) and the officer interviews you on your own answers — including all 35 "Have you ever" questions.</p></div>
+                <div class="feature-card"><div class="feature-icon">🔒</div><h3 id="feat6Title">Private by Design</h3><p id="feat6Desc">Your N-400 answers stay on your own device — they're never uploaded to our servers. You decide what to enter, and you can delete it anytime.</p></div>
             </div>
         </div>
     </section>
@@ -923,9 +932,9 @@
     <section class="officers-section" id="officers">
         <div class="section-container">
             <div class="section-header">
-                <span class="section-badge">👮‍♀️ MEET YOUR OFFICERS</span>
-                <h2 class="section-title">Practice with 5 Unique AI Officers</h2>
-                <p class="section-subtitle">Each officer has a distinct personality, voice, and interview style</p>
+                <span class="section-badge" data-en="👮‍♀️ MEET YOUR OFFICERS" data-es="👮‍♀️ CONOCE A TUS OFICIALES">👮‍♀️ MEET YOUR OFFICERS</span>
+                <h2 id="officersTitle" class="section-title" data-en="Practice with 5 Unique AI Officers" data-es="Practica con 5 Oficiales Únicos de IA">Practice with 5 Unique AI Officers</h2>
+                <p class="section-subtitle">data-en="Each officer has a distinct personality, voice, and interview style" data-es="Cada oficial tiene una personalidad, voz y estilo de entrevista distintos" class="section-subtitle">Each officer has a distinct personality, voice, and interview style</p>
             </div>
             <div class="officers-grid">
                 <div class="officer-card-display">
@@ -954,14 +963,14 @@
                         <span class="officer-initials">CR</span><img src="rodriguez.png" alt="" class="officer-photo" onerror="this.style.display='none'"><div class="officer-badge-pro">AI</div>
                     </div>
                     <h4>Officer C. Rodriguez</h4><p class="specialty">Los Angeles Office</p>
-                    <span class="officer-tag">Bilingual Expert</span>
+                    <span class="officer-tag" data-en="Bilingual Expert" data-es="Experta bilingüe">Bilingual Expert</span>
                 </div>
                 <div class="officer-card-display">
                     <div class="officer-avatar-pro" style="background: linear-gradient(135deg, #dc2626, #991b1b);">
                         <span class="officer-initials">SW</span><img src="williams.png" alt="" class="officer-photo" onerror="this.style.display='none'"><div class="officer-badge-pro">AI</div>
                     </div>
                     <h4>Officer S. Williams</h4><p class="specialty">Atlanta Field Office</p>
-                    <span class="officer-tag">Diplomatic</span>
+                    <span class="officer-tag" data-en="Diplomatic" data-es="Diplomático">Diplomatic</span>
                 </div>
             </div>
         </div>
@@ -970,68 +979,68 @@
     <section class="pricing" id="pricing">
         <div class="section-container">
             <div class="section-header">
-                <span class="section-badge">💎 PRICING</span>
-                <h2 class="section-title">Pay $19. Practice for 30 Days. Renew If You Need More.</h2>
-                <p class="section-subtitle">No subscriptions. One payment covers your full preparation — 90 days of access, more than enough to walk in ready.</p>
+                <span class="section-badge" data-en="💎 PRICING" data-es="💎 PRECIOS">💎 PRICING</span>
+                <h2 class="section-title" id="pricingTitle">Pay $19. Practice for 30 Days. Renew If You Need More.</h2>
+                <p class="section-subtitle" id="pricingSubtitle">No subscriptions, no automatic charges. Pay $19 and get 30 days of unlimited practice. Need more time? Just pay again — simple as that.</p>
             </div>
             <div class="founders-banner">
-                <h3>🔥 Founding-Member Launch Pricing</h3>
-                <p>Early supporters get <strong>Professional for $19/month</strong> (regular $29) and <strong>Premium for $39</strong> (regular $49). Pay month to month — no subscription, no automatic charges.</p>
+                <h3 id="founderTitle">🔥 Founding-Member Launch Pricing</h3>
+                <p id="founderDesc">Early supporters get <strong>Professional for $19/month</strong> (regular $29) and <strong>Premium for $39</strong> (regular $49). Pay month to month — no subscription, no automatic charges.</p>
             </div>
             <div class="interview-compare">
                 <div class="compare-box">
-                    <span class="compare-tag">PRACTICE INTERVIEWS</span>
-                    <h4>Learn at your own pace</h4>
-                    <p>You answer, the officer replies a few seconds later. Perfect for learning the questions, building vocabulary, and gaining confidence — without pressure. Included unlimited in Professional.</p>
+                    <span class="compare-tag" id="compareTag1">PRACTICE INTERVIEWS</span>
+                    <h4 id="compareH1">Learn at your own pace</h4>
+                    <p id="compareP1">You answer, the officer replies a few seconds later. Perfect for learning the questions, building vocabulary, and gaining confidence — without pressure. Included unlimited in Professional.</p>
                 </div>
                 <div class="compare-box live">
-                    <span class="compare-tag">⚡ LIVE INTERVIEWS</span>
-                    <h4>Feel the real interview</h4>
-                    <p>A natural, flowing conversation — the officer hears you and answers instantly, with follow-up questions on the spot, just like at the real USCIS window. Train your nerves, not just your answers. Exclusive to Premium.</p>
+                    <span class="compare-tag" id="compareTag2">⚡ LIVE INTERVIEWS</span>
+                    <h4 id="compareH2">Feel the real interview</h4>
+                    <p id="compareP2">A natural, flowing conversation — the officer hears you and answers instantly, with follow-up questions on the spot, just like at the real USCIS window. Train your nerves, not just your answers. Exclusive to Premium.</p>
                 </div>
             </div>
             <div class="pricing-grid">
                 <div class="pricing-card">
-                    <h3>Free</h3>
-                    <p class="description">Try the real thing</p>
-                    <div class="price"><span class="price-amount">$0</span><span class="price-period">forever</span></div>
+                    <h3 id="freeTitle">Free</h3>
+                    <p class="description" id="freeDesc">Try the real thing</p>
+                    <div class="price"><span class="price-amount">$0</span><span class="price-period" id="freePeriod">forever</span></div>
                     <ul class="features-list">
                         <li>Civics practice (100 & 128 versions)</li>
                         <li>Reading, writing & vocabulary</li>
-                        <li>N-400 practice — 10-question quick set</li>
-                        <li>1 full mock interview with an AI officer</li>
-                        <li>Bilingual English / Spanish</li>
+                        <li id="freeF3">N-400 practice — 10-question quick set</li>
+                        <li id="freeF4">1 full mock interview with an AI officer</li>
+                        <li id="freeF5">Bilingual English / Spanish</li>
                     </ul>
-                    <button class="btn-pricing secondary" onclick="openModal('signup')">Create Free Account</button>
+                    <button class="btn-pricing secondary" onclick="openModal('signup')" id="freeBtn">Create Free Account</button>
                 </div>
                 <div class="pricing-card featured">
-                    <span class="pricing-badge">⭐ Most Popular</span>
-                    <span class="founder-badge">🔥 Founding price: save $10</span>
-                    <h3>Professional</h3>
-                    <p class="description">Everything you need to walk in ready</p>
+                    <span class="pricing-badge" id="proBadge">⭐ Most Popular</span>
+                    <span class="founder-badge" id="proFounder">🔥 Founding price: save $10</span>
+                    <h3 id="proTitle">Professional</h3>
+                    <p class="description" id="proDesc">Everything you need to walk in ready</p>
                     <div class="price-original">$29</div>
-                    <div class="price"><span class="price-amount">$19</span><span class="price-period">one-time</span><span class="price-once">✓ 30 days — renew anytime, no subscription</span></div>
+                    <div class="price"><span class="price-amount">$19</span><span class="price-period">one-time</span><span class="price-once" id="proNote">✓ 30 days — renew anytime, no subscription</span></div>
                     <ul class="features-list">
-                        <li>Everything in Free, unlimited</li>
-                        <li><strong>Unlimited practice interviews</strong> with all 5 officers</li>
-                        <li>Personal evaluation report after every interview</li>
+                        <li id="proF1">Everything in Free, unlimited</li>
+                        <li id="proF2"><strong>Unlimited practice interviews</strong> with all 5 officers</li>
+                        <li id="proF3">Personal evaluation report after every interview</li>
                         <li>N-400 personalized (35 "Have you ever" questions)</li>
-                        <li>Realistic officer voices</li>
+                        <li id="proF5">Realistic officer voices</li>
                     </ul>
-                    <button class="btn-pricing primary" onclick="selectPlan('pro')">Create Free Account →</button>
+                    <button class="btn-pricing primary" onclick="selectPlan('pro')" id="proBtn">Create Free Account →</button>
                 </div>
                 <div class="pricing-card">
-                    <h3>Premium</h3>
-                    <p class="description">The closest thing to the real window</p>
+                    <h3 id="premTitle">Premium</h3>
+                    <p class="description" id="premDesc">The closest thing to the real window</p>
                     <div class="price-original">$49</div>
                     <div class="price"><span class="price-amount">$39</span><span class="price-period">one-time</span><span class="price-once">✓ 30 days — renew anytime, no subscription</span></div>
                     <ul class="features-list">
-                        <li>Everything in Professional</li>
-                        <li><strong>⚡ 8 Live Interviews</strong> — real-time conversation with instant answers, like the real one</li>
-                        <li>Need more? Add 5 extra Live Interviews anytime</li>
-                        <li class="soon">Launching soon</li>
+                        <li id="premF1">Everything in Professional</li>
+                        <li id="premF2"><strong>⚡ 8 Live Interviews</strong> — real-time conversation with instant answers, like the real one</li>
+                        <li id="premF3">Need more? Add 5 extra Live Interviews anytime</li>
+                        <li class="soon" id="premF4">Launching soon</li>
                     </ul>
-                    <button class="btn-pricing disabled" disabled>Coming Soon</button>
+                    <button class="btn-pricing disabled" disabled id="premBtn">Coming Soon</button>
                 </div>
             </div>
         </div>
@@ -1040,24 +1049,24 @@
     <section class="faq-section" id="faq">
         <div class="section-container">
             <div class="section-header">
-                <span class="section-badge">❓ FAQ</span>
-                <h2 class="section-title">Questions? Answers.</h2>
+                <span class="section-badge" data-en="❓ FAQ" data-es="❓ PREGUNTAS FRECUENTES">❓ FAQ</span>
+                <h2 class="section-title" data-en="Questions? Answers." data-es="¿Preguntas? Respuestas.">Questions? Answers.</h2>
             </div>
             <div class="faq-list">
-                <details><summary>What is Immigration Interviews?</summary><p>An AI-powered practice platform for the U.S. citizenship (naturalization) interview. Practice with AI officers with realistic voices, get an evaluation report after each mock interview, and study the official civics questions, reading, writing and vocabulary — fully bilingual English/Spanish.</p></details>
-                <details><summary>How does the AI mock interview work?</summary><p>Choose one of five AI officers, speak your answers out loud, and the officer responds with voice — asking the same types of questions as a real USCIS naturalization interview. At the end you get a personal evaluation: your score, your strengths, and the 3 most important things to improve.</p></details>
-                <details><summary>Is it available in Spanish?</summary><p>Yes — the platform works for immigrants from any country, and the whole interface is bilingual English/Spanish. The mock interview is in English, like the real one; instructions and feedback can be in Spanish.</p></details>
-                <details><summary>Does it include the official civics questions?</summary><p>Yes — both official versions: the 100-question (2008) test and the 128-question test, plus reading, writing and vocabulary practice.</p></details>
-                <details><summary>How much does it cost?</summary><p>The Free plan includes civics, reading, writing, vocabulary and one full mock interview. Paid plans are one-time payments with 30 days of access — no subscription, no automatic charges: Professional $19 founding price (regular $29) gives you 30 days of unlimited practice; renew anytime if you need more time before your interview. Premium $39 founding price (regular $49) adds live real-time interviews.</p></details>
-                <details><summary>Is this affiliated with USCIS?</summary><p>No. Immigration Interviews is an independent educational practice tool. It is not affiliated with, endorsed by, or connected to USCIS or any government agency, and does not provide legal advice.</p></details>
+                <details><summary id="faqQ1">What is Immigration Interviews?</summary><p id="faqA1">An AI-powered practice platform for the U.S. citizenship (naturalization) interview. Practice with AI officers with realistic voices, get an evaluation report after each mock interview, and study the official civics questions, reading, writing and vocabulary — fully bilingual English/Spanish.</p></details>
+                <details><summary id="faqQ2">How does the AI mock interview work?</summary><p id="faqA2">Choose one of five AI officers, speak your answers out loud, and the officer responds with voice — asking the same types of questions as a real USCIS naturalization interview. At the end you get a personal evaluation: your score, your strengths, and the 3 most important things to improve.</p></details>
+                <details><summary id="faqQ3">Is it available in Spanish?</summary><p id="faqA3">Yes — the platform works for immigrants from any country, and the whole interface is bilingual English/Spanish. The mock interview is in English, like the real one; instructions and feedback can be in Spanish.</p></details>
+                <details><summary id="faqQ4">Does it include the official civics questions?</summary><p id="faqA4">Yes — both official versions: the 100-question (2008) test and the 128-question test, plus reading, writing and vocabulary practice.</p></details>
+                <details><summary id="faqQ5">How much does it cost?</summary><p id="faqA5">The Free plan includes civics, reading, writing, vocabulary and one full mock interview. Paid plans are one-time payments with 30 days of access — no subscription, no automatic charges: Professional $19 founding price (regular $29) gives you 30 days of unlimited practice; renew anytime if you need more time before your interview. Premium $39 founding price (regular $49) adds live real-time interviews.</p></details>
+                <details><summary id="faqQ6">Is this affiliated with USCIS?</summary><p id="faqA6">No. Immigration Interviews is an independent educational practice tool. It is not affiliated with, endorsed by, or connected to USCIS or any government agency, and does not provide legal advice.</p></details>
             </div>
         </div>
     </section>
 
     <section class="cta-section">
         <div class="cta-container">
-            <h2>Ready to Practice?</h2>
-            <p>Create a free account and start practicing with your AI officer today.</p>
+            <h2 data-en="Ready to Practice?" data-es="¿Listo para practicar?">Ready to Practice?</h2>
+            <p data-en="Create a free account and start practicing with your AI officer today." data-es="Crea una cuenta gratis y empieza a practicar con tu oficial de IA hoy.">Create a free account and start practicing with your AI officer today.</p>
             <button class="btn-cta" onclick="openModal('signup')">Get Started Free →</button>
         </div>
     </section>
@@ -1068,13 +1077,13 @@
             <div class="footer-links">
                 <a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Service</a><a href="refunds.html">Refund Policy</a><a href="mailto:oscaralvarezdosa@gmail.com">Contact</a>
             </div>
-            <p style="max-width: 720px; margin: 0 auto 1.25rem; font-size: 0.875rem; line-height: 1.7; color: #cbd5e1;">
+            <p id="footerDisclaimer1" style="max-width: 720px; margin: 0 auto 1.25rem; font-size: 0.875rem; line-height: 1.7; color: #cbd5e1;">
                 <strong style="color:#f1f5f9;">Not affiliated with the U.S. government.</strong> Immigration Interviews is an independent practice tool and is not affiliated with, endorsed by, or connected to U.S. Citizenship and Immigration Services (USCIS), the Department of Homeland Security, or any government agency. The officers shown are fictional AI characters.
             </p>
-            <p style="max-width: 720px; margin: 0 auto 1.5rem; font-size: 0.875rem; line-height: 1.7; color: #cbd5e1;">
+            <p id="footerDisclaimer2" style="max-width: 720px; margin: 0 auto 1.5rem; font-size: 0.875rem; line-height: 1.7; color: #cbd5e1;">
                 <strong style="color:#f1f5f9;">Not legal advice.</strong> We are not attorneys or accredited representatives. This service is for educational practice only and does not constitute legal advice. For advice about your case, consult a licensed immigration attorney or a DOJ-accredited representative. Using this service does not guarantee any interview or application outcome.
             </p>
-            <p>© 2026 Immigration Interviews, operated by Cyberdefen, Inc. All rights reserved.</p>
+            <p id="footerCopy">© 2026 Immigration Interviews, operated by Cyberdefen, Inc. All rights reserved.</p>
         </div>
     </footer>
     
@@ -1266,6 +1275,191 @@
         }
         
         checkSession();
+
+        // ============ Sistema bilingüe de la landing ============
+        const LANDING_LANG = {
+          en: {
+            navCta: 'Get Started Free',
+            heroBtnStart: 'Get Started Free →',
+            heroBtnHow: 'See how it works',
+            heroH1: 'Master Your <span class="highlight">Citizenship Interview</span> with AI',
+            // Features cards
+            feat1Title: 'Voice Practice', feat1Desc: 'Speak your answers out loud and the officer responds. Practice your pronunciation, fluency, and confidence in a real conversation.',
+            feat2Title: 'Smart AI Officer', feat2Desc: 'The officer asks natural follow-up questions, checks your answers against your application, and points out inconsistencies — just like a real interview.',
+            feat3Title: 'Realistic Voices', feat3Desc: 'Five distinct officers, each with a realistic AI voice and personality. Train your ear and get used to being asked out loud.',
+            feat4Title: 'Complete Study Tools', feat4Desc: 'Civics (both the 100 and 128-question versions), reading, writing, and vocabulary practice — all bilingual English/Spanish.',
+            feat5Title: 'N-400 Personalization', feat5Desc: 'Enter your N-400 details and the officer interviews you on your own answers — including all 35 "Have you ever" questions.',
+            feat6Title: 'Private by Design', feat6Desc: 'Your N-400 answers stay on your own device — they\'re never uploaded to our servers. You decide what to enter, and you can delete it anytime.',
+            // Pricing
+            pricingBadge: '💎 PRICING',
+            pricingTitle: 'Pay $19. Practice for 30 Days. Renew If You Need More.',
+            pricingSubtitle: 'No subscriptions, no automatic charges. Pay $19 and get 30 days of unlimited practice. Need more time? Just pay again — simple as that.',
+            founderTitle: '🔥 Founding-Member Launch Pricing',
+            founderDesc: 'Early supporters get <strong>Professional for $19/month</strong> (regular $29) and <strong>Premium for $39</strong> (regular $49). Pay month to month — no subscription, no automatic charges.',
+            compareTag1: 'PRACTICE INTERVIEWS', compareH1: 'Learn at your own pace',
+            compareP1: 'You answer, the officer replies a few seconds later. Perfect for learning the questions, building vocabulary, and gaining confidence — without pressure. Included unlimited in Professional.',
+            compareTag2: '⚡ LIVE INTERVIEWS', compareH2: 'Feel the real interview',
+            compareP2: 'A natural, flowing conversation — the officer hears you and answers instantly, with follow-up questions on the spot, just like at the real USCIS window. Train your nerves, not just your answers. Exclusive to Premium.',
+            // Free plan
+            freeTitle: 'Free', freeDesc: 'Try the real thing', freePeriod: 'forever',
+            freeF1: 'Civics practice (100 & 128 versions)', freeF2: 'Reading, writing & vocabulary',
+            freeF3: 'N-400 practice — 10-question quick set', freeF4: '1 full mock interview with an AI officer',
+            freeF5: 'Bilingual English / Spanish', freeBtn: 'Create Free Account',
+            // Pro plan
+            proTitle: 'Professional', proDesc: 'Everything you need to walk in ready',
+            proBadge: '⭐ Most Popular', proFounder: '🔥 Founding price: save $10',
+            proNote: '✓ 30 days — renew anytime, no subscription',
+            proF1: 'Everything in Free, unlimited', proF2: 'Unlimited practice interviews with all 5 officers',
+            proF3: 'Personal evaluation report after every interview', proF4: 'N-400 personalized (35 "Have you ever" questions)',
+            proF5: 'Realistic officer voices', proBtn: 'Create Free Account →',
+            // Premium plan
+            premTitle: 'Premium', premDesc: 'The closest thing to the real window',
+            premNote: '✓ 30 days — renew anytime, no subscription',
+            premF1: 'Everything in Professional',
+            premF2: '⚡ 8 Live Interviews — real-time conversation with instant answers, like the real one',
+            premF3: 'Need more? Add 5 extra Live Interviews anytime',
+            premF4: 'Launching soon', premBtn: 'Coming Soon',
+            // FAQ
+            faqQ1: 'What is Immigration Interviews?', faqA1: 'An AI-powered practice platform for the U.S. citizenship (naturalization) interview. Practice with AI officers with realistic voices, get an evaluation report after each mock interview, and study the official civics questions, reading, writing and vocabulary — fully bilingual English/Spanish.',
+            faqQ2: 'How does the AI mock interview work?', faqA2: 'Choose one of five AI officers, speak your answers out loud, and the officer responds with voice — asking the same types of questions as a real USCIS naturalization interview. At the end you get a personal evaluation: your score, your strengths, and the 3 most important things to improve.',
+            faqQ3: 'Is it available in Spanish?', faqA3: 'Yes — the platform works for immigrants from any country, and the whole interface is bilingual English/Spanish. The mock interview is in English, like the real one; instructions and feedback can be in Spanish.',
+            faqQ4: 'Does it include the official civics questions?', faqA4: 'Yes — both official versions: the 100-question (2008) test and the 128-question test, plus reading, writing and vocabulary practice.',
+            faqQ5: 'How much does it cost?', faqA5: 'The Free plan includes civics, reading, writing, vocabulary and one full mock interview. Professional is $19 for 30 days of unlimited practice — pay again anytime if you need more time before your interview. Premium $39 adds live real-time interviews.',
+            faqQ6: 'Is this affiliated with USCIS?', faqA6: 'No. Immigration Interviews is an independent educational practice tool. It is not affiliated with, endorsed by, or connected to USCIS or any government agency, and does not provide legal advice.',
+            // Footer
+            footerDisclaimer1: '<strong style="color:#f1f5f9;">Not affiliated with the U.S. government.</strong> Immigration Interviews is an independent practice tool and is not affiliated with, endorsed by, or connected to U.S. Citizenship and Immigration Services (USCIS), the Department of Homeland Security, or any government agency. The officers shown are fictional AI characters.',
+            footerDisclaimer2: '<strong style="color:#f1f5f9;">Not legal advice.</strong> We are not attorneys or accredited representatives. This service is for educational practice only and does not constitute legal advice. For advice about your case, consult a licensed immigration attorney or a DOJ-accredited representative. Using this service does not guarantee any interview or application outcome.',
+            footerCopy: '© 2026 Immigration Interviews, operated by Cyberdefen, Inc. All rights reserved.',
+            footerContact: 'Contact',
+          },
+          es: {
+            navCta: 'Comenzar Gratis',
+            heroBtnStart: 'Comenzar Gratis →',
+            heroBtnHow: 'Cómo funciona',
+            heroH1: 'Domina Tu <span class="highlight">Entrevista de Ciudadanía</span> con IA',
+            feat1Title: 'Práctica de Voz', feat1Desc: 'Responde en voz alta y el oficial responde. Practica tu pronunciación, fluidez y confianza en una conversación real.',
+            feat2Title: 'Oficial de IA Inteligente', feat2Desc: 'El oficial hace preguntas de seguimiento naturales, verifica tus respuestas con tu solicitud y señala inconsistencias — igual que en una entrevista real.',
+            feat3Title: 'Voces Realistas', feat3Desc: 'Cinco oficiales distintos, cada uno con una voz de IA realista y personalidad propia. Entrena tu oído y acostúmbrate a que te pregunten en voz alta.',
+            feat4Title: 'Herramientas de Estudio Completas', feat4Desc: 'Cívicas (versiones de 100 y 128 preguntas), lectura, escritura y vocabulario — todo bilingüe inglés/español.',
+            feat5Title: 'Personalización del N-400', feat5Desc: 'Ingresa los datos de tu N-400 y el oficial te entrevista sobre tus propias respuestas — incluidas las 35 preguntas de "¿Alguna vez...?".',
+            feat6Title: 'Privacidad por Diseño', feat6Desc: 'Tus respuestas del N-400 quedan en tu dispositivo — nunca se suben a nuestros servidores. Tú decides qué ingresar y puedes borrarlo cuando quieras.',
+            pricingBadge: '💎 PRECIOS',
+            pricingTitle: 'Paga $19. Practica 30 Días. Renueva si Necesitas Más.',
+            pricingSubtitle: 'Sin suscripciones, sin cargos automáticos. Paga $19 y obtén 30 días de práctica ilimitada. ¿Necesitas más tiempo? Solo paga de nuevo — así de simple.',
+            founderTitle: '🔥 Precio de Lanzamiento para Miembros Fundadores',
+            founderDesc: 'Los primeros en unirse obtienen <strong>Professional por $19/mes</strong> (precio regular $29) y <strong>Premium por $39</strong> (precio regular $49). Paga mes a mes — sin suscripción, sin cargos automáticos.',
+            compareTag1: 'ENTREVISTAS DE PRÁCTICA', compareH1: 'Aprende a tu propio ritmo',
+            compareP1: 'Respondes y el oficial contesta unos segundos después. Perfecto para aprender las preguntas, desarrollar vocabulario y ganar confianza — sin presión. Incluido ilimitado en Professional.',
+            compareTag2: '⚡ ENTREVISTAS EN VIVO', compareH2: 'Siente la entrevista real',
+            compareP2: 'Una conversación natural y fluida — el oficial te escucha y responde al instante, con preguntas de seguimiento en el momento, igual que en la ventanilla real de USCIS. Entrena tus nervios, no solo tus respuestas. Exclusivo de Premium.',
+            freeTitle: 'Gratis', freeDesc: 'Prueba la experiencia real', freePeriod: 'para siempre',
+            freeF1: 'Práctica de cívicas (100 y 128 preguntas)', freeF2: 'Lectura, escritura y vocabulario',
+            freeF3: 'Práctica N-400 — set de 10 preguntas', freeF4: '1 entrevista simulada completa con un oficial de IA',
+            freeF5: 'Bilingüe inglés / español', freeBtn: 'Crear Cuenta Gratis',
+            proTitle: 'Professional', proDesc: 'Todo lo que necesitas para entrar preparado',
+            proBadge: '⭐ Más Popular', proFounder: '🔥 Precio fundador: ahorra $10',
+            proNote: '✓ 30 días — renueva cuando quieras, sin suscripción',
+            proF1: 'Todo en Gratis, ilimitado', proF2: 'Entrevistas de práctica ilimitadas con los 5 oficiales',
+            proF3: 'Reporte de evaluación personal después de cada entrevista', proF4: 'N-400 personalizado (35 preguntas de "¿Alguna vez?")',
+            proF5: 'Voces realistas de los oficiales', proBtn: 'Crear Cuenta Gratis →',
+            premTitle: 'Premium', premDesc: 'Lo más cercano a la ventanilla real',
+            premNote: '✓ 30 días — renueva cuando quieras, sin suscripción',
+            premF1: 'Todo en Professional',
+            premF2: '⚡ 8 Entrevistas en Vivo — conversación en tiempo real con respuestas instantáneas, como la real',
+            premF3: '¿Necesitas más? Agrega 5 entrevistas en vivo adicionales cuando quieras',
+            premF4: 'Próximamente', premBtn: 'Próximamente',
+            faqQ1: '¿Qué es Immigration Interviews?', faqA1: 'Una plataforma de práctica con IA para la entrevista de naturalización de ciudadanía de EE.UU. Practica con oficiales de IA con voces realistas, obtén un reporte de evaluación después de cada entrevista simulada, y estudia las preguntas cívicas oficiales, lectura, escritura y vocabulario — completamente bilingüe inglés/español.',
+            faqQ2: '¿Cómo funciona la entrevista simulada con IA?', faqA2: 'Elige uno de cinco oficiales de IA, responde en voz alta y el oficial responde con voz — haciendo los mismos tipos de preguntas que en una entrevista real de naturalización de USCIS. Al final recibes una evaluación personal: tu puntaje, tus fortalezas y las 3 cosas más importantes que debes mejorar.',
+            faqQ3: '¿Está disponible en español?', faqA3: 'Sí — la plataforma funciona para inmigrantes de cualquier país, y toda la interfaz es bilingüe inglés/español. La entrevista simulada es en inglés, como la real; las instrucciones y retroalimentación pueden ser en español.',
+            faqQ4: '¿Incluye las preguntas cívicas oficiales?', faqA4: 'Sí — ambas versiones oficiales: la prueba de 100 preguntas (2008) y la prueba de 128 preguntas, más práctica de lectura, escritura y vocabulario.',
+            faqQ5: '¿Cuánto cuesta?', faqA5: 'El plan Gratis incluye cívicas, lectura, escritura, vocabulario y una entrevista simulada completa. Professional es $19 por 30 días de práctica ilimitada — paga de nuevo cuando necesites más tiempo antes de tu entrevista. Premium $39 agrega entrevistas en tiempo real.',
+            faqQ6: '¿Está afiliado con USCIS?', faqA6: 'No. Immigration Interviews es una herramienta educativa independiente. No está afiliada, respaldada ni conectada con USCIS ni ninguna agencia gubernamental, y no proporciona asesoramiento legal.',
+            footerDisclaimer1: '<strong style="color:#f1f5f9;">No afiliado con el gobierno de EE.UU.</strong> Immigration Interviews es una herramienta de práctica independiente y no está afiliada, respaldada ni conectada con el Servicio de Ciudadanía e Inmigración de los Estados Unidos (USCIS), el Departamento de Seguridad Nacional, ni ninguna agencia gubernamental. Los oficiales mostrados son personajes ficticios de IA.',
+            footerDisclaimer2: '<strong style="color:#f1f5f9;">No es asesoramiento legal.</strong> No somos abogados ni representantes acreditados. Este servicio es solo para práctica educativa y no constituye asesoramiento legal. Para asesoramiento sobre tu caso, consulta a un abogado de inmigración licenciado o un representante acreditado por el DOJ. El uso de este servicio no garantiza ningún resultado en entrevistas o solicitudes.',
+            footerCopy: '© 2026 Immigration Interviews, operado por Cyberdefen, Inc. Todos los derechos reservados.',
+            footerContact: 'Contacto',
+          }
+        };
+
+        let currentLang = localStorage.getItem('lang') || 'en';
+
+        function setLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+            document.getElementById('btnEN').classList.toggle('active', lang === 'en');
+            document.getElementById('btnES').classList.toggle('active', lang === 'es');
+            applyLang(lang);
+        }
+
+        function applyLang(lang) {
+            const T = LANDING_LANG[lang];
+            const $ = (id) => document.getElementById(id);
+            const set = (id, html) => { const el = $(id); if (el) el.innerHTML = html; };
+            const setText = (id, text) => { const el = $(id); if (el) el.textContent = text; };
+
+            // Nav
+            document.querySelectorAll('[data-en]').forEach(function(el) {
+                const val = el.getAttribute('data-' + lang);
+                if (val) el.textContent = val;
+            });
+            if ($('navCta')) $('navCta').textContent = T.navCta;
+
+            // Hero
+            set('heroH1', T.heroH1);
+            setText('heroBtnStart', T.heroBtnStart);
+            setText('heroBtnHow', T.heroBtnHow);
+
+            // Features
+            set('feat1Title', T.feat1Title); set('feat1Desc', T.feat1Desc);
+            set('feat2Title', T.feat2Title); set('feat2Desc', T.feat2Desc);
+            set('feat3Title', T.feat3Title); set('feat3Desc', T.feat3Desc);
+            set('feat4Title', T.feat4Title); set('feat4Desc', T.feat4Desc);
+            set('feat5Title', T.feat5Title); set('feat5Desc', T.feat5Desc);
+            set('feat6Title', T.feat6Title); set('feat6Desc', T.feat6Desc);
+
+            // Pricing
+            set('pricingTitle', T.pricingTitle); set('pricingSubtitle', T.pricingSubtitle);
+            set('founderTitle', T.founderTitle); set('founderDesc', T.founderDesc);
+            setText('compareTag1', T.compareTag1); set('compareH1', T.compareH1); set('compareP1', T.compareP1);
+            setText('compareTag2', T.compareTag2); set('compareH2', T.compareH2); set('compareP2', T.compareP2);
+            set('freeTitle', T.freeTitle); set('freeDesc', T.freeDesc); setText('freePeriod', T.freePeriod);
+            setText('freeF1', T.freeF1); setText('freeF2', T.freeF2); setText('freeF3', T.freeF3);
+            setText('freeF4', T.freeF4); setText('freeF5', T.freeF5); setText('freeBtn', T.freeBtn);
+            set('proBadge', T.proBadge); set('proFounder', T.proFounder);
+            set('proTitle', T.proTitle); set('proDesc', T.proDesc); set('proNote', T.proNote);
+            setText('proF1', T.proF1); setText('proF2', T.proF2); setText('proF3', T.proF3);
+            setText('proF4', T.proF4); setText('proF5', T.proF5); setText('proBtn', T.proBtn);
+            set('premTitle', T.premTitle); set('premDesc', T.premDesc); set('premNote', T.premNote);
+            setText('premF1', T.premF1); set('premF2', T.premF2);
+            setText('premF3', T.premF3); setText('premF4', T.premF4); setText('premBtn', T.premBtn);
+
+            // FAQ
+            setText('faqQ1', T.faqQ1); set('faqA1', T.faqA1);
+            setText('faqQ2', T.faqQ2); set('faqA2', T.faqA2);
+            setText('faqQ3', T.faqQ3); set('faqA3', T.faqA3);
+            setText('faqQ4', T.faqQ4); set('faqA4', T.faqA4);
+            setText('faqQ5', T.faqQ5); set('faqA5', T.faqA5);
+            setText('faqQ6', T.faqQ6); set('faqA6', T.faqA6);
+
+            // Footer
+            set('footerDisclaimer1', T.footerDisclaimer1);
+            set('footerDisclaimer2', T.footerDisclaimer2);
+            set('footerCopy', T.footerCopy);
+            const contactLink = document.querySelector('.footer-links a[href^="mailto"]');
+            if (contactLink) contactLink.textContent = T.footerContact;
+
+            // html lang
+            document.documentElement.lang = lang;
+        }
+
+        // Init on load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (currentLang === 'es') setLang('es');
+            else {
+                document.getElementById('btnEN').classList.add('active');
+            }
+        });
+
     </script>
 </body>
 </html>
