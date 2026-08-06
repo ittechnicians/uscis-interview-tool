@@ -23,6 +23,10 @@
         .logo { font-size: 1.4rem; font-weight: 800; color: #0f172a; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
         .logo-flag { font-size: 1.6rem; }
         .nav-right { display: flex; align-items: center; gap: 0.9rem; }
+        .lang-toggle { display: flex; align-items: center; background: #f1f5f9; border-radius: 99px; padding: 3px; gap: 2px; }
+        .lang-btn { border: none; background: transparent; padding: 0.2rem 0.55rem; border-radius: 99px; font-weight: 700; font-size: 0.75rem; cursor: pointer; color: #64748b; transition: all 0.18s; }
+        .lang-btn.active { background: #1e40af; color: #fff; }
+        @media (max-width: 600px) { .lang-toggle { display: none; } }
         @media (min-width: 601px) { .nav-plan-badge { display: inline-block; } }
         .user-menu { position: relative; }
         .user-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.95rem; border: 2px solid transparent; cursor: pointer; transition: box-shadow 0.2s, border-color 0.2s; padding: 0; }
@@ -140,6 +144,10 @@
             </a>
             <div class="nav-right">
                 <span class="plan-badge free plan-badge-el nav-plan-badge" style="display:none;"></span>
+                <div class="lang-toggle" role="group">
+                    <button class="lang-btn active" id="dashBtnEN" onclick="setDashLang('en')">EN</button>
+                    <button class="lang-btn" id="dashBtnES" onclick="setDashLang('es')">ES</button>
+                </div>
                 <div class="user-menu" id="userMenu">
                     <button class="user-avatar" id="userAvatar" aria-label="Account menu" onclick="toggleUserMenu(event)">U</button>
                     <div class="dropdown" id="userDropdown">
@@ -160,8 +168,8 @@
     <div class="container">
         <div class="notice" id="notice"></div>
         <div class="welcome">
-            <h1>Welcome back, <span id="welcomeName">Student</span> 👋</h1>
-            <p>Choose how you want to practice today.</p>
+            <h1 id="greeting">Welcome back, <span id="welcomeName">Student</span> 👋</h1>
+            <p id="welcomeSub">Choose how you want to practice today.</p>
         </div>
 
         <div class="stats-grid">
@@ -172,8 +180,8 @@
         </div>
 
         <div class="section-head">
-            <h2>Practice modes</h2>
-            <p>Pick a mode to focus on, or jump into the full mock interview.</p>
+            <h2 id="modesSectionTitle">Practice modes</h2>
+            <p id="modesSectionSub">Pick a mode to focus on, or jump into the full mock interview.</p>
         </div>
         <div class="modes-grid" id="modesGrid"></div>
 
@@ -191,7 +199,7 @@
             </div>
         </div>
 
-        <p class="footer-note">This service is for educational purposes only and does not constitute legal advice.</p>
+        <p class="footer-note"><span id="dashDisclaimer">This service is for educational purposes only and does not constitute legal advice.</span></p>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -218,15 +226,22 @@
 
         function renderModes() {
             const isFree = userPlan !== 'professional';
-            document.getElementById('modesGrid').innerHTML = MODES.map(m => `
-                <div class="mode-card ${m.active ? 'active' : 'soon'}" ${m.active ? `onclick="onMode('${m.id}')"` : ''}>
-                    ${m.pro && isFree ? '<span class="badge-pro">PRO</span>' : (m.real ? '<span class="badge-real">The real one</span>' : (m.active ? '' : '<span class="badge-soon">Coming soon</span>'))}
-                    <div class="mode-icon" style="background:${m.bg};">${m.icon}</div>
-                    <h3>${m.title}</h3>
-                    <p>${m.desc}</p>
-                    ${m.active ? '<span class="mode-cta" style="color:#1e40af;">Start →</span>' : ''}
-                </div>
-            `).join('');
+            const T = window._dashT || DASH_LANG[dashLang];
+            const realTag = T ? T.realTag : 'THE REAL ONE';
+            const proTag = T ? T.proTag : 'PRO';
+            const startBtn = T ? T.startBtn : 'Start →';
+            document.getElementById('modesGrid').innerHTML = MODES.map(function(m) {
+                const mT = T && T.modes && T.modes[m.id];
+                const title = mT ? mT.title : m.title;
+                const desc = mT ? mT.desc : m.desc;
+                return '<div class="mode-card ' + (m.active ? 'active' : 'soon') + '" ' + (m.active ? 'onclick="onMode(\'' + m.id + '\')"' : '') + '>' +
+                    (m.pro && isFree ? '<span class="badge-pro">' + proTag + '</span>' : (m.real ? '<span class="badge-real">' + realTag + '</span>' : (m.active ? '' : '<span class="badge-soon">Coming soon</span>'))) +
+                    '<div class="mode-icon" style="background:' + m.bg + ';">' + m.icon + '</div>' +
+                    '<h3>' + title + '</h3>' +
+                    '<p>' + desc + '</p>' +
+                    (m.active ? '<span class="mode-cta" style="color:#1e40af;">' + startBtn + '</span>' : '') +
+                    '</div>';
+            }).join('');
         }
 
         function onMode(id) {
@@ -295,6 +310,94 @@
         document.addEventListener('click', (e) => {
             const menu = document.getElementById('userMenu');
             if (menu && !menu.contains(e.target)) menu.classList.remove('open');
+        });
+
+
+        // ============ Idioma del dashboard ============
+        const DASH_LANG = {
+            en: {
+                welcome: 'Welcome back',
+                subtitle: 'Choose how you want to practice today.',
+                stat1: 'Practice sessions', stat2: 'Questions practiced',
+                stat3: 'Average score', stat4: 'Day streak',
+                modesTitle: 'Practice modes',
+                modesSub: 'Pick a mode to focus on, or jump into the full mock interview.',
+                disclaimer: 'This service is for educational purposes only and does not constitute legal advice.',
+                modes: {
+                    full:      { title: 'Full Mock Interview',       desc: 'A complete interview with an AI officer: oath, your application, civics, and the English test. The real thing.' },
+                    civics:    { title: 'Civics Practice',           desc: 'Quiz yourself on the official civics questions (100 or 128). Choose which ones to study.' },
+                    n400:      { title: 'N-400 Questions',           desc: 'Practice the standard application questions an officer asks during the interview.' },
+                    n400upload:{ title: 'Personalized N-400',        desc: 'A personalized interview based on your own application. Private, and deleted when you finish.' },
+                    vocab:     { title: 'Vocabulary',                desc: 'Study the official USCIS reading and writing word lists.' },
+                    writing:   { title: 'Writing',                   desc: 'Practice writing the sentences from the English writing test.' }
+                },
+                startBtn: 'Start \u2192', realTag: 'THE REAL ONE', proTag: 'PRO',
+                upgradeBtn: '\u2b50 Upgrade to Professional', logoutBtn: 'Log out'
+            },
+            es: {
+                welcome: 'Bienvenido de nuevo',
+                subtitle: 'Elige c\u00f3mo quieres practicar hoy.',
+                stat1: 'Sesiones de pr\u00e1ctica', stat2: 'Preguntas practicadas',
+                stat3: 'Promedio', stat4: 'D\u00edas seguidos',
+                modesTitle: 'Modos de pr\u00e1ctica',
+                modesSub: 'Elige un modo espec\u00edfico o pasa directo a la entrevista simulada completa.',
+                disclaimer: 'Este servicio es solo para pr\u00e1ctica educativa y no constituye asesoramiento legal.',
+                modes: {
+                    full:      { title: 'Entrevista Simulada Completa', desc: 'Una entrevista completa con un oficial de IA: juramento, tu solicitud, c\u00edvicas y el examen de ingl\u00e9s. La experiencia real.' },
+                    civics:    { title: 'Pr\u00e1ctica de C\u00edvicas',      desc: 'Practica las preguntas c\u00edvicas oficiales (100 o 128). T\u00fa eliges cu\u00e1les estudiar.' },
+                    n400:      { title: 'Preguntas N-400',              desc: 'Practica las preguntas est\u00e1ndar que el oficial hace durante la entrevista.' },
+                    n400upload:{ title: 'N-400 Personalizado',          desc: 'Una entrevista personalizada basada en tu propia solicitud. Privado y se elimina al terminar.' },
+                    vocab:     { title: 'Vocabulario',                  desc: 'Estudia las listas oficiales de palabras de lectura y escritura de USCIS.' },
+                    writing:   { title: 'Escritura',                    desc: 'Practica la escritura de las oraciones del examen oficial de escritura en ingl\u00e9s.' }
+                },
+                startBtn: 'Comenzar \u2192', realTag: 'LA REAL', proTag: 'PRO',
+                upgradeBtn: '\u2b50 Mejorar a Professional', logoutBtn: 'Cerrar sesi\u00f3n'
+            }
+        };
+
+        let dashLang = localStorage.getItem('lang') || 'en';
+
+        function setDashLang(lang) {
+            dashLang = lang;
+            localStorage.setItem('lang', lang);
+            document.getElementById('dashBtnEN').classList.toggle('active', lang === 'en');
+            document.getElementById('dashBtnES').classList.toggle('active', lang === 'es');
+            applyDashLang(lang);
+        }
+
+        function applyDashLang(lang) {
+            const T = DASH_LANG[lang];
+            const setText = function(id, t) { const el = document.getElementById(id); if (el) el.textContent = t; };
+            const setHTML = function(id, h) { const el = document.getElementById(id); if (el) el.innerHTML = h; };
+
+            const greetEl = document.getElementById('greeting');
+            const nameEl = document.getElementById('welcomeName');
+            if (greetEl && nameEl) {
+                const parts = greetEl.innerHTML.split('<span');
+                greetEl.innerHTML = T.welcome + ', <span' + parts[1];
+            }
+            setText('welcomeSub', T.subtitle);
+            document.querySelectorAll('.stat-card .label').forEach(function(el, i) {
+                const labels = [T.stat1, T.stat2, T.stat3, T.stat4];
+                if (labels[i]) el.textContent = labels[i];
+            });
+            setText('modesSectionTitle', T.modesTitle);
+            setText('modesSectionSub', T.modesSub);
+            setText('dashDisclaimer', T.disclaimer);
+            const upgradeBtn = document.getElementById('btnUpgrade');
+            if (upgradeBtn) upgradeBtn.textContent = T.upgradeBtn;
+            const logoutBtn = document.querySelector('.btn-logout');
+            if (logoutBtn) logoutBtn.textContent = T.logoutBtn;
+            window._dashT = T;
+            if (typeof renderModes === 'function') renderModes();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (dashLang === 'es') {
+                document.getElementById('dashBtnES').classList.add('active');
+                document.getElementById('dashBtnEN').classList.remove('active');
+                applyDashLang('es');
+            }
         });
 
         async function handleLogout() {
@@ -381,6 +484,7 @@
             document.getElementById('userEmail').textContent = email;
             document.getElementById('userAvatar').textContent = initials || 'U';
             document.getElementById('welcomeName').textContent = firstName;
+            window._dashUserName = firstName;
 
             try {
                 const { data: sess } = await supabaseClient.from('practice_sessions')
