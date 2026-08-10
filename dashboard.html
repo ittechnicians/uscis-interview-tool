@@ -388,8 +388,7 @@
             setText('modesSectionTitle', T.modesTitle);
             setText('modesSectionSub', T.modesSub);
             setText('dashDisclaimer', T.disclaimer);
-            const upgradeBtn = document.getElementById('btnUpgrade');
-            if (upgradeBtn) upgradeBtn.textContent = T.upgradeBtn;
+            // upgradeBtn text is managed by applyPlanUI (plan-aware) — skip here
             const logoutBtn = document.querySelector('.btn-logout');
             if (logoutBtn) logoutBtn.textContent = T.logoutBtn;
             window._dashT = T;
@@ -410,7 +409,8 @@
         }
 
         // ---------- Stripe checkout (upgrade to Professional) ----------
-        async function startCheckout() {
+        async function startCheckout(plan) {
+            plan = plan || 'pro';
             const btn = document.getElementById('btnUpgrade');
             try {
                 const { data: { session } } = await supabaseClient.auth.getSession();
@@ -419,7 +419,7 @@
                 const res = await fetch('/api/checkout', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: session.user.id, email: session.user.email, plan: 'pro' })
+                    body: JSON.stringify({ userId: session.user.id, email: session.user.email, plan: plan })
                 });
                 const data = await res.json();
                 if (data && data.url) {
@@ -452,13 +452,27 @@
         // ---------- Auth guard + profile ----------
         function applyPlanUI() {
             const isPro = userPlan === 'professional';
+            const isPremium = userPlan === 'premium';
+            // Plan badge
             document.querySelectorAll('.plan-badge-el').forEach(function (badge) {
                 const isNav = badge.classList.contains('nav-plan-badge');
                 badge.style.display = 'inline-block';
-                badge.textContent = isPro ? 'PROFESSIONAL' : 'FREE';
-                badge.className = 'plan-badge ' + (isPro ? 'pro' : 'free') + ' plan-badge-el' + (isNav ? ' nav-plan-badge' : '');
+                badge.textContent = isPremium ? 'PREMIUM' : (isPro ? 'PROFESSIONAL' : 'FREE');
+                badge.className = 'plan-badge ' + (isPremium || isPro ? 'pro' : 'free') + ' plan-badge-el' + (isNav ? ' nav-plan-badge' : '');
             });
-            document.getElementById('btnUpgrade').style.display = isPro ? 'none' : 'inline-block';
+            // Upgrade button: hidden for Premium, show upgrade-to-premium for Pro, show upgrade-to-pro for Free
+            const upgradeBtn = document.getElementById('btnUpgrade');
+            if (isPremium) {
+                upgradeBtn.style.display = 'none';
+            } else if (isPro) {
+                upgradeBtn.style.display = 'inline-block';
+                upgradeBtn.textContent = '⚡ Upgrade to Premium — $20';
+                upgradeBtn.onclick = function() { startCheckout('upgrade'); };
+            } else {
+                upgradeBtn.style.display = 'inline-block';
+                upgradeBtn.textContent = '⭐ Upgrade to Professional';
+                upgradeBtn.onclick = function() { startCheckout('pro'); };
+            }
             renderModes();
         }
 
