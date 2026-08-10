@@ -1038,9 +1038,9 @@
                         <li id="premF1">Everything in Professional</li>
                         <li id="premF2"><strong>⚡ 8 Live Interviews</strong> — real-time conversation with instant answers, like the real one</li>
                         <li id="premF3">Need more? Add 5 extra Live Interviews anytime</li>
-                        <li class="soon" id="premF4">Launching soon</li>
+                        
                     </ul>
-                    <button class="btn-pricing disabled" disabled id="premBtn">Coming Soon</button>
+                    <button class="btn-pricing primary" id="premBtn" onclick="selectPlan('premium')">Get Started →</button>
                 </div>
             </div>
         </div>
@@ -1318,7 +1318,7 @@
             premF1: 'Everything in Professional',
             premF2: '⚡ 8 Live Interviews — real-time conversation with instant answers, like the real one',
             premF3: 'Need more? Add 5 extra Live Interviews anytime',
-            premF4: 'Launching soon', premBtn: 'Coming Soon',
+            premF4: '', premBtn: 'Get Started →',
             // FAQ
             faqQ1: 'What is Immigration Interviews?', faqA1: 'An AI-powered practice platform for the U.S. citizenship (naturalization) interview. Practice with AI officers with realistic voices, get an evaluation report after each mock interview, and study the official civics questions, reading, writing and vocabulary — fully bilingual English/Spanish.',
             faqQ2: 'How does the AI mock interview work?', faqA2: 'Choose one of five AI officers, speak your answers out loud, and the officer responds with voice — asking the same types of questions as a real USCIS naturalization interview. At the end you get a personal evaluation: your score, your strengths, and the 3 most important things to improve.',
@@ -1377,7 +1377,7 @@
             premF1: 'Todo en Professional',
             premF2: '⚡ 8 Entrevistas en Vivo — conversación en tiempo real con respuestas instantáneas, como la real',
             premF3: '¿Necesitas más? Agrega 5 entrevistas en vivo adicionales cuando quieras',
-            premF4: 'Próximamente', premBtn: 'Próximamente',
+            premF4: '', premBtn: 'Comenzar →',
             faqQ1: '¿Qué es Immigration Interviews?', faqA1: 'Una plataforma de práctica con IA para la entrevista de naturalización de ciudadanía de EE.UU. Practica con oficiales de IA con voces realistas, obtén un reporte de evaluación después de cada entrevista simulada, y estudia las preguntas cívicas oficiales, lectura, escritura y vocabulario — completamente bilingüe inglés/español.',
             faqQ2: '¿Cómo funciona la entrevista simulada con IA?', faqA2: 'Elige uno de cinco oficiales de IA, responde en voz alta y el oficial responde con voz — haciendo los mismos tipos de preguntas que en una entrevista real de naturalización de USCIS. Al final recibes una evaluación personal: tu puntaje, tus fortalezas y las 3 cosas más importantes que debes mejorar.',
             faqQ3: '¿Está disponible en español?', faqA3: 'Sí — la plataforma funciona para inmigrantes de cualquier país, y toda la interfaz es bilingüe inglés/español. La entrevista simulada es en inglés, como la real; las instrucciones y retroalimentación pueden ser en español.',
@@ -1464,7 +1464,7 @@
             setText('proF4', T.proF4); setText('proF5', T.proF5); setText('proBtn', T.proBtn);
             set('premTitle', T.premTitle); set('premDesc', T.premDesc); set('premNote', T.premNote);
             setText('premF1', T.premF1); set('premF2', T.premF2);
-            setText('premF3', T.premF3); setText('premF4', T.premF4); setText('premBtn', T.premBtn);
+            setText('premF3', T.premF3); if(T.premF4 && document.getElementById('premF4')) setText('premF4', T.premF4); setText('premBtn', T.premBtn);
 
             // FAQ
             setText('faqQ1', T.faqQ1); set('faqA1', T.faqA1);
