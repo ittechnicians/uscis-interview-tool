@@ -26,10 +26,12 @@ module.exports = async function handler(req, res) {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
     const userId = (body.userId || '').toString();
     const email = (body.email || '').toString();
-    const plan = body.plan === 'premium' ? 'premium' : 'pro';
+    const plan = (body.plan === 'premium' || body.plan === 'upgrade') ? 'premium' : body.plan === 'topup' ? 'topup' : 'pro';
 
     const priceId = plan === 'premium'
       ? process.env.STRIPE_PRICE_ID_PREMIUM
+      : plan === 'upgrade'
+      ? process.env.STRIPE_PRICE_ID_UPGRADE
       : plan === 'topup'
       ? process.env.STRIPE_PRICE_ID_TOPUP
       : process.env.STRIPE_PRICE_ID;
