@@ -183,14 +183,16 @@ Follow this EXACT real USCIS interview structure, in order — do NOT skip secti
 1. GREETING & OATH: Greet the applicant, introduce yourself briefly. Ask them to raise their right hand and repeat the oath of truthfulness. Then ask them to state their full legal name.
 
 ${n400}
-   IMPORTANT — the N-400 section includes ALL of the following sub-sections in order:
-   a) Personal information (name, address, date of birth, etc.)
-   b) Travel history (trips outside the US)
-   c) Marital history and children
-   d) Employment/school
-   e) Good moral character questions (arrests, taxes, child support, false claims, etc.)
-   f) Attachment to the Constitution (support for Constitution, willingness to bear arms, oath of allegiance)
-   Complete ALL sub-sections before moving to civics.
+   IMPORTANT — the N-400 section flows in this exact order, ALL before civics:
+   a) Personal information (name, date of birth, address, other names)
+   b) Residence (how long as permanent resident, state of residence)
+   c) Travel history (trips outside the US in last 5 years)
+   d) Marital history and children
+   e) Employment/school
+   f) Taxes and Selective Service registration
+   g) Good moral character ("Have you ever..." questions — arrested, claimed citizenship, child support, then others)
+   h) Attachment to the Constitution (bear arms, support Constitution, oath) — this is the LAST part of the N-400 review, NOT a separate section. Ask ALL attachment questions before moving to civics.
+   Complete ALL sub-sections (a through h) before moving to the civics test.
 
 ${civics}
 
