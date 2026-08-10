@@ -213,6 +213,7 @@
         // ---------- Practice modes ----------
         // To activate a mode later: set active:true and give it an href (or a custom action).
         const MODES = [
+            { id:'live', icon:'⚡', bg:'#fef3c7', title:'Live Interview', desc:'Real-time voice — instant officer responses. Premium only.', active:true, href:'live-interview.html', premium:true },
             { id:'full',       icon:'🎙️', bg:'#dbeafe', title:'Full Mock Interview', desc:'A complete interview with an AI officer: oath, your application, civics, and the English test. The real thing.', active:true, real:true },
             { id:'civics',     icon:'📚', bg:'#ede9fe', title:'Civics Practice',     desc:'Quiz yourself on the official civics questions (100 or 128). Choose which ones to study.', active:true, href:'civics.html' },
             { id:'n400',       icon:'📋', bg:'#dcfce7', title:'N-400 Questions',      desc:'Practice the standard application questions an officer asks during the interview.', active:true, href:'n400.html' },
@@ -235,7 +236,7 @@
                 const title = mT ? mT.title : m.title;
                 const desc = mT ? mT.desc : m.desc;
                 return '<div class="mode-card ' + (m.active ? 'active' : 'soon') + '" ' + (m.active ? 'onclick="onMode(\'' + m.id + '\')"' : '') + '>' +
-                    (m.pro && isFree ? '<span class="badge-pro">' + proTag + '</span>' : (m.real ? '<span class="badge-real">' + realTag + '</span>' : (m.active ? '' : '<span class="badge-soon">Coming soon</span>'))) +
+                    (m.premium && userPlan !== 'premium' ? '<span class="badge-pro">⚡ PREMIUM</span>' : m.pro && isFree ? '<span class="badge-pro">' + proTag + '</span>' : m.real ? '<span class="badge-real">' + realTag + '</span>' : m.active ? '' : '<span class="badge-soon">Coming soon</span>') +
                     '<div class="mode-icon" style="background:' + m.bg + ';">' + m.icon + '</div>' +
                     '<h3>' + title + '</h3>' +
                     '<p>' + desc + '</p>' +
@@ -247,6 +248,7 @@
         function onMode(id) {
             const mode = MODES.find(m => m.id === id);
             const isFree = userPlan !== 'professional';
+            if (mode && mode.premium && userPlan !== 'premium') { alert('Live interviews are exclusive to the Premium plan.'); return; }
             if (mode && mode.pro && isFree) {
                 showUpgrade('This personalized interview is a Professional feature. Upgrade to unlock it — founding-member price: $19 — 30 days of access, no subscription.');
                 return;
@@ -324,6 +326,7 @@
                 modesSub: 'Pick a mode to focus on, or jump into the full mock interview.',
                 disclaimer: 'This service is for educational purposes only and does not constitute legal advice.',
                 modes: {
+                    live:      { title: 'Live Interview', desc: 'Real-time voice — the officer responds instantly. Exclusive to Premium.' },
                     full:      { title: 'Full Mock Interview',       desc: 'A complete interview with an AI officer: oath, your application, civics, and the English test. The real thing.' },
                     civics:    { title: 'Civics Practice',           desc: 'Quiz yourself on the official civics questions (100 or 128). Choose which ones to study.' },
                     n400:      { title: 'N-400 Questions',           desc: 'Practice the standard application questions an officer asks during the interview.' },
@@ -343,6 +346,7 @@
                 modesSub: 'Elige un modo espec\u00edfico o pasa directo a la entrevista simulada completa.',
                 disclaimer: 'Este servicio es solo para pr\u00e1ctica educativa y no constituye asesoramiento legal.',
                 modes: {
+                    live:      { title: 'Entrevista en Vivo', desc: 'Voz en tiempo real — el oficial responde al instante. Exclusivo de Premium.' },
                     full:      { title: 'Entrevista Simulada Completa', desc: 'Una entrevista completa con un oficial de IA: juramento, tu solicitud, c\u00edvicas y el examen de ingl\u00e9s. La experiencia real.' },
                     civics:    { title: 'Pr\u00e1ctica de C\u00edvicas',      desc: 'Practica las preguntas c\u00edvicas oficiales (100 o 128). T\u00fa eliges cu\u00e1les estudiar.' },
                     n400:      { title: 'Preguntas N-400',              desc: 'Practica las preguntas est\u00e1ndar que el oficial hace durante la entrevista.' },
