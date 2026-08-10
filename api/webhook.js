@@ -115,13 +115,20 @@ async function handler(req, res) {
         // One-time payment model: 90 days of access from the moment of purchase.
         const plan = (s.metadata && s.metadata.plan) === 'premium' ? 'premium' : 'professional';
         const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-        const fields = {
-          plan: plan,
-          plan_expires_at: expires,
+        let fields = {
           stripe_customer_id: s.customer || null,
           subscription_status: 'paid'
         };
-        if (plan === 'premium') fields.live_credits = 8;
+        if (plan === 'topup') {
+          // Top-up: add 5 credits without changing plan or expiry
+          const profileRes = await supabaseAdmin.from('profiles').select('live_credits').eq('id', userId).single();
+          const cur = (profileRes.data && typeof profileRes.data.live_credits === 'number') ? profileRes.data.live_credits : 0;
+          fields.live_credits = cur + 5;
+        } else {
+          fields.plan = plan;
+          fields.plan_expires_at = expires;
+          if (plan === 'premium') fields.live_credits = 8;
+        }
         await updateProfile(userId, fields);
         console.log('Activated plan', plan, 'until', expires, 'for user:', userId);
       } else {
