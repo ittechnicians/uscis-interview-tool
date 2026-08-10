@@ -144,7 +144,10 @@ function shuffleWith(arr, rng) {
 function selectN400(seed) {
   const rng = mulberry32((seed >>> 0) || 1);
   return N400_SECTIONS.map(function (sec) {
-    const picked = shuffleWith(sec.questions, rng).slice(0, Math.min(sec.pick, sec.questions.length));
+    const required = sec.required ? sec.required.slice() : [];
+    const optional = shuffleWith(sec.questions.slice(), rng);
+    const pickExtra = Math.min(sec.pick, sec.questions.length) - required.length;
+    const picked = required.concat(optional.slice(0, Math.max(0, pickExtra)));
     return { title: sec.title, questions: picked };
   });
 }
@@ -152,7 +155,9 @@ function selectN400(seed) {
 // Every question, every section, in order (top to bottom) — for the "full form" practice.
 function allN400() {
   return N400_SECTIONS.map(function (sec) {
-    return { title: sec.title, questions: sec.questions.slice() };
+    const required = sec.required ? sec.required.slice() : [];
+    const rest = sec.questions.filter(function(q) { return required.indexOf(q) === -1; });
+    return { title: sec.title, questions: required.concat(rest) };
   });
 }
 
