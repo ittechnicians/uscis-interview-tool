@@ -501,7 +501,13 @@
                 if (profile && profile.full_name) fullName = profile.full_name;
                 if (profile && profile.plan) {
                     const notExpired = !profile.plan_expires_at || new Date(profile.plan_expires_at) > new Date();
-                    userPlan = ((profile.plan === 'professional' || profile.plan === 'premium') && notExpired) ? 'professional' : 'free';
+                    if (notExpired && profile.plan === 'premium') {
+                        userPlan = 'premium';
+                    } else if (notExpired && profile.plan === 'professional') {
+                        userPlan = 'professional';
+                    } else {
+                        userPlan = 'free';
+                    }
                 }
                 freeInterviewUsed = !!(profile && profile.free_interview_used);
             } catch (e) { console.log('Profile lookup skipped:', e); }
