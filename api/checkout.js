@@ -30,6 +30,8 @@ module.exports = async function handler(req, res) {
 
     const priceId = plan === 'premium'
       ? process.env.STRIPE_PRICE_ID_PREMIUM
+      : plan === 'topup'
+      ? process.env.STRIPE_PRICE_ID_TOPUP
       : process.env.STRIPE_PRICE_ID;
     if (!priceId) {
       return res.status(500).json({ error: 'Price is not configured for this plan.' });
