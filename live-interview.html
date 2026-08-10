@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Interview — Immigration Interviews</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: #f8fafc; color: #0f172a; line-height: 1.6; }
+
+        .loading-overlay { position: fixed; inset: 0; background: #f8fafc; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; z-index: 5000; }
+        .loading-overlay.hidden { display: none; }
+        .spinner { width: 44px; height: 44px; border: 4px solid #e2e8f0; border-top-color: #1e40af; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-overlay p { color: #64748b; font-weight: 500; }
+
+        /* Top bar */
+        .topbar { background: #ffffff; border-bottom: 1px solid #e2e8f0; padding: 0.875rem 0; position: sticky; top: 0; z-index: 1000; }
+        .topbar-inner { max-width: 900px; margin: 0 auto; padding: 0 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.2rem; font-weight: 800; color: #0f172a; text-decoration: none; display: flex; align-items: center; gap: 0.4rem; }
+        .brand-text { white-space: nowrap; line-height: 1.1; }
+        .btn-end { background: white; color: #dc2626; border: 1px solid #fecaca; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s; }
+        .btn-end:hover { background: #fef2f2; }
+
+        /* Live badge */
+        .live-badge { display: inline-flex; align-items: center; gap: 0.35rem; background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; border-radius: 99px; padding: 0.2rem 0.65rem; font-size: 0.75rem; font-weight: 700; }
+        .live-dot { width: 7px; height: 7px; background: #dc2626; border-radius: 50%; animation: pulse 1.2s ease-in-out infinite; }
+        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+
+        .stage-wrap { max-width: 900px; margin: 0 auto; padding: 1.5rem; }
+
+        /* Officer stage */
+        .officer-stage { text-align: center; margin-bottom: 1.5rem; }
+        .officer-avatar { width: 110px; height: 110px; border-radius: 50%; margin: 0 auto 0.75rem; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 800; color: white; position: relative; overflow: hidden; transition: box-shadow 0.3s; }
+        .officer-avatar.speaking { box-shadow: 0 0 0 6px rgba(30,64,175,0.15), 0 0 0 12px rgba(30,64,175,0.08); animation: glow 1.1s ease-in-out infinite; }
+        @keyframes glow { 0%,100%{box-shadow:0 0 0 6px rgba(30,64,175,0.15),0 0 0 12px rgba(30,64,175,0.08)} 50%{box-shadow:0 0 0 10px rgba(30,64,175,0.2),0 0 0 18px rgba(30,64,175,0.06)} }
+        .officer-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+        .officer-stage h2 { font-size: 1.35rem; font-weight: 800; }
+        .officer-stage .office { color: #94a3b8; font-size: 0.9rem; margin-bottom: 0.5rem; }
+
+        /* Credits display */
+        .credits-pill { display: inline-flex; align-items: center; gap: 0.4rem; background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; border-radius: 99px; padding: 0.25rem 0.75rem; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.75rem; }
+
+        /* Status pill */
+        .status-pill { display: inline-flex; align-items: center; gap: 0.4rem; background: #f1f5f9; border-radius: 99px; padding: 0.3rem 0.85rem; font-size: 0.8rem; font-weight: 600; color: #475569; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #94a3b8; transition: background 0.3s; }
+        .status-dot.live { background: #22c55e; animation: pulse 1.2s ease-in-out infinite; }
+        .status-dot.listening { background: #f59e0b; animation: pulse 0.8s ease-in-out infinite; }
+        .status-dot.speaking { background: #1e40af; animation: pulse 1.1s ease-in-out infinite; }
+
+        /* Transcript */
+        .transcript { background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1rem; min-height: 280px; max-height: 380px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem; scroll-behavior: smooth; }
+        .transcript-empty { color: #94a3b8; text-align: center; margin: auto; font-size: 0.9rem; }
+        .bubble { max-width: 82%; padding: 0.65rem 0.9rem; border-radius: 1rem; font-size: 0.9rem; line-height: 1.55; }
+        .bubble.officer { background: #f1f5f9; color: #0f172a; align-self: flex-start; border-bottom-left-radius: 0.25rem; }
+        .bubble.user { background: #1e40af; color: white; align-self: flex-end; border-bottom-right-radius: 0.25rem; }
+        .bubble .who { font-size: 0.72rem; font-weight: 700; opacity: 0.6; display: block; margin-bottom: 0.2rem; }
+        .bubble.officer .who { color: #475569; }
+        .bubble.user .who { color: rgba(255,255,255,0.7); }
+
+        /* Controls */
+        .controls { text-align: center; }
+
+        /* Start row */
+        .start-row { padding: 1rem 0; }
+        .start-row h3 { font-size: 1.1rem; font-weight: 800; margin-bottom: 0.4rem; }
+        .start-row p { color: #475569; font-size: 0.9rem; margin-bottom: 1.25rem; max-width: 440px; margin-left: auto; margin-right: auto; }
+        .btn-start { background: linear-gradient(135deg, #1e40af, #1d4ed8); color: white; border: none; padding: 0.85rem 2rem; border-radius: 0.6rem; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.2s; }
+        .btn-start:hover { filter: brightness(1.08); transform: translateY(-1px); }
+        .note { color: #94a3b8; font-size: 0.8rem; margin-top: 0.75rem; }
+
+        /* No credits */
+        .no-credits-row { padding: 1.5rem 1rem; }
+        .no-credits-row h3 { font-size: 1.2rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .no-credits-row p { color: #475569; max-width: 420px; margin: 0 auto 1.25rem; font-size: 0.9rem; }
+        .btn-topup { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; padding: 0.85rem 2rem; border-radius: 0.6rem; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.2s; }
+        .btn-topup:hover { filter: brightness(1.08); }
+
+        /* Speaking indicator */
+        .speaking-row { display: none; flex-direction: column; align-items: center; gap: 0.75rem; padding: 1rem 0; }
+        .speaking-row.visible { display: flex; }
+        .wave { display: flex; align-items: flex-end; gap: 4px; height: 36px; }
+        .wave-bar { width: 5px; background: #1e40af; border-radius: 3px; animation: wave 1s ease-in-out infinite; }
+        .wave-bar:nth-child(1){animation-delay:0s;height:14px}
+        .wave-bar:nth-child(2){animation-delay:0.1s;height:22px}
+        .wave-bar:nth-child(3){animation-delay:0.2s;height:32px}
+        .wave-bar:nth-child(4){animation-delay:0.3s;height:20px}
+        .wave-bar:nth-child(5){animation-delay:0.4s;height:12px}
+        @keyframes wave { 0%,100%{transform:scaleY(1)} 50%{transform:scaleY(1.8)} }
+        .speaking-hint { color: #475569; font-size: 0.85rem; font-weight: 600; }
+
+        /* Listening indicator */
+        .listening-row { display: none; flex-direction: column; align-items: center; gap: 0.6rem; padding: 1rem 0; }
+        .listening-row.visible { display: flex; }
+        .mic-circle { width: 64px; height: 64px; border-radius: 50%; background: #fef3c7; border: 3px solid #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; animation: breathe 1.5s ease-in-out infinite; }
+        @keyframes breathe { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+        .listening-hint { color: #92400e; font-size: 0.85rem; font-weight: 600; }
+
+        /* Ended row */
+        .ended-row { display: none; padding: 1.5rem 1rem; text-align: center; }
+        .ended-row.visible { display: block; }
+
+        /* Error */
+        .err { color: #dc2626; font-size: 0.85rem; margin-top: 0.75rem; padding: 0.6rem 1rem; background: #fef2f2; border-radius: 0.5rem; display: none; }
+
+        @media (max-width: 600px) {
+            .topbar-inner { padding: 0 0.9rem; }
+            .brand-logo { height: 52px; width: 52px; margin-right: 0.4rem; }
+            .brand-text { display: inline-block; white-space: normal; width: min-content; font-size: 1.05rem; font-weight: 800; line-height: 1.15; }
+            .officer-avatar { width: 88px; height: 88px; font-size: 1.75rem; }
+            .officer-stage h2 { font-size: 1.15rem; }
+            .btn-end { padding: 0.4rem 0.7rem; font-size: 0.8rem; }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p id="loadingText">Preparing your live interview...</p>
+    </div>
+
+    <div class="topbar">
+        <div class="topbar-inner">
+            <a href="dashboard.html" class="logo">
+                <img src="immigrationinterviews_logo.png" alt="Immigration Interviews" class="brand-logo" style="height:46px;width:46px;border-radius:50%;object-fit:cover;">
+                <span class="brand-text">Immigration <span style="color:#dc2626;">Interviews</span></span>
+            </a>
+            <div style="display:flex;align-items:center;gap:0.75rem;">
+                <span class="live-badge"><span class="live-dot"></span>LIVE</span>
+                <button class="btn-end" onclick="endInterview()">End Interview</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="stage-wrap">
+        <div class="officer-stage">
+            <div class="officer-avatar" id="officerAvatar" style="background:linear-gradient(135deg,#ec4899,#be185d);">MM
+                <img src="martinez.png" id="officerImg" alt="" onerror="this.style.display='none'">
+            </div>
+            <h2 id="officerName">Officer M. Martinez</h2>
+            <p class="office" id="officerOffice">Miami Field Office</p>
+            <div class="credits-pill" id="creditsPill">⚡ <span id="creditsCount">8</span> live interviews remaining</div>
+            <div class="status-pill"><span class="status-dot" id="statusDot"></span><span id="statusText">Ready</span></div>
+        </div>
+
+        <div class="transcript" id="transcript">
+            <p class="transcript-empty" id="transcriptEmpty">Your live conversation will appear here in real time.</p>
+        </div>
+
+        <div class="controls">
+            <!-- Start row -->
+            <div class="start-row" id="startRow">
+                <h3>⚡ Live Interview Mode</h3>
+                <p>Speak naturally — the officer will hear you and respond instantly, just like the real interview. No buttons needed once you start.</p>
+                <button class="btn-start" id="startBtn" onclick="startLiveInterview()">Begin Live Interview →</button>
+                <p class="note">Requires microphone access. Best in Chrome or Safari on desktop.</p>
+            </div>
+
+            <!-- No credits row -->
+            <div class="no-credits-row" id="noCreditsRow" style="display:none;">
+                <div style="font-size:2.5rem;margin-bottom:0.5rem;">⚡</div>
+                <h3>No live interview credits remaining</h3>
+                <p>You've used all 8 live interviews included with Premium. Add 5 more for $15 — no new subscription needed.</p>
+                <button class="btn-topup" onclick="buyTopup()">Add 5 Live Interviews — $15 →</button>
+                <p class="note"><a href="dashboard.html" style="color:#64748b;">Back to dashboard</a></p>
+            </div>
+
+            <!-- Speaking (officer talking) -->
+            <div class="speaking-row" id="speakingRow">
+                <div class="wave">
+                    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                    <div class="wave-bar"></div><div class="wave-bar"></div>
+                </div>
+                <p class="speaking-hint">The officer is speaking — listen carefully</p>
+            </div>
+
+            <!-- Listening (user's turn) -->
+            <div class="listening-row" id="listeningRow">
+                <div class="mic-circle">🎤</div>
+                <p class="listening-hint">Your turn — speak your answer now</p>
+            </div>
+
+            <!-- Ended row -->
+            <div class="ended-row" id="endedRow">
+                <p style="font-weight:700;color:#166534;margin-bottom:0.75rem;">✓ Interview complete. Great work!</p>
+                <button class="btn-start" onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
+            </div>
+
+            <p class="err" id="errBox"></p>
+        </div>
+    </div>
+
+    <!-- Report overlay (same as practice.html) -->
+    <div class="report-overlay" id="reportOverlay" style="position:fixed;inset:0;background:rgba(15,23,42,0.55);display:none;align-items:center;justify-content:center;z-index:3000;padding:1rem;">
+        <div class="report-card" style="background:#fff;border-radius:1rem;max-width:480px;width:100%;max-height:85vh;overflow-y:auto;padding:1.75rem;box-shadow:0 20px 50px rgba(15,23,42,0.3);">
+            <div id="reportLoading" style="text-align:center;padding:1.5rem 0;color:#475569;font-weight:600;"></div>
+            <div id="reportBody" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://vugvnqapdxyewxyfaayl.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_vFFY4GL2f8PIGrArW05ncg_PVkcgV4M';
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let officer = null;
+        let currentUserId = null;
+        let userPlan = 'free';
+        let liveCredits = 0;
+        let peerConnection = null;
+        let dataChannel = null;
+        let audioElement = null;
+        let interviewStarted = false;
+        let interviewEnded = false;
+
+        // Transcript state
+        let transcriptItems = {}; // itemId -> {role, text, el}
+        let conversationHistory = []; // for report generation
+
+        // ── Init ──────────────────────────────────────────────────────────
+        async function init() {
+            try {
+                // Load officer from localStorage
+                try { officer = JSON.parse(localStorage.getItem('selectedOfficer')); } catch (e) { officer = null; }
+                if (!officer) officer = { id: 'martinez', name: 'Officer M. Martinez', office: 'Miami Field Office', initials: 'MM', gradient: 'linear-gradient(135deg,#ec4899,#be185d)' };
+
+                // Update officer UI
+                document.getElementById('officerName').textContent = officer.name;
+                document.getElementById('officerOffice').textContent = officer.office || 'Field Office';
+                document.getElementById('officerAvatar').style.background = officer.gradient || 'linear-gradient(135deg,#1e40af,#1e3a8a)';
+                const initSpan = document.createElement('span');
+                initSpan.style.cssText = 'position:relative;z-index:1;';
+                initSpan.textContent = officer.initials || 'MM';
+                document.getElementById('officerAvatar').prepend(initSpan);
+                const img = document.getElementById('officerImg');
+                img.src = (officer.id || 'martinez') + '.png';
+
+                // Auth check
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (!session) { window.location.href = 'index.html'; return; }
+                currentUserId = session.user.id;
+
+                // Load profile
+                const { data: profile } = await supabaseClient.from('profiles')
+                    .select('plan, plan_expires_at, live_credits').eq('id', currentUserId).single();
+
+                if (profile) {
+                    const notExpired = !profile.plan_expires_at || new Date(profile.plan_expires_at) > new Date();
+                    userPlan = (profile.plan === 'premium' && notExpired) ? 'premium' : 'free';
+                    liveCredits = typeof profile.live_credits === 'number' ? profile.live_credits : 0;
+                }
+
+                document.getElementById('creditsCount').textContent = liveCredits;
+
+                if (userPlan !== 'premium') {
+                    // Not premium — redirect to dashboard
+                    window.location.href = 'dashboard.html';
+                    return;
+                }
+
+                if (liveCredits <= 0) {
+                    document.getElementById('startRow').style.display = 'none';
+                    document.getElementById('noCreditsRow').style.display = 'block';
+                }
+
+                document.getElementById('loadingOverlay').classList.add('hidden');
+
+            } catch (err) {
+                console.error('Init error:', err);
+                showError('Could not load your session. Please try again.');
+                document.getElementById('loadingOverlay').classList.add('hidden');
+            }
+        }
+
+        // ── Start live interview ──────────────────────────────────────────
+        async function startLiveInterview() {
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('startBtn').textContent = 'Connecting...';
+            setStatus('Connecting...', '');
+
+            try {
+                // 1. Get ephemeral token from our server (also decrements credits)
+                const tokenRes = await fetch('/api/realtime-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: currentUserId, officerId: officer.id || 'martinez' })
+                });
+                const tokenData = await tokenRes.json();
+
+                if (!tokenRes.ok) {
+                    if (tokenData.error === 'no_credits') {
+                        document.getElementById('startRow').style.display = 'none';
+                        document.getElementById('noCreditsRow').style.display = 'block';
+                        return;
+                    }
+                    throw new Error(tokenData.error || 'Could not get session token.');
+                }
+
+                // Update credits display
+                liveCredits = tokenData.remaining_credits;
+                document.getElementById('creditsCount').textContent = liveCredits;
+
+                // 2. Create WebRTC peer connection
+                peerConnection = new RTCPeerConnection();
+
+                // Play officer audio
+                audioElement = document.createElement('audio');
+                audioElement.autoplay = true;
+                document.body.appendChild(audioElement);
+                peerConnection.ontrack = function(e) {
+                    audioElement.srcObject = e.streams[0];
+                };
+
+                // Add user microphone
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                stream.getAudioTracks().forEach(track => peerConnection.addTrack(track, stream));
+
+                // Data channel for events
+                dataChannel = peerConnection.createDataChannel('oai-events');
+                dataChannel.onmessage = handleRealtimeEvent;
+                dataChannel.onopen = function() {
+                    console.log('Data channel open');
+                };
+
+                // 3. Create SDP offer
+                const offer = await peerConnection.createOffer();
+                await peerConnection.setLocalDescription(offer);
+
+                // 4. Send offer to OpenAI Realtime
+                const sdpRes = await fetch(
+                    `https://api.openai.com/v1/realtime?model=gpt-4o-mini-realtime-preview`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${tokenData.client_secret}`,
+                            'Content-Type': 'application/sdp'
+                        },
+                        body: offer.sdp
+                    }
+                );
+
+                if (!sdpRes.ok) {
+                    throw new Error('WebRTC connection failed. Please try again.');
+                }
+
+                const answerSdp = await sdpRes.text();
+                await peerConnection.setRemoteDescription({ type: 'answer', sdp: answerSdp });
+
+                // 5. Show live UI
+                document.getElementById('startRow').style.display = 'none';
+                document.getElementById('listeningRow').classList.add('visible');
+                setStatus('Connected — listening', 'live');
+                interviewStarted = true;
+
+            } catch (err) {
+                console.error('Live interview error:', err);
+                showError(err.message || 'Could not connect. Check your microphone and try again.');
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('startBtn').textContent = 'Begin Live Interview →';
+                setStatus('', '');
+            }
+        }
+
+        // ── Handle Realtime events from OpenAI ───────────────────────────
+        function handleRealtimeEvent(event) {
+            let msg;
+            try { msg = JSON.parse(event.data); } catch (e) { return; }
+
+            const type = msg.type || '';
+
+            if (type === 'response.audio_transcript.delta' || type === 'response.text.delta') {
+                // Officer speaking — update transcript
+                const itemId = msg.item_id || 'officer-current';
+                const delta = msg.delta || '';
+                if (!transcriptItems[itemId]) {
+                    transcriptItems[itemId] = { role: 'officer', text: '', el: addBubble('officer', '') };
+                }
+                transcriptItems[itemId].text += delta;
+                transcriptItems[itemId].el.querySelector('.bubble-text').textContent = transcriptItems[itemId].text;
+                scrollTranscript();
+            }
+
+            if (type === 'response.audio.started' || type === 'response.created') {
+                setOfficerSpeaking(true);
+            }
+
+            if (type === 'response.audio.done' || type === 'response.done') {
+                setOfficerSpeaking(false);
+                // Save to history for report
+                const lastItem = Object.values(transcriptItems).filter(i => i.role === 'officer').pop();
+                if (lastItem && lastItem.text) {
+                    conversationHistory.push({ role: 'assistant', content: lastItem.text });
+                }
+            }
+
+            if (type === 'conversation.item.input_audio_transcription.completed') {
+                // User finished speaking
+                const text = msg.transcript || '';
+                if (text.trim()) {
+                    addBubble('user', text);
+                    conversationHistory.push({ role: 'user', content: text });
+                    scrollTranscript();
+                }
+            }
+
+            if (type === 'input_audio_buffer.speech_started') {
+                setUserSpeaking(true);
+            }
+
+            if (type === 'input_audio_buffer.speech_stopped') {
+                setUserSpeaking(false);
+            }
+
+            if (type === 'error') {
+                console.error('Realtime error:', msg.error);
+                showError('Connection error: ' + (msg.error && msg.error.message || 'Unknown error'));
+            }
+        }
+
+        // ── Transcript helpers ────────────────────────────────────────────
+        function addBubble(role, text) {
+            const empty = document.getElementById('transcriptEmpty');
+            if (empty) empty.style.display = 'none';
+
+            const el = document.createElement('div');
+            el.className = 'bubble ' + role;
+            el.innerHTML = `<span class="who">${role === 'officer' ? (officer ? officer.name : 'Officer') : 'You'}</span><span class="bubble-text">${text}</span>`;
+            document.getElementById('transcript').appendChild(el);
+            scrollTranscript();
+            return el;
+        }
+
+        function scrollTranscript() {
+            const t = document.getElementById('transcript');
+            t.scrollTop = t.scrollHeight;
+        }
+
+        // ── State helpers ─────────────────────────────────────────────────
+        function setOfficerSpeaking(speaking) {
+            const avatar = document.getElementById('officerAvatar');
+            if (speaking) {
+                avatar.classList.add('speaking');
+                document.getElementById('speakingRow').classList.add('visible');
+                document.getElementById('listeningRow').classList.remove('visible');
+                setStatus('Officer speaking', 'speaking');
+            } else {
+                avatar.classList.remove('speaking');
+                document.getElementById('speakingRow').classList.remove('visible');
+                if (!interviewEnded) {
+                    document.getElementById('listeningRow').classList.add('visible');
+                    setStatus('Your turn — speak now', 'listening');
+                }
+            }
+        }
+
+        function setUserSpeaking(speaking) {
+            if (speaking) {
+                setStatus('Listening...', 'listening');
+            }
+        }
+
+        function setStatus(text, dotClass) {
+            document.getElementById('statusText').textContent = text;
+            const dot = document.getElementById('statusDot');
+            dot.className = 'status-dot' + (dotClass ? ' ' + dotClass : '');
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('errBox');
+            el.textContent = msg;
+            el.style.display = 'block';
+            setTimeout(() => { el.style.display = 'none'; }, 6000);
+        }
+
+        // ── End interview ─────────────────────────────────────────────────
+        async function endInterview() {
+            if (interviewEnded) return;
+            interviewEnded = true;
+
+            // Close WebRTC
+            if (peerConnection) { try { peerConnection.close(); } catch(e) {} }
+            if (audioElement) { try { audioElement.srcObject = null; } catch(e) {} }
+
+            setStatus('Interview ended', '');
+            document.getElementById('speakingRow').classList.remove('visible');
+            document.getElementById('listeningRow').classList.remove('visible');
+            document.getElementById('officerAvatar').classList.remove('speaking');
+
+            // Generate report if we have enough conversation
+            const userTurns = conversationHistory.filter(m => m.role === 'user').length;
+            if (userTurns >= 3) {
+                await generateReport();
+            } else {
+                document.getElementById('endedRow').classList.add('visible');
+            }
+        }
+
+        // ── Report (same logic as practice.html) ─────────────────────────
+        const REPORT_L = {
+            en: {
+                loading: '\uD83D\uDCDD The officer is writing your evaluation\u2026',
+                verdicts: { ready: ['\uD83C\uDF89','You are ready!'], almost: ['\uD83D\uDC4D','Almost there'], practice: ['\uD83D\uDCAA','Keep practicing'] },
+                strengths: 'What you did well', improve: 'Focus on these 3 things', btn: 'Back to Dashboard'
+            },
+            es: {
+                loading: '\uD83D\uDCDD El oficial est\u00e1 escribiendo tu evaluaci\u00f3n\u2026',
+                verdicts: { ready: ['\uD83C\uDF89','\u00a1Est\u00e1s listo!'], almost: ['\uD83D\uDC4D','Ya casi'], practice: ['\uD83D\uDCAA','Sigue practicando'] },
+                strengths: 'Lo que hiciste bien', improve: 'Enf\u00f3cate en estas 3 cosas', btn: 'Volver al Dashboard'
+            }
+        };
+
+        function escapeHtml(x) { const d = document.createElement('div'); d.textContent = String(x); return d.innerHTML; }
+
+        async function generateReport() {
+            const lang = (localStorage.getItem('lang') === 'es') ? 'es' : 'en';
+            const L = REPORT_L[lang];
+            document.getElementById('reportLoading').textContent = L.loading;
+            document.getElementById('reportLoading').style.display = 'block';
+            document.getElementById('reportBody').style.display = 'none';
+            document.getElementById('reportOverlay').style.display = 'flex';
+
+            try {
+                const res = await fetch('/api/report', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ history: conversationHistory, lang: lang, mode: 'live' })
+                });
+                const data = await res.json();
+                if (!res.ok || !data.report) throw new Error('report failed');
+
+                // Save session stats
+                try {
+                    const { data: { user } } = await supabaseClient.auth.getUser();
+                    if (user) {
+                        const n = conversationHistory.filter(m => m.role === 'user').length;
+                        await supabaseClient.from('practice_sessions').insert({
+                            user_id: user.id, mode: 'live_interview', questions: n,
+                            correct: null, score: data.report.score
+                        });
+                    }
+                } catch(e) { console.log('stats skip:', e); }
+
+                renderReport(data.report, L);
+            } catch(e) {
+                console.log('report skipped:', e);
+                document.getElementById('reportOverlay').style.display = 'none';
+                document.getElementById('endedRow').classList.add('visible');
+            }
+        }
+
+        function renderReport(r, L) {
+            const v = L.verdicts[r.verdict] || L.verdicts.almost;
+            let html = '<div style="font-size:2.5rem;text-align:center;">' + v[0] + '</div>' +
+                '<div style="font-size:1.35rem;font-weight:800;text-align:center;margin:0.25rem 0 0.1rem;color:#0f172a;">' + escapeHtml(v[1]) + '</div>' +
+                '<div style="font-size:2.2rem;font-weight:800;color:#1e40af;text-align:center;margin-bottom:0.5rem;">' + r.score + '%</div>';
+            if (r.strengths && r.strengths.length) {
+                html += '<div style="font-weight:800;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.04em;color:#64748b;margin:0.9rem 0 0.3rem;">' + escapeHtml(L.strengths) + '</div><ul style="margin:0;padding-left:1.2rem;color:#334155;font-size:0.95rem;">' +
+                    r.strengths.map(x => '<li style="margin-bottom:0.35rem;">' + escapeHtml(x) + '</li>').join('') + '</ul>';
+            }
+            if (r.improvements && r.improvements.length) {
+                html += '<div style="font-weight:800;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.04em;color:#64748b;margin:0.9rem 0 0.3rem;">' + escapeHtml(L.improve) + '</div><ul style="margin:0;padding-left:1.2rem;color:#334155;font-size:0.95rem;">' +
+                    r.improvements.map(x => '<li style="margin-bottom:0.35rem;">' + escapeHtml(x) + '</li>').join('') + '</ul>';
+            }
+            if (r.note) html += '<div style="background:#f1f5f9;border-radius:0.6rem;padding:0.7rem 0.9rem;font-size:0.9rem;color:#334155;margin-top:0.9rem;">' + escapeHtml(r.note) + '</div>';
+            html += '<button style="display:block;width:100%;margin-top:1.2rem;background:#1e40af;color:#fff;border:none;padding:0.8rem;border-radius:0.6rem;font-weight:700;font-size:1rem;cursor:pointer;" onclick="window.location.href=\'dashboard.html\'">' + escapeHtml(L.btn) + '</button>';
+            document.getElementById('reportLoading').style.display = 'none';
+            const b = document.getElementById('reportBody');
+            b.innerHTML = html;
+            b.style.display = 'block';
+        }
+
+        // ── Top-up checkout ───────────────────────────────────────────────
+        async function buyTopup() {
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (!session) { window.location.href = 'index.html'; return; }
+                const res = await fetch('/api/checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: session.user.id, email: session.user.email, plan: 'topup' })
+                });
+                const data = await res.json();
+                if (data.url) window.location.href = data.url;
+            } catch(e) { showError('Could not start checkout. Please try again.'); }
+        }
+
+        // ── Boot ──────────────────────────────────────────────────────────
+        init();
+    </script>
+</body>
+</html>
