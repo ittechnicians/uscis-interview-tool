@@ -113,7 +113,8 @@ async function handler(req, res) {
       const userId = s.client_reference_id || (s.metadata && s.metadata.userId);
       if (userId) {
         // One-time payment model: 90 days of access from the moment of purchase.
-        const plan = (s.metadata && s.metadata.plan) === 'premium' ? 'premium' : 'professional';
+        const planMeta = s.metadata && s.metadata.plan;
+        const plan = (planMeta === 'premium' || planMeta === 'upgrade') ? 'premium' : planMeta === 'topup' ? 'topup' : 'professional';
         const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
         let fields = {
           stripe_customer_id: s.customer || null,
