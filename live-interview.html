@@ -237,6 +237,10 @@
                 document.getElementById('officerAvatar').prepend(initSpan);
                 const img = document.getElementById('officerImg');
                 img.src = (officer.id || 'martinez') + '.png';
+                img.onload = function() {
+                    const sp = document.querySelector('#officerAvatar span');
+                    if (sp) sp.style.display = 'none';
+                };
 
                 // Auth check
                 const { data: { session } } = await supabaseClient.auth.getSession();
