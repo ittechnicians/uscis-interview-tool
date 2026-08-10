@@ -248,7 +248,7 @@
         function onMode(id) {
             const mode = MODES.find(m => m.id === id);
             const isFree = userPlan !== 'professional';
-            if (mode && mode.premium && userPlan !== 'premium') { alert('Live interviews are exclusive to the Premium plan.'); return; }
+            if (mode && mode.premium && userPlan !== 'premium') { showPremiumUpgradeModal(); return; }
             if (mode && mode.pro && isFree) {
                 showUpgrade('This personalized interview is a Professional feature. Upgrade to unlock it — founding-member price: $19 — 30 days of access, no subscription.');
                 return;
@@ -403,6 +403,19 @@
             }
         });
 
+
+        function showPremiumUpgradeModal() {
+            const isPro = userPlan === 'professional';
+            window._upgradeType = isPro ? 'upgrade' : 'premium';
+            const price = isPro ? '$20' : '$39';
+            const title = isPro ? 'Upgrade to Premium — $20' : 'Upgrade to Premium';
+            const desc = isPro ? 'You\'re already on Professional. Upgrade for just $20 more and get 8 live real-time interviews with instant officer responses.' : 'Get 8 live real-time interviews with an AI officer — instant responses, just like the real USCIS window.';
+            document.getElementById('premModalTitle').textContent = title;
+            document.getElementById('premModalDesc').textContent = desc;
+            document.getElementById('premModalBtn').textContent = 'Upgrade to Premium — ' + price + ' →';
+            document.getElementById('premiumModal').style.display = 'flex';
+        }
+
         async function handleLogout() {
             await supabaseClient.auth.signOut();
             window.location.href = 'index.html';
@@ -542,5 +555,16 @@
         </div>
     </div>
 
+
+    <!-- Premium upgrade modal -->
+    <div id="premiumModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,0.6);z-index:4000;align-items:center;justify-content:center;padding:1rem;">
+        <div style="background:#fff;border-radius:1rem;max-width:420px;width:100%;padding:2rem;box-shadow:0 20px 50px rgba(15,23,42,0.3);text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:0.5rem;">⚡</div>
+            <h2 style="font-size:1.4rem;font-weight:800;color:#0f172a;margin-bottom:0.5rem;" id="premModalTitle">Upgrade to Premium</h2>
+            <p style="color:#475569;font-size:0.95rem;margin-bottom:1.5rem;" id="premModalDesc">Get 8 live real-time interviews with an AI officer — instant responses, just like the real USCIS window.</p>
+            <button onclick="startCheckout(window._upgradeType || 'premium')" style="display:block;width:100%;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border:none;padding:0.85rem;border-radius:0.6rem;font-weight:700;font-size:1rem;cursor:pointer;margin-bottom:0.75rem;" id="premModalBtn">Upgrade to Premium — $39 →</button>
+            <button onclick="document.getElementById('premiumModal').style.display='none'" style="background:none;border:none;color:#64748b;font-size:0.9rem;cursor:pointer;font-weight:600;">Maybe later</button>
+        </div>
+    </div>
 </body>
 </html>
