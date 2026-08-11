@@ -310,36 +310,50 @@
                 const offer = await peerConnection.createOffer();
                 await peerConnection.setLocalDescription(offer);
 
-                // 3. Send SDP to our server — it verifies premium, decrements credits,
-                //    forwards to OpenAI /v1/realtime/calls, and returns the SDP answer
-                const sessionRes = await fetch('/api/realtime-session', {
+                // 3. Get ephemeral token from our server
+                const tokenRes = await fetch('/api/realtime-session', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        userId: currentUserId,
-                        officerId: officer.id || 'martinez',
-                        sdp: offer.sdp
-                    })
+                    body: JSON.stringify({ userId: currentUserId, officerId: officer.id || 'martinez' })
                 });
-
-                if (!sessionRes.ok) {
-                    let errData;
-                    try { errData = await sessionRes.json(); } catch(e) { errData = {}; }
-                    if (errData.error === 'no_credits') {
+                const tokenData = await tokenRes.json();
+                if (!tokenRes.ok) {
+                    if (tokenData.error === 'no_credits') {
                         document.getElementById('startRow').style.display = 'none';
                         document.getElementById('noCreditsRow').style.display = 'block';
                         return;
                     }
-                    throw new Error(errData.error || 'Could not connect to live session.');
+                    throw new Error(tokenData.error || 'Could not get session token.');
                 }
+                liveCredits = tokenData.remaining_credits;
+                document.getElementById('creditsCount').textContent = liveCredits;
 
-                // 4. Server returns the SDP answer as plain text
-                const answerSdp = await sessionRes.text();
+                // 4. Send SDP offer directly to OpenAI with ephemeral key
+                const sdpRes = await fetch('https://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + tokenData.client_secret,
+                        'Content-Type': 'application/sdp'
+                    },
+                    body: offer.sdp
+                });
+                if (!sdpRes.ok) {
+                    const errTxt = await sdpRes.text();
+                    console.error('SDP error:', sdpRes.status, errTxt.slice(0,200));
+                    throw new Error('WebRTC connection failed ('+sdpRes.status+'). Please try again.');
+                }
+                const answerSdp = await sdpRes.text();
                 await peerConnection.setRemoteDescription({ type: 'answer', sdp: answerSdp });
 
-                // 5. Show live UI — officer will greet automatically
-                liveCredits = Math.max(0, liveCredits - 1);
-                document.getElementById('creditsCount').textContent = liveCredits;
+                // 5. Update instructions via data channel when open
+                dataChannel.addEventListener('open', function() {
+                    dataChannel.send(JSON.stringify({
+                        type: 'session.update',
+                        session: { instructions: tokenData.instructions }
+                    }));
+                }, { once: true });
+
+                // 6. Show live UI
                 document.getElementById('startRow').style.display = 'none';
                 document.getElementById('listeningRow').classList.add('visible');
                 setStatus('Connected — listening', 'live');
