@@ -52,10 +52,14 @@ module.exports = async function handler(req, res) {
   if (!SUPABASE_SERVICE_KEY) return res.status(500).json({ error: 'Missing SUPABASE_SERVICE_ROLE_KEY' });
 
   try {
-    const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+    let body;
+    try {
+      body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+    } catch(e) { body = {}; }
     const userId    = (body.userId    || '').toString().trim();
     const officerId = (body.officerId || 'martinez').toString().trim().toLowerCase();
-    const sdpOffer  = (body.sdp || '').toString().trim();
+    const sdpOffer  = (body.sdp || '').toString();
+    console.log('SDP length:', sdpOffer.length, 'userId:', userId.slice(0,8));
 
     if (!userId) return res.status(400).json({ error: 'userId required' });
 
@@ -94,8 +98,10 @@ module.exports = async function handler(req, res) {
       });
 
       const fd = new FormData();
-      fd.set('sdp', sdpOffer);
-      fd.set('session', sessionConfig);
+      // OpenAI requires SDP as a Blob with the correct content type
+      const sdpBlob = new Blob([sdpOffer], { type: 'application/sdp' });
+      fd.set('sdp', sdpBlob, 'offer.sdp');
+      fd.set('session', new Blob([sessionConfig], { type: 'application/json' }), 'session.json');
 
       const callRes = await fetch('https://api.openai.com/v1/realtime/calls', {
         method: 'POST',
