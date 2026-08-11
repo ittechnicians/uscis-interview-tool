@@ -48,7 +48,7 @@ module.exports = async function handler(req, res) {
     const instructions = buildInstructions(officerId);
 
     // 3. Create ephemeral token — GA endpoint /v1/realtime/client_secrets
-    const tokenRes = await fetch('https://api.openai.com/v1/realtime/client_secrets', {
+    const tokenRes = await fetch('https://api.openai.com/v1/realtime/client_secrets?model=gpt-4o-realtime-preview', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${OPENAI_KEY}`,
@@ -56,7 +56,6 @@ module.exports = async function handler(req, res) {
         'OpenAI-Safety-Identifier': Buffer.from(userId).toString('base64').slice(0, 32)
       },
       body: JSON.stringify({
-        model: 'gpt-4o-realtime-preview',
         voice: voice,
         instructions: instructions
       })
