@@ -97,19 +97,30 @@ module.exports = async function handler(req, res) {
         instructions: instructions
       });
 
-      const fd = new FormData();
-      // OpenAI requires SDP as a Blob with the correct content type
-      const sdpBlob = new Blob([sdpOffer], { type: 'application/sdp' });
-      fd.set('sdp', sdpBlob, 'offer.sdp');
-      fd.set('session', new Blob([sessionConfig], { type: 'application/json' }), 'session.json');
+      // Build multipart/form-data manually — Node.js Blob not reliable in all envs
+      const boundary = '----WebRTCBoundary' + Date.now().toString(16);
+      const CRLF = '\r\n';
+      const parts = [
+        '--' + boundary + CRLF +
+        'Content-Disposition: form-data; name="sdp"; filename="offer.sdp"' + CRLF +
+        'Content-Type: application/sdp' + CRLF + CRLF +
+        sdpOffer + CRLF,
+        '--' + boundary + CRLF +
+        'Content-Disposition: form-data; name="session"; filename="session.json"' + CRLF +
+        'Content-Type: application/json' + CRLF + CRLF +
+        sessionConfig + CRLF,
+        '--' + boundary + '--' + CRLF
+      ];
+      const multipartBody = parts.join('');
 
       const callRes = await fetch('https://api.openai.com/v1/realtime/calls', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${OPENAI_KEY}`,
+          'Content-Type': `multipart/form-data; boundary=${boundary}`,
           'OpenAI-Safety-Identifier': Buffer.from(userId).toString('base64').slice(0, 32)
         },
-        body: fd
+        body: multipartBody
       });
 
       console.log('OpenAI /v1/realtime/calls status:', callRes.status);
