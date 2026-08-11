@@ -511,7 +511,16 @@
                 // Data channel for events
                 dataChannel = peerConnection.createDataChannel('oai-events');
                 dataChannel.onmessage = handleRealtimeEvent;
-                dataChannel.onopen = function() { console.log('Data channel open'); };
+                dataChannel.onopen = function() {
+                    console.log('Data channel open');
+                    // Enable input audio transcription so user speech appears in transcript
+                    dataChannel.send(JSON.stringify({
+                        type: 'session.update',
+                        session: {
+                            input_audio_transcription: { model: 'whisper-1' }
+                        }
+                    }));
+                };
 
                 // 2. Create SDP offer
                 const offer = await peerConnection.createOffer();
@@ -642,11 +651,24 @@
             }
 
             if (type === 'conversation.item.input_audio_transcription.completed') {
-                // User finished speaking
                 const text = msg.transcript || '';
                 if (text.trim()) {
                     addBubble('user', text);
                     conversationHistory.push({ role: 'user', content: text });
+                    scrollTranscript();
+                }
+            }
+
+            // Alternativo: input_audio_transcription.delta (algunos modelos)
+            if (type === 'conversation.item.input_audio_transcription.delta') {
+                const itemId = 'user-' + (msg.item_id || 'current');
+                const delta = msg.delta || '';
+                if (delta) {
+                    if (!transcriptItems[itemId]) {
+                        transcriptItems[itemId] = { role: 'user', text: '', el: addBubble('user', '') };
+                    }
+                    transcriptItems[itemId].text += delta;
+                    transcriptItems[itemId].el.querySelector('.bubble-text').textContent = transcriptItems[itemId].text;
                     scrollTranscript();
                 }
             }
