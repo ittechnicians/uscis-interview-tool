@@ -99,25 +99,33 @@ module.exports = async function handler(req, res) {
 
       // Build multipart/form-data manually — Node.js Blob not reliable in all envs
       const boundary = '----WebRTCBoundary' + Date.now().toString(16);
+      const enc = new TextEncoder();
       const CRLF = '\r\n';
-      const parts = [
-        '--' + boundary + CRLF +
+
+      const part1 = '--' + boundary + CRLF +
         'Content-Disposition: form-data; name="sdp"; filename="offer.sdp"' + CRLF +
         'Content-Type: application/sdp' + CRLF + CRLF +
-        sdpOffer + CRLF,
-        '--' + boundary + CRLF +
+        sdpOffer + CRLF;
+      const part2 = '--' + boundary + CRLF +
         'Content-Disposition: form-data; name="session"; filename="session.json"' + CRLF +
         'Content-Type: application/json' + CRLF + CRLF +
-        sessionConfig + CRLF,
-        '--' + boundary + '--' + CRLF
-      ];
-      const multipartBody = parts.join('');
+        sessionConfig + CRLF;
+      const closing = '--' + boundary + '--' + CRLF;
+
+      const multipartBody = Buffer.concat([
+        Buffer.from(part1, 'utf8'),
+        Buffer.from(part2, 'utf8'),
+        Buffer.from(closing, 'utf8')
+      ]);
+
+      console.log('multipart size:', multipartBody.length, 'boundary:', boundary);
 
       const callRes = await fetch('https://api.openai.com/v1/realtime/calls', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${OPENAI_KEY}`,
           'Content-Type': `multipart/form-data; boundary=${boundary}`,
+          'Content-Length': multipartBody.length.toString(),
           'OpenAI-Safety-Identifier': Buffer.from(userId).toString('base64').slice(0, 32)
         },
         body: multipartBody
