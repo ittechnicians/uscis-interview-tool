@@ -513,14 +513,12 @@
                 dataChannel.onmessage = handleRealtimeEvent;
                 dataChannel.onopen = function() {
                     console.log('Data channel open');
-                    // Enable input audio transcription so user speech appears in transcript
-                    dataChannel.send(JSON.stringify({
-                        type: 'session.update',
-                        session: {
-                            type: 'realtime',
-                            input_audio_transcription: { model: 'whisper-1' }
+                    // Trigger officer greeting — no session.update needed for this model
+                    setTimeout(function() {
+                        if (dataChannel.readyState === 'open') {
+                            dataChannel.send(JSON.stringify({ type: 'response.create' }));
                         }
-                    }));
+                    }, 400);
                 };
 
                 // 2. Create SDP offer
