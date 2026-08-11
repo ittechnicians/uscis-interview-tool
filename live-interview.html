@@ -185,7 +185,28 @@
             <div id="startRow" class="setup-screen">
                 <div class="setup-section">
                     <h3>Choose your officer</h3>
-                    <div class="officers-grid" id="officerPicker"></div>
+                    <div class="officers-grid" id="officerPicker">
+                        <button class="officer-pick selected" data-oid="martinez" type="button">
+                            <div class="av" style="background:linear-gradient(135deg,#ec4899,#be185d)"><img src="martinez.png" class="av-img" onerror="this.style.display='none'"><span class="av-init">MM</span></div>
+                            <div class="on">M. Martinez</div><div class="ot">Warm &amp; Thorough</div>
+                        </button>
+                        <button class="officer-pick" data-oid="johnson" type="button">
+                            <div class="av" style="background:linear-gradient(135deg,#1e40af,#1e3a8a)"><img src="johnson.png" class="av-img" onerror="this.style.display='none'"><span class="av-init">RJ</span></div>
+                            <div class="on">R. Johnson</div><div class="ot">Strict &amp; Professional</div>
+                        </button>
+                        <button class="officer-pick" data-oid="chen" type="button">
+                            <div class="av" style="background:linear-gradient(135deg,#7c3aed,#5b21b6)"><img src="chen.png" class="av-img" onerror="this.style.display='none'"><span class="av-init">LC</span></div>
+                            <div class="on">L. Chen</div><div class="ot">Modern &amp; Patient</div>
+                        </button>
+                        <button class="officer-pick" data-oid="rodriguez" type="button">
+                            <div class="av" style="background:linear-gradient(135deg,#16a34a,#15803d)"><img src="rodriguez.png" class="av-img" onerror="this.style.display='none'"><span class="av-init">CR</span></div>
+                            <div class="on">C. Rodriguez</div><div class="ot">Bilingual Expert</div>
+                        </button>
+                        <button class="officer-pick" data-oid="williams" type="button">
+                            <div class="av" style="background:linear-gradient(135deg,#dc2626,#991b1b)"><img src="williams.png" class="av-img" onerror="this.style.display='none'"><span class="av-init">SW</span></div>
+                            <div class="on">S. Williams</div><div class="ot">Diplomatic</div>
+                        </button>
+                    </div>
                 </div>
                 <div class="setup-section">
                     <h3>Civics test version</h3>
@@ -297,24 +318,19 @@
                 try { officer = JSON.parse(localStorage.getItem('selectedOfficer')); } catch (e) { officer = null; }
                 if (!officer) officer = OFFICERS[0];
 
-                // Render officer picker
-                const grid = document.getElementById('officerPicker');
+                // Officer picker — HTML is static, just wire up events
+                var grid = document.getElementById('officerPicker');
                 if (grid) {
-                    grid.innerHTML = OFFICERS.map(function(o) {
-                        const sel = (officer && officer.id === o.id) ? ' selected' : '';
-                        return '<button class="officer-pick' + sel + '" data-oid="'+o.id+'" type="button">'+
-                            '<div class="av" style="background:'+o.gradient+'">'+
-                            '<img src="'+o.id+'.png" class="av-img" onerror="this.style.display=\'none\'">'+
-                            '<span class="av-init">'+o.initials+'</span></div>'+
-                            '<div class="on">'+o.name.replace('Officer ','')+'</div>'+
-                            '<div class="ot">'+o.tag+'</div>'+
-                        '</button>';
-                    }).join('');
-                    // Event delegation (avoids inline onclick quoting issues)
+                    // Pre-select based on localStorage
+                    if (officer) {
+                        grid.querySelectorAll('[data-oid]').forEach(function(btn) {
+                            btn.classList.toggle('selected', btn.getAttribute('data-oid') === officer.id);
+                        });
+                    }
                     grid.addEventListener('click', function(e) {
                         var btn = e.target;
                         while (btn && btn !== grid) {
-                            if (btn.getAttribute && btn.getAttribute('data-oid')) {
+                            if (btn.hasAttribute && btn.hasAttribute('data-oid')) {
                                 pickOfficer(btn.getAttribute('data-oid'));
                                 return;
                             }
@@ -323,15 +339,9 @@
                     });
                     // Hide initials when photo loads
                     grid.querySelectorAll('.av-img').forEach(function(img) {
-                        if (img.complete && img.naturalWidth) {
-                            var init = img.nextElementSibling;
-                            if (init) init.style.display = 'none';
-                        } else {
-                            img.addEventListener('load', function() {
-                                var init = this.nextElementSibling;
-                                if (init) init.style.display = 'none';
-                            });
-                        }
+                        function hideInit() { var sp = img.nextElementSibling; if(sp) sp.style.display='none'; }
+                        if (img.complete && img.naturalWidth > 0) hideInit();
+                        else img.addEventListener('load', hideInit);
                     });
                 }
                 // State change listener
@@ -563,16 +573,49 @@
             try { msg = JSON.parse(event.data); } catch (e) { return; }
 
             const type = msg.type || '';
+            if (type && !type.includes('delta')) console.log('RT event:', type, JSON.stringify(msg).slice(0,100));
 
-            if (type === 'response.audio_transcript.delta' || type === 'response.text.delta') {
-                const itemId = msg.item_id || 'officer-current';
-                const delta = msg.delta || '';
-                if (!transcriptItems[itemId]) {
-                    transcriptItems[itemId] = { role: 'officer', text: '', el: addBubble('officer', '') };
+            // Officer transcript — varios formatos según modelo
+            if (type === 'response.audio_transcript.delta' || type === 'response.text.delta' ||
+                type === 'response.output_item.delta') {
+                const itemId = msg.item_id || msg.output_index || 'officer-current';
+                const delta = msg.delta || (msg.item && msg.item.content && msg.item.content[0] && msg.item.content[0].transcript) || '';
+                if (delta) {
+                    if (!transcriptItems[itemId]) {
+                        transcriptItems[itemId] = { role: 'officer', text: '', el: addBubble('officer', '') };
+                    }
+                    transcriptItems[itemId].text += delta;
+                    transcriptItems[itemId].el.querySelector('.bubble-text').textContent = transcriptItems[itemId].text;
+                    scrollTranscript();
                 }
-                transcriptItems[itemId].text += delta;
-                transcriptItems[itemId].el.querySelector('.bubble-text').textContent = transcriptItems[itemId].text;
-                scrollTranscript();
+            }
+
+            // Transcript completo del oficial (cuando termina)
+            if (type === 'response.audio_transcript.done') {
+                const itemId = msg.item_id || 'officer-current';
+                const fullText = (msg.transcript || (transcriptItems[itemId] && transcriptItems[itemId].text) || '').toLowerCase();
+                if (fullText.includes('write') || fullText.includes('sentence down')) {
+                    document.getElementById('writingRow').classList.add('visible');
+                    document.getElementById('listeningRow').classList.remove('visible');
+                }
+            }
+
+            // Transcript del output item completo
+            if (type === 'response.output_item.done') {
+                var item = msg.item || {};
+                if (item.role === 'assistant') {
+                    var content = item.content || [];
+                    content.forEach(function(c) {
+                        var text = c.transcript || c.text || '';
+                        if (text) {
+                            var itemId = item.id || 'officer-done';
+                            if (!transcriptItems[itemId]) {
+                                transcriptItems[itemId] = { role: 'officer', text: text, el: addBubble('officer', text) };
+                            }
+                            scrollTranscript();
+                        }
+                    });
+                }
             }
 
             if (type === 'response.audio_transcript.done' || type === 'response.text.done') {
