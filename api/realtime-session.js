@@ -86,8 +86,9 @@ module.exports = async function handler(req, res) {
       return res.status(502).json({ error: 'Invalid token response from OpenAI' });
     }
 
-    // GA endpoint returns { client_secret: { value: 'ek_...', expires_at: ... } }
-    const ephemeralKey = tokenData.client_secret && tokenData.client_secret.value;
+    // GA endpoint returns { value: 'ek_...', expires_at: ..., session: {...} } directly
+    const ephemeralKey = tokenData.value
+      || (tokenData.client_secret && tokenData.client_secret.value);
     if (!ephemeralKey) {
       console.error('Unexpected response structure:', Object.keys(tokenData));
       return res.status(502).json({ error: 'No ephemeral key in response' });
