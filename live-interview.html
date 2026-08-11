@@ -333,9 +333,9 @@
                 const offer = await peerConnection.createOffer();
                 await peerConnection.setLocalDescription(offer);
 
-                // 4. Send offer to OpenAI Realtime
+                // 4. Send offer to OpenAI Realtime (GA endpoint)
                 const sdpRes = await fetch(
-                    `https://api.openai.com/v1/realtime?model=gpt-4o-mini-realtime-preview`,
+                    'https://api.openai.com/v1/realtime/calls',
                     {
                         method: 'POST',
                         headers: {
