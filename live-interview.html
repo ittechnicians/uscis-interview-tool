@@ -517,6 +517,7 @@
                     dataChannel.send(JSON.stringify({
                         type: 'session.update',
                         session: {
+                            type: 'realtime',
                             input_audio_transcription: { model: 'whisper-1' }
                         }
                     }));
