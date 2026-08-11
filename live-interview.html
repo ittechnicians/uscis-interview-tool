@@ -467,7 +467,7 @@
 
         // ── End interview ─────────────────────────────────────────────────
         async function endInterview() {
-            if (interviewEnded) return;
+            if (interviewEnded) { window.location.href = 'dashboard.html'; return; }
             interviewEnded = true;
 
             // Close WebRTC
