@@ -186,21 +186,15 @@ module.exports = async function handler(req, res) {
         'OpenAI-Safety-Identifier': Buffer.from(userId).toString('base64').slice(0, 32)
       },
       body: JSON.stringify({
-        session: {
-          type: 'realtime',
-          model: 'gpt-realtime-2.1',
-          audio: {
-            output: { voice: voice }
-          },
-          instructions: instructions,
-          turn_detection: {
-            type: 'server_vad',
-            threshold: 0.5,
-            prefix_padding_ms: 300,
-            silence_duration_ms: 700
-          },
-          temperature: 0.7,
-          max_response_output_tokens: 300
+        model: 'gpt-realtime-2.1',
+        voice: voice,
+        instructions: instructions,
+        modalities: ['audio', 'text'],
+        turn_detection: {
+          type: 'server_vad',
+          threshold: 0.5,
+          prefix_padding_ms: 300,
+          silence_duration_ms: 700
         }
       })
     });
