@@ -3,7 +3,7 @@ const SUPABASE_URL = process.env.SUPABASE_URL || 'https://vugvnqapdxyewxyfaayl.s
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const OPENAI_KEY = process.env.OPENAI_API_KEY;
 
-const VOICES  = { martinez:'coral', johnson:'onyx', chen:'sage', rodriguez:'nova', williams:'echo' };
+const VOICES  = { martinez:'coral', johnson:'ash', chen:'sage', rodriguez:'shimmer', williams:'echo' };
 const NAMES   = { martinez:'Officer M. Martinez', johnson:'Officer R. Johnson', chen:'Officer L. Chen', rodriguez:'Officer C. Rodriguez', williams:'Officer S. Williams' };
 const OFFICES = { martinez:'Miami Field Office', johnson:'Washington DC Office', chen:'San Francisco Office', rodriguez:'Los Angeles Office', williams:'Atlanta Field Office' };
 const TAGS    = { martinez:'Warm & Thorough', johnson:'Strict & Professional', chen:'Modern & Patient', rodriguez:'Bilingual Expert', williams:'Diplomatic' };
