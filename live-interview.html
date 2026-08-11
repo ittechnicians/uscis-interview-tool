@@ -115,6 +115,7 @@
         .officer-pick .av { width: 52px; height: 52px; border-radius: 50%; margin: 0 auto 0.4rem; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 1rem; overflow: hidden; position: relative; }
         .officer-pick .av img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
         .officer-pick .av .av-init { position: relative; z-index: 1; }
+        .officer-pick * { pointer-events: none; }
         .officer-pick .on { font-size: 0.7rem; font-weight: 700; color: #0f172a; line-height: 1.2; }
         .officer-pick .ot { font-size: 0.62rem; color: #64748b; }
         .option-row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
@@ -303,7 +304,7 @@
                         const sel = (officer && officer.id === o.id) ? ' selected' : '';
                         return '<button class="officer-pick' + sel + '" data-oid="'+o.id+'" type="button">'+
                             '<div class="av" style="background:'+o.gradient+'">'+
-                            '<img src="'+o.id+'.png" onload="var s=this.nextElementSibling;if(s)s.style.display=\'none\'" onerror="this.style.display=\'none\'">'+
+                            '<img src="'+o.id+'.png" class="av-img" onerror="this.style.display=\'none\'">'+
                             '<span class="av-init">'+o.initials+'</span></div>'+
                             '<div class="on">'+o.name.replace('Officer ','')+'</div>'+
                             '<div class="ot">'+o.tag+'</div>'+
@@ -311,8 +312,26 @@
                     }).join('');
                     // Event delegation (avoids inline onclick quoting issues)
                     grid.addEventListener('click', function(e) {
-                        var btn = e.target.closest('[data-oid]');
-                        if (btn) pickOfficer(btn.getAttribute('data-oid'));
+                        var btn = e.target;
+                        while (btn && btn !== grid) {
+                            if (btn.getAttribute && btn.getAttribute('data-oid')) {
+                                pickOfficer(btn.getAttribute('data-oid'));
+                                return;
+                            }
+                            btn = btn.parentElement;
+                        }
+                    });
+                    // Hide initials when photo loads
+                    grid.querySelectorAll('.av-img').forEach(function(img) {
+                        if (img.complete && img.naturalWidth) {
+                            var init = img.nextElementSibling;
+                            if (init) init.style.display = 'none';
+                        } else {
+                            img.addEventListener('load', function() {
+                                var init = this.nextElementSibling;
+                                if (init) init.style.display = 'none';
+                            });
+                        }
                     });
                 }
                 // State change listener
