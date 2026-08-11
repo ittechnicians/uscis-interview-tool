@@ -286,28 +286,7 @@
             setStatus('Connecting...', '');
 
             try {
-                // 1. Get ephemeral token from our server (also decrements credits)
-                const tokenRes = await fetch('/api/realtime-session', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: currentUserId, officerId: officer.id || 'martinez' })
-                });
-                const tokenData = await tokenRes.json();
-
-                if (!tokenRes.ok) {
-                    if (tokenData.error === 'no_credits') {
-                        document.getElementById('startRow').style.display = 'none';
-                        document.getElementById('noCreditsRow').style.display = 'block';
-                        return;
-                    }
-                    throw new Error(tokenData.error || 'Could not get session token.');
-                }
-
-                // Update credits display
-                liveCredits = tokenData.remaining_credits;
-                document.getElementById('creditsCount').textContent = liveCredits;
-
-                // 2. Create WebRTC peer connection
+                // 1. Create WebRTC peer connection FIRST
                 peerConnection = new RTCPeerConnection();
 
                 // Play officer audio
@@ -325,35 +304,42 @@
                 // Data channel for events
                 dataChannel = peerConnection.createDataChannel('oai-events');
                 dataChannel.onmessage = handleRealtimeEvent;
-                dataChannel.onopen = function() {
-                    console.log('Data channel open');
-                };
+                dataChannel.onopen = function() { console.log('Data channel open'); };
 
-                // 3. Create SDP offer
+                // 2. Create SDP offer
                 const offer = await peerConnection.createOffer();
                 await peerConnection.setLocalDescription(offer);
 
-                // 4. Send offer to OpenAI Realtime (GA endpoint)
-                const sdpRes = await fetch(
-                    'https://api.openai.com/v1/realtime/calls',
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${tokenData.client_secret}`,
-                            'Content-Type': 'application/sdp'
-                        },
-                        body: offer.sdp
-                    }
-                );
+                // 3. Send SDP to our server — it verifies premium, decrements credits,
+                //    forwards to OpenAI /v1/realtime/calls, and returns the SDP answer
+                const sessionRes = await fetch('/api/realtime-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: currentUserId,
+                        officerId: officer.id || 'martinez',
+                        sdp: offer.sdp
+                    })
+                });
 
-                if (!sdpRes.ok) {
-                    throw new Error('WebRTC connection failed. Please try again.');
+                if (!sessionRes.ok) {
+                    let errData;
+                    try { errData = await sessionRes.json(); } catch(e) { errData = {}; }
+                    if (errData.error === 'no_credits') {
+                        document.getElementById('startRow').style.display = 'none';
+                        document.getElementById('noCreditsRow').style.display = 'block';
+                        return;
+                    }
+                    throw new Error(errData.error || 'Could not connect to live session.');
                 }
 
-                const answerSdp = await sdpRes.text();
+                // 4. Server returns the SDP answer as plain text
+                const answerSdp = await sessionRes.text();
                 await peerConnection.setRemoteDescription({ type: 'answer', sdp: answerSdp });
 
-                // 5. Show live UI
+                // 5. Show live UI — officer will greet automatically
+                liveCredits = Math.max(0, liveCredits - 1);
+                document.getElementById('creditsCount').textContent = liveCredits;
                 document.getElementById('startRow').style.display = 'none';
                 document.getElementById('listeningRow').classList.add('visible');
                 setStatus('Connected — listening', 'live');
