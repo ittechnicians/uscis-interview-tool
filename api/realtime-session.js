@@ -186,15 +186,19 @@ module.exports = async function handler(req, res) {
         'OpenAI-Safety-Identifier': Buffer.from(userId).toString('base64').slice(0, 32)
       },
       body: JSON.stringify({
-        model: 'gpt-realtime-2.1',
-        voice: voice,
-        instructions: instructions,
-        modalities: ['audio', 'text'],
-        turn_detection: {
-          type: 'server_vad',
-          threshold: 0.5,
-          prefix_padding_ms: 300,
-          silence_duration_ms: 700
+        session: {
+          type: 'realtime',
+          model: 'gpt-realtime-2.1',
+          audio: {
+            output: { voice: voice }
+          },
+          instructions: instructions,
+          turn_detection: {
+            type: 'server_vad',
+            threshold: 0.5,
+            prefix_padding_ms: 300,
+            silence_duration_ms: 700
+          }
         }
       })
     });
@@ -219,11 +223,13 @@ module.exports = async function handler(req, res) {
     }
 
     const sessionData = await sessionRes.json();
-    console.log('OpenAI session response keys:', Object.keys(sessionData));
+    console.log('OpenAI session response:', JSON.stringify(sessionData).slice(0, 200));
 
-    // GA endpoint returns { value: 'ek_...', expires_at: ... } directly
-    const clientSecretValue = sessionData.value || (sessionData.client_secret && sessionData.client_secret.value);
-    const expiresAt = sessionData.expires_at || (sessionData.client_secret && sessionData.client_secret.expires_at);
+    // client_secrets returns { value: 'ek_...', expires_at: ... } at the top level
+    const clientSecretValue = sessionData.value
+      || (sessionData.client_secret && sessionData.client_secret.value);
+    const expiresAt = sessionData.expires_at
+      || (sessionData.client_secret && sessionData.client_secret.expires_at);
 
     if (!clientSecretValue) {
       console.error('Unexpected session response:', JSON.stringify(sessionData).slice(0, 300));
