@@ -328,8 +328,8 @@
                 liveCredits = tokenData.remaining_credits;
                 document.getElementById('creditsCount').textContent = liveCredits;
 
-                // 4. Send SDP offer directly to OpenAI with ephemeral key
-                const sdpRes = await fetch('https://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview', {
+                // 4. Send SDP offer to OpenAI /v1/realtime/calls with ephemeral key
+                const sdpRes = await fetch('https://api.openai.com/v1/realtime/calls', {
                     method: 'POST',
                     headers: {
                         'Authorization': 'Bearer ' + tokenData.client_secret,
@@ -344,14 +344,6 @@
                 }
                 const answerSdp = await sdpRes.text();
                 await peerConnection.setRemoteDescription({ type: 'answer', sdp: answerSdp });
-
-                // 5. Update instructions via data channel when open
-                dataChannel.addEventListener('open', function() {
-                    dataChannel.send(JSON.stringify({
-                        type: 'session.update',
-                        session: { instructions: tokenData.instructions }
-                    }));
-                }, { once: true });
 
                 // 6. Show live UI
                 document.getElementById('startRow').style.display = 'none';
