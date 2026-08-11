@@ -12,7 +12,9 @@
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://vugvnqapdxyewxyfaayl.supabase.co';
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const OPENAI_KEY = process.env.OPENAI_API_KEY;
-const REALTIME_MODEL = 'gpt-4o-mini-realtime-preview';
+const REALTIME_MODEL = 'gpt-4o-realtime-preview-2024-12-17'; // fallback
+// Try newer model first
+const REALTIME_MODEL_NEW = 'gpt-realtime-2.1';
 
 // Officer voice mapping for OpenAI Realtime TTS
 // Available voices: alloy, ash, ballad, coral, echo, fable, nova, onyx, sage, shimmer, verse
@@ -175,32 +177,61 @@ module.exports = async function handler(req, res) {
     const voice = OFFICER_VOICES[officerId] || 'coral';
     const instructions = buildRealtimeInstructions(officerId);
 
-    const sessionRes = await fetch('https://api.openai.com/v1/realtime/sessions', {
+    // Try newer unified endpoint first, fall back to legacy
+    let sessionRes = await fetch('https://api.openai.com/v1/realtime/client_secrets', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${OPENAI_KEY}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: REALTIME_MODEL,
-        voice: voice,
-        instructions: instructions,
-        input_audio_format: 'pcm16',
-        output_audio_format: 'pcm16',
-        turn_detection: {
-          type: 'server_vad',
-          threshold: 0.5,
-          prefix_padding_ms: 300,
-          silence_duration_ms: 700
-        },
-        temperature: 0.7,
-        max_response_output_tokens: 300
+        session: {
+          type: 'realtime',
+          model: 'gpt-realtime-2.1',
+          audio: { output: { voice: voice } },
+          instructions: instructions,
+          turn_detection: {
+            type: 'server_vad',
+            threshold: 0.5,
+            prefix_padding_ms: 300,
+            silence_duration_ms: 700
+          },
+          temperature: 0.7,
+          max_response_output_tokens: 300
+        }
       })
     });
 
+    // If new endpoint fails, try legacy endpoint
+    if (!sessionRes.ok) {
+      console.log('New endpoint failed with', sessionRes.status, '— trying legacy endpoint');
+      sessionRes = await fetch('https://api.openai.com/v1/realtime/sessions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${OPENAI_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: REALTIME_MODEL,
+          voice: voice,
+          instructions: instructions,
+          input_audio_format: 'pcm16',
+          output_audio_format: 'pcm16',
+          turn_detection: {
+            type: 'server_vad',
+            threshold: 0.5,
+            prefix_padding_ms: 300,
+            silence_duration_ms: 700
+          },
+          temperature: 0.7,
+          max_response_output_tokens: 300
+        })
+      });
+    }
+
     if (!sessionRes.ok) {
       const errText = await sessionRes.text();
-      console.error('OpenAI Realtime session error:', errText);
+      console.error('OpenAI Realtime session error status:', sessionRes.status, 'body:', errText);
       // Refund the credit if OpenAI call failed
       await fetch(
         `${SUPABASE_URL}/rest/v1/profiles?id=eq.${encodeURIComponent(userId)}`,
