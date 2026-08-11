@@ -177,18 +177,21 @@ module.exports = async function handler(req, res) {
     const voice = OFFICER_VOICES[officerId] || 'coral';
     const instructions = buildRealtimeInstructions(officerId);
 
-    // Try newer unified endpoint first, fall back to legacy
-    let sessionRes = await fetch('https://api.openai.com/v1/realtime/client_secrets', {
+    // GA endpoint — per OpenAI docs (June 2026)
+    const sessionRes = await fetch('https://api.openai.com/v1/realtime/client_secrets', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${OPENAI_KEY}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'OpenAI-Safety-Identifier': Buffer.from(userId).toString('base64').slice(0, 32)
       },
       body: JSON.stringify({
         session: {
           type: 'realtime',
           model: 'gpt-realtime-2.1',
-          audio: { output: { voice: voice } },
+          audio: {
+            output: { voice: voice }
+          },
           instructions: instructions,
           turn_detection: {
             type: 'server_vad',
@@ -201,33 +204,6 @@ module.exports = async function handler(req, res) {
         }
       })
     });
-
-    // If new endpoint fails, try legacy endpoint
-    if (!sessionRes.ok) {
-      console.log('New endpoint failed with', sessionRes.status, '— trying legacy endpoint');
-      sessionRes = await fetch('https://api.openai.com/v1/realtime/sessions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${OPENAI_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: REALTIME_MODEL,
-          voice: voice,
-          instructions: instructions,
-          input_audio_format: 'pcm16',
-          output_audio_format: 'pcm16',
-          turn_detection: {
-            type: 'server_vad',
-            threshold: 0.5,
-            prefix_padding_ms: 300,
-            silence_duration_ms: 700
-          },
-          temperature: 0.7,
-          max_response_output_tokens: 300
-        })
-      });
-    }
 
     if (!sessionRes.ok) {
       const errText = await sessionRes.text();
@@ -249,15 +225,20 @@ module.exports = async function handler(req, res) {
     }
 
     const sessionData = await sessionRes.json();
-    const clientSecret = sessionData.client_secret;
+    console.log('OpenAI session response keys:', Object.keys(sessionData));
 
-    if (!clientSecret || !clientSecret.value) {
+    // GA endpoint returns { value: 'ek_...', expires_at: ... } directly
+    const clientSecretValue = sessionData.value || (sessionData.client_secret && sessionData.client_secret.value);
+    const expiresAt = sessionData.expires_at || (sessionData.client_secret && sessionData.client_secret.expires_at);
+
+    if (!clientSecretValue) {
+      console.error('Unexpected session response:', JSON.stringify(sessionData).slice(0, 300));
       return res.status(502).json({ error: 'Invalid session response from OpenAI.' });
     }
 
     return res.status(200).json({
-      client_secret: clientSecret.value,
-      expires_at: clientSecret.expires_at,
+      client_secret: clientSecretValue,
+      expires_at: expiresAt,
       remaining_credits: remainingCredits,
       officer: {
         id: officerId,
