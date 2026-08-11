@@ -114,6 +114,7 @@
         .officer-pick.selected { border-color: #1e40af; background: #eff6ff; }
         .officer-pick .av { width: 52px; height: 52px; border-radius: 50%; margin: 0 auto 0.4rem; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 1rem; overflow: hidden; position: relative; }
         .officer-pick .av img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .officer-pick .av .av-init { position: relative; z-index: 1; }
         .officer-pick .on { font-size: 0.7rem; font-weight: 700; color: #0f172a; line-height: 1.2; }
         .officer-pick .ot { font-size: 0.62rem; color: #64748b; }
         .option-row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
@@ -300,12 +301,19 @@
                 if (grid) {
                     grid.innerHTML = OFFICERS.map(function(o) {
                         const sel = (officer && officer.id === o.id) ? ' selected' : '';
-                        return '<button class="officer-pick' + sel + '" onclick="pickOfficer(\''+o.id+'\')">'+
-                            '<div class="av" style="background:'+o.gradient+'"><img src="'+o.id+'.png" onerror="this.style.display=\'none\'"><span style="position:relative;z-index:1;">'+o.initials+'</span></div>'+
+                        return '<button class="officer-pick' + sel + '" data-oid="'+o.id+'" type="button">'+
+                            '<div class="av" style="background:'+o.gradient+'">'+
+                            '<img src="'+o.id+'.png" onload="var s=this.nextElementSibling;if(s)s.style.display=\'none\'" onerror="this.style.display=\'none\'">'+
+                            '<span class="av-init">'+o.initials+'</span></div>'+
                             '<div class="on">'+o.name.replace('Officer ','')+'</div>'+
                             '<div class="ot">'+o.tag+'</div>'+
                         '</button>';
                     }).join('');
+                    // Event delegation (avoids inline onclick quoting issues)
+                    grid.addEventListener('click', function(e) {
+                        var btn = e.target.closest('[data-oid]');
+                        if (btn) pickOfficer(btn.getAttribute('data-oid'));
+                    });
                 }
                 // State change listener
                 const stSel = document.getElementById('stateSelect');
@@ -370,9 +378,9 @@
         function pickOfficer(id) {
             officer = OFFICERS.find(function(o) { return o.id === id; }) || OFFICERS[0];
             localStorage.setItem('selectedOfficer', JSON.stringify(officer));
-            document.querySelectorAll('.officer-pick').forEach(function(el) { el.classList.remove('selected'); });
-            const picks = document.querySelectorAll('.officer-pick');
-            OFFICERS.forEach(function(o, i) { if (o.id === id) picks[i].classList.add('selected'); });
+            document.querySelectorAll('.officer-pick').forEach(function(el) {
+                el.classList.toggle('selected', el.getAttribute('data-oid') === id);
+            });
             // Update avatar
             document.getElementById('officerName').textContent = officer.name;
             document.getElementById('officerOffice').textContent = officer.office;
@@ -421,12 +429,50 @@
                 // 1. Create WebRTC peer connection FIRST
                 peerConnection = new RTCPeerConnection();
 
-                // Play officer audio
+                // Play officer audio + real audio visualization
                 audioElement = document.createElement('audio');
                 audioElement.autoplay = true;
                 document.body.appendChild(audioElement);
                 peerConnection.ontrack = function(e) {
                     audioElement.srcObject = e.streams[0];
+                    try {
+                        var actx = new (window.AudioContext || window.webkitAudioContext)();
+                        var src = actx.createMediaStreamSource(e.streams[0]);
+                        var analyser = actx.createAnalyser();
+                        analyser.fftSize = 256;
+                        src.connect(analyser);
+                        var data = new Uint8Array(analyser.frequencyBinCount);
+                        var bars = document.querySelectorAll('.wave-bar');
+                        function animateWave() {
+                            analyser.getByteFrequencyData(data);
+                            var avg = 0;
+                            for(var i=0;i<10;i++) avg += data[i];
+                            avg = avg/10;
+                            var officerTalking = avg > 8;
+                            if (officerTalking !== window._officerSpeakingNow) {
+                                window._officerSpeakingNow = officerTalking;
+                                document.getElementById('officerAvatar').classList.toggle('speaking', officerTalking);
+                                document.getElementById('speakingRow').classList.toggle('visible', officerTalking);
+                                if (!officerTalking && !interviewEnded) {
+                                    document.getElementById('listeningRow').classList.add('visible');
+                                    setStatus('Your turn — speak now', 'listening');
+                                } else if (officerTalking) {
+                                    document.getElementById('listeningRow').classList.remove('visible');
+                                    setStatus('Officer speaking', 'speaking');
+                                }
+                            }
+                            if (bars.length && officerTalking) {
+                                bars.forEach(function(b,i) {
+                                    var v = data[Math.floor(i * data.length / bars.length)] || 0;
+                                    b.style.height = Math.max(6, Math.min(34, v/4)) + 'px';
+                                });
+                            } else if (bars.length && !officerTalking) {
+                                bars.forEach(function(b,i){b.style.height=['14px','22px','32px','20px','12px'][i]||'14px';});
+                            }
+                            requestAnimationFrame(animateWave);
+                        }
+                        animateWave();
+                    } catch(err) { console.log('AudioContext error:', err); }
                 };
 
                 // Add user microphone
