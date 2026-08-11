@@ -213,8 +213,8 @@
         // ---------- Practice modes ----------
         // To activate a mode later: set active:true and give it an href (or a custom action).
         const MODES = [
-            { id:'live', icon:'⚡', bg:'#fef3c7', title:'Live Interview', desc:'Real-time voice — instant officer responses. Premium only.', active:true, href:'live-interview.html', premium:true },
-            { id:'full',       icon:'🎙️', bg:'#dbeafe', title:'Full Mock Interview', desc:'A complete interview with an AI officer: oath, your application, civics, and the English test. The real thing.', active:true, real:true },
+            { id:'live', icon:'⚡', bg:'#fef3c7', title:'Live Interview', desc:'Real-time voice — instant officer responses. Premium only.', active:true, href:'live-interview.html', premium:true, real:true },
+            { id:'full',       icon:'🎙️', bg:'#dbeafe', title:'Full Mock Interview', desc:'A complete interview with an AI officer: oath, your application, civics, and the English test. The real thing.', active:true },
             { id:'civics',     icon:'📚', bg:'#ede9fe', title:'Civics Practice',     desc:'Quiz yourself on the official civics questions (100 or 128). Choose which ones to study.', active:true, href:'civics.html' },
             { id:'n400',       icon:'📋', bg:'#dcfce7', title:'N-400 Questions',      desc:'Practice the standard application questions an officer asks during the interview.', active:true, href:'n400.html' },
             { id:'n400upload', icon:'🔐', bg:'#cffafe', title:'Personalized N-400',    desc:'A personalized interview based on your own application. Private, and deleted when you finish.', active:true, href:'n400-personal.html', pro:true },
@@ -226,7 +226,7 @@
         let freeInterviewUsed = false;
 
         function renderModes() {
-            const isFree = userPlan !== 'professional';
+            const isFree = userPlan === 'free';
             const T = window._dashT || DASH_LANG[dashLang];
             const realTag = T ? T.realTag : 'THE REAL ONE';
             const proTag = T ? T.proTag : 'PRO';
@@ -247,7 +247,7 @@
 
         function onMode(id) {
             const mode = MODES.find(m => m.id === id);
-            const isFree = userPlan !== 'professional';
+            const isFree = userPlan === 'free';
             if (mode && mode.premium && userPlan !== 'premium') { showPremiumUpgradeModal(); return; }
             if (mode && mode.pro && isFree) {
                 showUpgrade('This personalized interview is a Professional feature. Upgrade to unlock it — founding-member price: $19 — 30 days of access, no subscription.');
