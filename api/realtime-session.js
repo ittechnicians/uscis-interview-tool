@@ -66,17 +66,9 @@ module.exports = async function handler(req, res) {
           type: 'realtime',
           model: 'gpt-realtime-2.1',
           audio: {
-            output: { voice: voice },
-            input: { format: 'pcm16' }
+            output: { voice: voice }
           },
-          instructions: instructions,
-          turn_detection: {
-            type: 'server_vad',
-            threshold: 0.4,
-            prefix_padding_ms: 500,
-            silence_duration_ms: 1200,
-            create_response: true
-          }
+          instructions: instructions
         }
       })
     });
