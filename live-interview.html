@@ -517,13 +517,7 @@
                     // After that, VAD with create_response:true handles turn-taking automatically
                     setTimeout(function() {
                         if (dataChannel.readyState === 'open') {
-                            dataChannel.send(JSON.stringify({
-                                type: 'response.create',
-                                response: {
-                                    modalities: ['audio', 'text'],
-                                    instructions: 'Start the interview. Greet the applicant warmly and begin with the oath.'
-                                }
-                            }));
+                            dataChannel.send(JSON.stringify({ type: 'response.create' }));
                         }
                     }, 500);
                 };
