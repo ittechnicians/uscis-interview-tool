@@ -303,7 +303,7 @@ ${buildProfileBlock(profile)}
   // In random (non-personalized) mode, add a short "explain this word" check.
   let defsBlock = '';
   if (!isFull) {
-    const defs = selectDefinitions(n400Seed, 2);
+    const defs = selectDefinitions(n400Seed, 3);
     const defsList = defs.map(function (d) {
       return `   - Ask the applicant to explain, in their own words, what "${d.term}" means. (Reference for you: ${d.ref}.) Accept any reasonable explanation that shows basic understanding; gently correct if they are far off.`;
     }).join('\n');
