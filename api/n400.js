@@ -181,14 +181,31 @@ function selectN400Random(seed, total) {
 // Key N-400 words an officer may ask the applicant to EXPLAIN (used in random mode).
 // The "ref" is a short reference so the officer can judge a reasonable explanation.
 const N400_DEFINITIONS = [
-  { term: 'totalitarian', ref: 'a government or party with total control that allows no other parties or freedoms' },
-  { term: 'persecution', ref: 'being harmed or treated very badly because of race, religion, nationality, political opinion, or group' },
-  { term: 'genocide', ref: 'the deliberate killing of a large group of people because of their race, religion, or nationality' },
-  { term: 'allegiance', ref: 'loyalty and support given to a country' },
-  { term: 'naturalization', ref: 'the process of becoming a U.S. citizen' },
-  { term: 'good moral character', ref: 'behaving honestly and obeying the law' },
+  // Core N-400 vocabulary — asked most frequently in real interviews
+  { term: 'naturalization', ref: 'the process of becoming a U.S. citizen if you were not born in the United States' },
+  { term: 'permanent resident', ref: 'a person who has permission to live and work in the U.S. permanently; a green card holder' },
+  { term: 'allegiance', ref: 'loyalty and support given to a country or its government' },
   { term: 'Oath of Allegiance', ref: 'the promise of loyalty you make to the United States to become a citizen' },
-  { term: 'permanent resident', ref: 'a person allowed to live and work permanently in the U.S.; a green card holder' }
+  { term: 'good moral character', ref: 'behaving honestly, obeying the law, and being responsible' },
+  { term: 'continuous residence', ref: 'living in the United States without long trips outside the country during the required period' },
+  { term: 'physical presence', ref: 'the total time you were physically inside the United States' },
+  { term: 'the Constitution', ref: 'the supreme law of the United States' },
+  { term: 'an amendment', ref: 'a change or addition to the Constitution' },
+  { term: 'the Bill of Rights', ref: 'the first 10 amendments to the Constitution, which protect the rights of citizens' },
+  { term: 'a dependent', ref: 'a person, usually a child, who relies on you financially for food, clothing, and shelter' },
+  { term: 'a citation', ref: 'an official written notice from law enforcement, such as a ticket for a traffic violation' },
+  { term: 'probation', ref: 'a period of supervision ordered by a court instead of serving time in jail' },
+  { term: 'a felony', ref: 'a serious crime, more serious than a misdemeanor, such as robbery or assault' },
+  { term: 'a misdemeanor', ref: 'a less serious crime, such as a minor traffic violation or disorderly conduct' },
+  { term: 'deported', ref: 'officially removed from the country by the government and sent back to your country of origin' },
+  { term: 'Selective Service', ref: 'the U.S. system that registers men aged 18-25 in case they are needed for military service' },
+  { term: 'persecution', ref: 'being harmed or treated very badly because of race, religion, nationality, or political opinion' },
+  { term: 'genocide', ref: 'the deliberate killing of a large group of people because of their race, religion, or nationality' },
+  { term: 'totalitarian', ref: 'describing a government with total control that allows no other parties or individual freedoms' },
+  { term: 'affiliation', ref: 'a formal connection or membership with a group or organization' },
+  { term: 'habitual drunkard', ref: 'a person who regularly drinks too much alcohol as a habit' },
+  { term: 'claimed to be a U.S. citizen', ref: 'told someone you were a U.S. citizen when you were not' },
+  { term: 'child support', ref: 'money a parent is ordered by a court to pay for the care of their child' }
 ];
 
 function selectDefinitions(seed, count) {
