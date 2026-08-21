@@ -346,10 +346,19 @@
                 }
                 // State change listener
                 const stSel = document.getElementById('stateSelect');
-                if (stSel) stSel.addEventListener('change', function() {
-                    selectedState = this.value;
-                    checkSetupReady();
-                });
+                if (stSel) {
+                    // Pre-select only if user has chosen before
+                    const savedState = localStorage.getItem('userState');
+                    if (savedState) {
+                        stSel.value = savedState;
+                        selectedState = savedState;
+                    }
+                    stSel.addEventListener('change', function() {
+                        selectedState = this.value;
+                        if (selectedState) localStorage.setItem('userState', selectedState);
+                        checkSetupReady();
+                    });
+                }
                 checkSetupReady();
 
                 // Update officer UI
@@ -465,7 +474,10 @@
                 peerConnection.ontrack = function(e) {
                     audioElement.srcObject = e.streams[0];
                     try {
-                        var actx = new (window.AudioContext || window.webkitAudioContext)();
+                        // Resume/create AudioContext (Safari requires user gesture — we're inside one here)
+                        var actx = window._sharedAudioContext || new (window.AudioContext || window.webkitAudioContext)();
+                        window._sharedAudioContext = actx;
+                        if (actx.state === 'suspended') actx.resume();
                         var src = actx.createMediaStreamSource(e.streams[0]);
                         var analyser = actx.createAnalyser();
                         analyser.fftSize = 256;
