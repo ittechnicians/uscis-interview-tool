@@ -9,12 +9,74 @@ const OFFICES = { martinez:'Miami Field Office', johnson:'Washington DC Office',
 const TAGS    = { martinez:'Warm & Thorough', johnson:'Strict & Professional', chen:'Modern & Patient', rodriguez:'Empathetic & Bilingual', williams:'Diplomatic' };
 
 function buildInstructions(id, civicsVer, userState) {
-  const civicsNote = civicsVer === '128'
-    ? 'Use the 128-question (2020 updated) civics test. Vary which questions you ask each session — use question numbers ' + (seed%20+1) + ' through ' + (seed%20+11) + ' as a starting guide but feel free to pick different ones.'
-    : 'Use the 100-question (2008 standard) civics test. Vary which questions you ask each session — do not always start with the same questions. This session start around question #' + (seed%20+1) + '.';
   const state = userState || 'Texas';
   const pronoun = (id === 'rodriguez' || id === 'martinez' || id === 'chen') ? 'She is' : 'He is';
   const gender = (id === 'rodriguez' || id === 'martinez' || id === 'chen') ? 'female' : 'male';
+
+  // Randomization seed — different each call
+  const seed = Date.now() % 9973;
+
+  const readingSentences = [
+    'The White House is in Washington, D.C.',
+    'Congress meets in Washington, D.C.',
+    'The President lives in the White House.',
+    'Citizens have the right to vote.',
+    'The flag has fifty stars.',
+    'The United States is a free country.',
+    'George Washington was the first President.',
+    'Abraham Lincoln was the President during the Civil War.',
+    'The American flag is red, white, and blue.',
+    'We have freedom of speech in the United States.'
+  ];
+
+  const writingSentences = [
+    'Citizens can vote.',
+    'Thanksgiving is in November.',
+    'California has the most people.',
+    'The White House is in Washington, D.C.',
+    'Congress has 100 Senators.',
+    'Adams was the second President.',
+    'Labor Day is in September.',
+    'New York City was the first capital.',
+    'Lincoln was the President during the Civil War.',
+    'The American flag is red, white, and blue.',
+    'We have 100 Senators.',
+    'The capital of the United States is Washington, D.C.',
+    'The people vote for the President.',
+    'Congress meets in Washington, D.C.',
+    'Freedom of speech is a right of all citizens.'
+  ];
+
+  const vocabDefs = [
+    { term: 'naturalization', def: 'the process of becoming a U.S. citizen if you were not born in the United States' },
+    { term: 'permanent resident', def: 'a person who has permission to live and work in the U.S. permanently; a green card holder' },
+    { term: 'allegiance', def: 'loyalty and support given to a country or its government' },
+    { term: 'the Oath of Allegiance', def: 'the promise of loyalty you make to the United States to become a citizen' },
+    { term: 'good moral character', def: 'behaving honestly, obeying the law, and being responsible' },
+    { term: 'continuous residence', def: 'living in the United States without long trips outside the country during the required period' },
+    { term: 'physical presence', def: 'the total time you were physically inside the United States' },
+    { term: 'the Constitution', def: 'the supreme law of the United States' },
+    { term: 'an amendment', def: 'a change or addition to the Constitution' },
+    { term: 'the Bill of Rights', def: 'the first 10 amendments to the Constitution' },
+    { term: 'a dependent', def: 'a person, usually a child, who relies on you financially' },
+    { term: 'a citation', def: 'an official written notice from law enforcement, such as a ticket' },
+    { term: 'probation', def: 'a period of supervision ordered by a court instead of jail' },
+    { term: 'a felony', def: 'a serious crime, more serious than a misdemeanor' },
+    { term: 'deported', def: 'officially removed from the country by the government' },
+    { term: 'Selective Service', def: 'the U.S. system that registers men in case they are needed for military service' },
+    { term: 'a misdemeanor', def: 'a less serious crime, such as a minor traffic violation' },
+    { term: 'affiliation', def: 'a formal connection or membership with a group or organization' }
+  ];
+
+  const readingSentence = readingSentences[seed % readingSentences.length];
+  const writingSentence = writingSentences[(seed + 7) % writingSentences.length];
+  const def1 = vocabDefs[seed % vocabDefs.length];
+  const def2 = vocabDefs[(seed + 5) % vocabDefs.length];
+  const def3 = vocabDefs[(seed + 11) % vocabDefs.length];
+
+  const civicsNote = civicsVer === '128'
+    ? 'Use the 128-question (2020 updated) civics test. Vary which questions you ask — start around question #' + (seed%20+1) + '.'
+    : 'Use the 100-question (2008 standard) civics test. Do not always start with the same questions. This session start around question #' + (seed%20+1) + '.';
   return 'You are ' + (NAMES[id]||'Officer Martinez') + ', a ' + gender + ' USCIS officer at the ' + (OFFICES[id]||'Field Office') + '. Style: ' + (TAGS[id]||'Professional') + '. Conduct a realistic mock U.S. naturalization interview in this EXACT order — never skip or reorder: 1) GREETING AND OATH: greet, oath, ask full legal name. 2) N-400 REVIEW in order: a)personal info(name,DOB,address,other names) b)residence c)travel outside US d)marital & children e)employment f)taxes & Selective Service g)good moral character — ask IN THIS ORDER: arrested/detained? claimed US citizen? failed child support? then 2-3 others h)attachment to Constitution(bear arms, support Constitution, oath) — ask ALL of these BEFORE civics. VOCABULARY CHECK: Naturally weave 2-3 vocabulary definitions into the N-400 review. Ask what terms mean and correct if wrong. Use these 3 for this session: (1) ' + def1.term + ': ' + def1.def + ' (2) ' + def2.term + ': ' + def2.def + ' (3) ' + def3.term + ': ' + def3.def + '. 3) CIVICS TEST: ' + civicsNote + ' Ask up to 10 questions one at a time, applicant needs 6 correct to pass, stop when 6 correct. For state questions use: ' + state + '. 4) ENGLISH TEST: a)READING — Read this exact sentence aloud: ' + readingSentence + '. Ask the applicant to repeat it. Minor pronunciation errors are acceptable. b)WRITING — Tell the applicant: For the writing test I will say a sentence, please listen and then say it back word by word exactly as you would write it. Then say: ' + writingSentence + '. Wait for them to repeat it back. Evaluate (minor errors acceptable). Do NOT ask them to write on paper. 5) CLOSING: brief feedback, one strength, one improvement. CURRENT FACTS: President=Donald Trump Party=Republican VP=JD Vance Speaker=Mike Johnson Chief Justice=John Roberts. RULES: SHORT responses(1-3 sentences). ONE question per turn. Never break character. Never say you are AI. Attachment to Constitution MUST come before civics.';
 }
 module.exports = async function handler(req, res) {
