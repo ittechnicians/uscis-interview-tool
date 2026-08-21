@@ -516,22 +516,38 @@
                     } catch(err) { console.log('AudioContext error:', err); }
                 };
 
-                // Add user microphone
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                stream.getAudioTracks().forEach(track => peerConnection.addTrack(track, stream));
+                // Add user microphone — Safari/iOS needs specific constraints
+                const audioConstraints = {
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        sampleRate: 24000,
+                        channelCount: 1
+                    }
+                };
+                let stream;
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia(audioConstraints);
+                } catch(e) {
+                    // Fallback to basic constraints if specific ones fail
+                    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                }
+                stream.getAudioTracks().forEach(function(track) {
+                    console.log('Adding audio track:', track.label, 'enabled:', track.enabled, 'readyState:', track.readyState);
+                    peerConnection.addTrack(track, stream);
+                });
 
                 // Data channel for events
                 dataChannel = peerConnection.createDataChannel('oai-events');
                 dataChannel.onmessage = handleRealtimeEvent;
                 dataChannel.onopen = function() {
-                    console.log('Data channel open');
-                    // Trigger initial officer greeting only once
-                    // After that, VAD with create_response:true handles turn-taking automatically
+                    console.log('Data channel open — tracks:', peerConnection.getSenders().length);
+                    // Trigger initial officer greeting
                     setTimeout(function() {
                         if (dataChannel.readyState === 'open') {
                             dataChannel.send(JSON.stringify({ type: 'response.create' }));
                         }
-                    }, 500);
+                    }, 600);
                 };
 
                 // 2. Create SDP offer
