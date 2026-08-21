@@ -61,7 +61,7 @@ module.exports = async function handler(req, res) {
     });
 
     const messages = [
-      { role: 'system', content: buildSystemPrompt(officer, testVersion, n400Seed, mode, n400Mode, profile) },
+      { role: 'system', content: buildSystemPrompt(officer, testVersion, n400Seed, mode, n400Mode, profile, userState) },
       ...conversation
     ];
 
@@ -144,7 +144,8 @@ module.exports = async function handler(req, res) {
   }
 };
 
-function buildSystemPrompt(officer, testVersion, n400Seed, mode, n400Mode, profile) {
+function buildSystemPrompt(officer, testVersion, n400Seed, mode, n400Mode, profile, userState) {
+  userState = userState || '';
   if (mode === 'n400') {
     return buildN400OnlyPrompt(officer, n400Seed, n400Mode, profile);
   }
@@ -155,7 +156,7 @@ function buildSystemPrompt(officer, testVersion, n400Seed, mode, n400Mode, profi
   const versionName = is128 ? 'official USCIS 2020 civics test (the 128-question version)'
                             : 'official USCIS 2008 civics test (the 100-question version)';
 
-  const civics = buildCivicsBlock(bank, n400Seed, askCount, passCount, versionName);
+  const civics = buildCivicsBlock(bank, n400Seed, askCount, passCount, versionName, userState);
 
   // Build a varied-but-structured set of N-400 questions for this interview.
   const n400Plan = selectN400(n400Seed);
@@ -355,7 +356,8 @@ function seededShuffle(arr, seed) {
   return a;
 }
 
-function buildCivicsBlock(bank, seed, askCount, passCount, versionName) {
+function buildCivicsBlock(bank, seed, askCount, passCount, versionName, userState) {
+  userState = userState || '';
   if (!bank || !bank.length) {
     return `3. CIVICS TEST: Ask up to ${askCount} official civics questions from the ${versionName}, ONE at a time. The applicant needs ${passCount} correct to pass; stop as soon as they reach ${passCount} correct.`;
   }
