@@ -34,6 +34,7 @@ module.exports = async function handler(req, res) {
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
     const officer = body.officer || { name: 'Officer Martinez', office: 'USCIS Field Office', tag: 'Professional' };
+    const userState = (body.userState || '').toString().trim();
     const history = Array.isArray(body.history) ? body.history : [];
     const testVersion = (body.testVersion === '128') ? '128' : '100';
     const n400Seed = Number(body.n400Seed) || 1;
@@ -375,7 +376,7 @@ function buildCivicsBlock(bank, seed, askCount, passCount, versionName) {
 - STOPPING RULE (important): The applicant needs ${passCount} correct out of up to ${askCount}. As SOON as the applicant has answered ${passCount} correctly, STOP the civics questions and tell them they passed the civics portion. Never ask more than the ${askCount} questions listed below, and keep an accurate count of how many you have asked and how many are correct.
 - For any STATE-SPECIFIC question, FIRST ask which U.S. state the applicant lives in, then grade using the State Reference below. For "Name your U.S. Representative," the answer depends on the applicant's specific district — accept the name they give and remind them to verify their own representative. If their state is not listed, accept a reasonable answer and tell them to verify it.
 
-=== STATE REFERENCE (for state-specific questions) ===
+${userState ? "=== APPLICANT STATE: " + userState + " ===\n" : ""}=== STATE REFERENCE (for state-specific questions) ===
 ${stateRef}
 (Washington, D.C. is not a state — D.C. residents have no U.S. Senators, no voting Representative, and no Governor.)
 === END STATE REFERENCE ===
