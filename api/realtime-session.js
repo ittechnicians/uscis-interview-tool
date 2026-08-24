@@ -127,10 +127,23 @@ module.exports = async function handler(req, res) {
         session: {
           type: 'realtime',
           model: 'gpt-realtime-2.1',
+          instructions: instructions,
           audio: {
+            input: {
+              noise_reduction: { type: 'far_field' },
+              transcription: {
+                language: 'en',
+                model: 'gpt-realtime-whisper'
+              },
+              turn_detection: {
+                type: 'semantic_vad',
+                eagerness: 'low',
+                create_response: true,
+                interrupt_response: false
+              }
+            },
             output: { voice: voice }
-          },
-          instructions: instructions
+          }
         }
       })
     });
