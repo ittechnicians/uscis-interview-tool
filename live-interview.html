@@ -679,25 +679,15 @@
             }
 
             if (type === 'conversation.item.input_audio_transcription.completed') {
-                const text = msg.transcript || '';
-                if (text.trim()) {
-                    addBubble('user', text);
-                    conversationHistory.push({ role: 'user', content: text });
-                    scrollTranscript();
-                }
-            }
-
-            // Alternativo: input_audio_transcription.delta (algunos modelos)
-            if (type === 'conversation.item.input_audio_transcription.delta') {
-                const itemId = 'user-' + (msg.item_id || 'current');
-                const delta = msg.delta || '';
-                if (delta) {
+                const text = (msg.transcript || '').trim();
+                if (text) {
+                    // Avoid duplicates — only add if not already shown
+                    const itemId = 'user-' + (msg.item_id || 'done');
                     if (!transcriptItems[itemId]) {
-                        transcriptItems[itemId] = { role: 'user', text: '', el: addBubble('user', '') };
+                        transcriptItems[itemId] = { role: 'user', text: text, el: addBubble('user', text) };
+                        conversationHistory.push({ role: 'user', content: text });
+                        scrollTranscript();
                     }
-                    transcriptItems[itemId].text += delta;
-                    transcriptItems[itemId].el.querySelector('.bubble-text').textContent = transcriptItems[itemId].text;
-                    scrollTranscript();
                 }
             }
 
