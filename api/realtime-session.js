@@ -139,7 +139,7 @@ module.exports = async function handler(req, res) {
                 type: 'semantic_vad',
                 eagerness: 'low',
                 create_response: true,
-                interrupt_response: false
+                interrupt_response: true
               }
             },
             output: { voice: voice }
