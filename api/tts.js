@@ -13,11 +13,11 @@ const TTS_MODEL = 'tts-1';
 // Each officer gets a distinct OpenAI voice (all supported by tts-1).
 // Voices available: alloy, ash, coral, echo, fable, nova, onyx, sage, shimmer.
 const OFFICER_VOICES = {
-  martinez:  'coral',   // Warm & thorough  (Miami)
-  johnson:   'onyx',    // Strict & deep    (Washington DC)
-  chen:      'nova',    // Modern & patient (San Francisco) — female voice to match portrait
-  rodriguez: 'echo',    // Bilingual expert (Los Angeles)
-  williams:  'fable'    // Diplomatic       (Atlanta)
+  martinez:  'coral',   // Warm & thorough  (Miami) — female
+  johnson:   'onyx',    // Strict & deep    (Washington DC) — male
+  chen:      'nova',    // Modern & patient (San Francisco) — female
+  rodriguez: 'shimmer', // Empathetic & Bilingual (Los Angeles) — female
+  williams:  'echo'     // Diplomatic       (Atlanta) — male
 };
 const DEFAULT_VOICE = 'alloy';
 
