@@ -303,6 +303,12 @@
         let transcriptItems = {}; // itemId -> {role, text, el}
         let conversationHistory = []; // for report generation
 
+        // Auto-end safety net — the officer calls the end_interview tool when the
+        // interview naturally concludes; this flag/cap catch the rest.
+        let officerRequestedEnd = false;
+        let wrapUpRequested = false;
+        const MAX_LIVE_USER_TURNS = 45;
+
         const OFFICERS = [
             { id:'martinez', initials:'MM', name:'Officer M. Martinez', office:'Miami Field Office',   tag:'Warm & Thorough',      gradient:'linear-gradient(135deg,#ec4899,#be185d)' },
             { id:'johnson',  initials:'RJ', name:'Officer R. Johnson',  office:'Washington DC Office', tag:'Strict & Professional', gradient:'linear-gradient(135deg,#1e40af,#1e3a8a)' },
@@ -653,6 +659,10 @@
                         }
                     });
                 }
+                // The officer decided the interview is over — it called our end_interview tool.
+                if (item.type === 'function_call' && item.name === 'end_interview') {
+                    officerRequestedEnd = true;
+                }
             }
 
             if (type === 'response.audio_transcript.done' || type === 'response.text.done') {
@@ -676,6 +686,11 @@
                 if (lastItem && lastItem.text) {
                     conversationHistory.push({ role: 'assistant', content: lastItem.text });
                 }
+                // The officer's closing line just finished playing and it called
+                // end_interview during this response — wrap up automatically now.
+                if (type === 'response.done' && officerRequestedEnd && !interviewEnded) {
+                    setTimeout(function () { endInterview(); }, 500);
+                }
             }
 
             if (type === 'conversation.item.input_audio_transcription.completed') {
@@ -687,6 +702,25 @@
                         transcriptItems[itemId] = { role: 'user', text: text, el: addBubble('user', text) };
                         conversationHistory.push({ role: 'user', content: text });
                         scrollTranscript();
+                    }
+                }
+                // Safety net: if the interview has run unusually long and the officer
+                // hasn't naturally wrapped up yet, nudge it to close now.
+                const userTurns = conversationHistory.filter(m => m.role === 'user').length;
+                if (userTurns >= MAX_LIVE_USER_TURNS && !wrapUpRequested && !interviewEnded) {
+                    wrapUpRequested = true;
+                    if (dataChannel && dataChannel.readyState === 'open') {
+                        dataChannel.send(JSON.stringify({
+                            type: 'conversation.item.create',
+                            item: {
+                                type: 'message',
+                                role: 'system',
+                                content: [{
+                                    type: 'input_text',
+                                    text: 'SAFETY LIMIT REACHED: This interview has run long. Skip ahead to your closing now — give brief feedback (one strength, one improvement), ask if the applicant has one final question, address it briefly, say a short goodbye, then call the end_interview tool right after. Do not ask any more interview questions.'
+                                }]
+                            }
+                        }));
                     }
                 }
             }
