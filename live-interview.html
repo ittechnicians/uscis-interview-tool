@@ -307,7 +307,13 @@
         // interview naturally concludes; this flag/cap catch the rest.
         let officerRequestedEnd = false;
         let wrapUpRequested = false;
-        const MAX_LIVE_USER_TURNS = 45;
+        let sawOfficerContentThisResponse = false;
+        let offTopicStrikes = 0;
+        let strike3WarningSent = false;
+        // A real full mock interview (oath + all N-400 sections + civics + English)
+        // routinely runs 40-60+ user turns just from normal completion — this is a
+        // true last-resort circuit breaker, not a normal-length cutoff.
+        const MAX_LIVE_USER_TURNS = 75;
 
         const OFFICERS = [
             { id:'martinez', initials:'MM', name:'Officer M. Martinez', office:'Miami Field Office',   tag:'Warm & Thorough',      gradient:'linear-gradient(135deg,#ec4899,#be185d)' },
@@ -611,6 +617,20 @@
         }
 
         // ── Handle Realtime events from OpenAI ───────────────────────────
+        function forceWrapUp(reasonText) {
+            if (wrapUpRequested || interviewEnded) return;
+            wrapUpRequested = true;
+            if (dataChannel && dataChannel.readyState === 'open') {
+                dataChannel.send(JSON.stringify({
+                    type: 'conversation.item.create',
+                    item: { type: 'message', role: 'system', content: [{ type: 'input_text', text: reasonText }] }
+                }));
+                // No explicit response.create here — turn_detection.create_response
+                // already triggers the next response automatically once the
+                // applicant's current turn finishes.
+            }
+        }
+
         function handleRealtimeEvent(event) {
             let msg;
             try { msg = JSON.parse(event.data); } catch (e) { return; }
@@ -618,12 +638,19 @@
             const type = msg.type || '';
             if (type && !type.includes('delta')) console.log('RT event:', type, JSON.stringify(msg).slice(0,100));
 
+            // Track whether the current response actually said anything out loud —
+            // used to detect a "silent" end_interview call (tool call with no speech).
+            if (type === 'response.created') {
+                sawOfficerContentThisResponse = false;
+            }
+
             // Officer transcript — varios formatos según modelo
             if (type === 'response.audio_transcript.delta' || type === 'response.text.delta' ||
                 type === 'response.output_item.delta') {
                 const itemId = msg.item_id || msg.output_index || 'officer-current';
                 const delta = msg.delta || (msg.item && msg.item.content && msg.item.content[0] && msg.item.content[0].transcript) || '';
                 if (delta) {
+                    sawOfficerContentThisResponse = true;
                     if (!transcriptItems[itemId]) {
                         transcriptItems[itemId] = { role: 'officer', text: '', el: addBubble('officer', '') };
                     }
@@ -651,6 +678,7 @@
                     content.forEach(function(c) {
                         var text = c.transcript || c.text || '';
                         if (text) {
+                            sawOfficerContentThisResponse = true;
                             var itemId = item.id || 'officer-done';
                             if (!transcriptItems[itemId]) {
                                 transcriptItems[itemId] = { role: 'officer', text: text, el: addBubble('officer', text) };
@@ -662,6 +690,28 @@
                 // The officer decided the interview is over — it called our end_interview tool.
                 if (item.type === 'function_call' && item.name === 'end_interview') {
                     officerRequestedEnd = true;
+                }
+                // The applicant went off-topic / asked a personal question — count it.
+                if (item.type === 'function_call' && item.name === 'off_topic_strike') {
+                    offTopicStrikes++;
+                    if (offTopicStrikes === 3 && !strike3WarningSent) {
+                        strike3WarningSent = true;
+                        if (dataChannel && dataChannel.readyState === 'open') {
+                            dataChannel.send(JSON.stringify({
+                                type: 'conversation.item.create',
+                                item: {
+                                    type: 'message', role: 'system',
+                                    content: [{
+                                        type: 'input_text',
+                                        text: "This is the applicant's 3rd off-topic or personal question. In your next reply, redirect them AND add a clear, firm, polite warning: if this happens again, the interview will end early."
+                                    }]
+                                }
+                            }));
+                        }
+                    }
+                    if (offTopicStrikes >= 4) {
+                        forceWrapUp('OFF-TOPIC LIMIT REACHED: the applicant has gone off-topic or asked personal questions repeatedly, even after a warning. Skip ahead now — briefly and kindly note the interview is ending a bit early because of this, ask if they have one final on-topic question, address it briefly, say a short goodbye, and call end_interview in that same turn right after speaking.');
+                    }
                 }
             }
 
@@ -686,10 +736,29 @@
                 if (lastItem && lastItem.text) {
                     conversationHistory.push({ role: 'assistant', content: lastItem.text });
                 }
-                // The officer's closing line just finished playing and it called
-                // end_interview during this response — wrap up automatically now.
                 if (type === 'response.done' && officerRequestedEnd && !interviewEnded) {
-                    setTimeout(function () { endInterview(); }, 500);
+                    if (sawOfficerContentThisResponse) {
+                        // Officer spoke its closing AND called the tool — safe to end now.
+                        setTimeout(function () { endInterview(); }, 500);
+                    } else {
+                        // Silent tool call — it ended the session without saying anything.
+                        // Don't cut the user off mid-interview; ask it to speak first, then retry.
+                        officerRequestedEnd = false;
+                        if (dataChannel && dataChannel.readyState === 'open') {
+                            dataChannel.send(JSON.stringify({
+                                type: 'conversation.item.create',
+                                item: {
+                                    type: 'message',
+                                    role: 'system',
+                                    content: [{
+                                        type: 'input_text',
+                                        text: 'You called end_interview without saying anything out loud. Do not do that. First SPEAK your closing feedback (one strength, one improvement) and ask if the applicant has a final question — wait for their answer if they have one. Only after you have said all of that out loud should you call end_interview again.'
+                                    }]
+                                }
+                            }));
+                            dataChannel.send(JSON.stringify({ type: 'response.create' }));
+                        }
+                    }
                 }
             }
 
@@ -708,20 +777,7 @@
                 // hasn't naturally wrapped up yet, nudge it to close now.
                 const userTurns = conversationHistory.filter(m => m.role === 'user').length;
                 if (userTurns >= MAX_LIVE_USER_TURNS && !wrapUpRequested && !interviewEnded) {
-                    wrapUpRequested = true;
-                    if (dataChannel && dataChannel.readyState === 'open') {
-                        dataChannel.send(JSON.stringify({
-                            type: 'conversation.item.create',
-                            item: {
-                                type: 'message',
-                                role: 'system',
-                                content: [{
-                                    type: 'input_text',
-                                    text: 'SAFETY LIMIT REACHED: This interview has run long. Skip ahead to your closing now — give brief feedback (one strength, one improvement), ask if the applicant has one final question, address it briefly, say a short goodbye, then call the end_interview tool right after. Do not ask any more interview questions.'
-                                }]
-                            }
-                        }));
-                    }
+                    forceWrapUp('SAFETY LIMIT REACHED: This interview has run long. If you have not yet done the WRITING part of the English test, do that now (briefly), then move straight to your closing (step 5) and final question (step 6) — do not ask any more N-400, civics, or vocabulary questions. Remember: speak your closing feedback and the final-question exchange out loud before calling end_interview.');
                 }
             }
 
