@@ -214,7 +214,7 @@ module.exports = async function handler(req, res) {
               turn_detection: {
                 type: 'semantic_vad',
                 eagerness: 'medium',
-                create_response: true,
+                create_response: false,
                 interrupt_response: true
               }
             },
