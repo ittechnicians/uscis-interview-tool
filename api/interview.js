@@ -160,14 +160,33 @@ function buildSystemPrompt(officer, testVersion, n400Seed, mode, n400Mode, profi
 
   // Build a varied-but-structured set of N-400 questions for this interview.
   const n400Plan = selectN400(n400Seed);
-  const n400List = n400Plan.map(function (sec) {
+  const GMC_TITLE = 'Good moral character (the "Have you ever..." questions)';
+  const ATTACH_TITLE = 'Attachment to the Constitution and the Oath';
+  const corePlan = n400Plan.filter(function (sec) { return sec.title !== GMC_TITLE && sec.title !== ATTACH_TITLE; });
+  const gmcSec = n400Plan.find(function (sec) { return sec.title === GMC_TITLE; });
+  const attachSec = n400Plan.find(function (sec) { return sec.title === ATTACH_TITLE; });
+
+  const n400List = corePlan.map(function (sec) {
     return `  ${sec.title}:\n` + sec.questions.map(function (q) { return `   - ${q}`; }).join('\n');
   }).join('\n');
-  const n400 = `2. N-400 REVIEW: Now review the application. Ask the applicant the SPECIFIC questions listed below, going section by section in this order, ONE question at a time, and wait for each answer before the next. Ask them naturally and conversationally — you may briefly acknowledge an answer — but do not skip questions and do not invent unrelated ones. If the applicant answers "yes" to a good-moral-character question, ask one short follow-up, then move on. Keep it moving; this is a review, not an interrogation.
+  const n400 = `2. N-400 REVIEW: Now review the application. Ask the applicant the SPECIFIC questions listed below, going section by section in this order, ONE question at a time, and wait for each answer before the next. Ask them naturally and conversationally — you may briefly acknowledge an answer — but do not skip questions and do not invent unrelated ones. Do NOT ask about good moral character or attachment to the Constitution yet — those come later, after the civics and English tests. Keep it moving; this is a review, not an interrogation.
 
 === N-400 QUESTIONS FOR THIS INTERVIEW (ask in this order, one at a time) ===
 ${n400List}
 === END N-400 QUESTIONS ===`;
+
+  const gmcList = gmcSec ? gmcSec.questions.map(function (q) { return `   - ${q}`; }).join('\n') : '';
+  const attachList = attachSec ? attachSec.questions.map(function (q) { return `   - ${q}`; }).join('\n') : '';
+  const gmcSection = `5. GOOD MORAL CHARACTER AND ATTACHMENT TO THE CONSTITUTION: Tell the applicant you now need to ask some yes-or-no questions required by law. Ask these ONE AT A TIME, in this exact wording and order, waiting for an answer each time. Most applicants answer "no" to all the good-moral-character questions — that is expected and normal; if they answer "yes" to something serious, ask one short follow-up, then move on, don't dwell or lecture.
+
+=== GOOD MORAL CHARACTER QUESTIONS ===
+${gmcList}
+=== END GOOD MORAL CHARACTER QUESTIONS ===
+
+Then ask these attachment-to-the-Constitution and oath questions, one at a time:
+=== ATTACHMENT TO THE CONSTITUTION QUESTIONS ===
+${attachList}
+=== END ATTACHMENT QUESTIONS ===`;
 
   return `You are ${officer.name}, a U.S. Citizenship and Immigration Services (USCIS) officer at the ${officer.office}. Your interviewing style is: ${officer.tag}.
 
@@ -182,19 +201,17 @@ CURRENT FACTS — GRADING REFERENCE (always use these; your training data may be
 
 Follow this EXACT real USCIS interview structure, in order — do NOT skip sections or mix them up:
 
-1. GREETING & OATH: Greet the applicant, introduce yourself briefly. Ask them to raise their right hand and repeat the oath of truthfulness. Then ask them to state their full legal name.
+1. GREETING & OATH: Start with one brief, warm small-talk line (for example asking how their day is going or if the wait was long) — keep it to one line. Then introduce yourself briefly, ask them to raise their right hand and repeat the oath of truthfulness, then ask them to state their full legal name.
 
 ${n400}
-   IMPORTANT — the N-400 section flows in this exact order, ALL before civics:
+   IMPORTANT — this section covers ONLY a) through f) below, in this exact order. Good moral character and attachment to the Constitution are asked LATER, in section 5, after civics and English:
    a) Personal information (name, date of birth, address, other names)
    b) Residence (how long as permanent resident, state of residence)
    c) Travel history (trips outside the US in last 5 years)
    d) Marital history and children
    e) Employment/school
    f) Taxes and Selective Service registration
-   g) Good moral character ("Have you ever..." questions — arrested, claimed citizenship, child support, then others)
-   h) Attachment to the Constitution (bear arms, support Constitution, oath) — this is the LAST part of the N-400 review, NOT a separate section. Ask ALL attachment questions before moving to civics.
-   Complete ALL sub-sections (a through h) before moving to the civics test.
+   Complete ALL of a) through f) before moving to the civics test.
 
 ${civics}
 
@@ -202,7 +219,9 @@ ${civics}
    a) READING: Show the applicant ONE short sentence and ask them to read it aloud. Wait for them to read it. Then evaluate briefly.
    b) WRITING (dictation): Tell the applicant you will say a sentence and they must write it down. Put ONLY that sentence inside dictation markers: [[DICTATION]]The people vote for the President.[[/DICTATION]]. The applicant will HEAR this sentence via audio — do NOT show it in text. After they write it, evaluate: by USCIS rules minor spelling/punctuation mistakes are acceptable as long as the meaning is clear.
 
-5. CLOSING: Tell them the practice interview is complete. Give brief encouraging feedback: overall result, one strength, and ONE specific thing to improve.
+${gmcSection}
+
+6. CLOSING: Tell them the practice interview is complete. Give brief encouraging feedback: overall result, one strength, and ONE specific thing to improve.
 
 CRITICAL RULES:
 - Ask only ONE question per turn, then STOP and wait for the applicant's answer.
