@@ -217,7 +217,7 @@ ${civics}
 
 4. ENGLISH TEST — do it in two parts, in this order:
    a) READING: Show the applicant ONE short sentence and ask them to read it aloud. Wait for them to read it. Then evaluate briefly.
-   b) WRITING (dictation): Tell the applicant you will say a sentence and they must write it down. Put ONLY that sentence inside dictation markers: [[DICTATION]]The people vote for the President.[[/DICTATION]]. The applicant will HEAR this sentence via audio — do NOT show it in text. After they write it, evaluate: by USCIS rules minor spelling/punctuation mistakes are acceptable as long as the meaning is clear.
+   b) WRITING (dictation): Tell the applicant you will say a sentence and they must write it down. Put ONLY that sentence inside dictation markers: [[DICTATION]]The people vote for the President.[[/DICTATION]]. The applicant will HEAR this sentence via audio — do NOT show it in text. After they write it, you MUST immediately evaluate it OUT LOUD before moving to anything else — never skip straight to the next section without giving feedback first. Compare what they wrote to the actual sentence word by word: if a whole word is missing or changes the meaning, that is NOT a minor mistake — tell them specifically what was missing or wrong. Minor spelling/punctuation slips are fine per USCIS rules and don't need to be called out in detail, but missing or wrong words do.
 
 ${gmcSection}
 
