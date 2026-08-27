@@ -741,24 +741,29 @@
                 // our manual initial response.create.
                 if (type === 'response.done' && !firstResponseHandled) {
                     firstResponseHandled = true;
-                    if (dataChannel && dataChannel.readyState === 'open') {
-                        dataChannel.send(JSON.stringify({
-                            type: 'session.update',
-                            session: {
-                                type: 'realtime',
-                                audio: {
-                                    input: {
-                                        turn_detection: {
-                                            type: 'semantic_vad',
-                                            eagerness: 'medium',
-                                            create_response: true,
-                                            interrupt_response: true
+                    // Small cooldown before re-arming auto-response — gives any
+                    // residual mic noise right as the greeting ends time to settle,
+                    // instead of the VAD immediately treating it as a user turn.
+                    setTimeout(function () {
+                        if (dataChannel && dataChannel.readyState === 'open') {
+                            dataChannel.send(JSON.stringify({
+                                type: 'session.update',
+                                session: {
+                                    type: 'realtime',
+                                    audio: {
+                                        input: {
+                                            turn_detection: {
+                                                type: 'semantic_vad',
+                                                eagerness: 'medium',
+                                                create_response: true,
+                                                interrupt_response: true
+                                            }
                                         }
                                     }
                                 }
-                            }
-                        }));
-                    }
+                            }));
+                        }
+                    }, 700);
                 }
                 // Save to history for report
                 const lastItem = Object.values(transcriptItems).filter(i => i.role === 'officer').pop();
