@@ -1,7 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://www.immigrationinterviews.com/</loc><priority>1.0</priority></url>
-  <url><loc>https://www.immigrationinterviews.com/privacy.html</loc></url>
-  <url><loc>https://www.immigrationinterviews.com/terms.html</loc></url>
-  <url><loc>https://www.immigrationinterviews.com/refunds.html</loc></url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://www.immigrationinterviews.com/</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.immigrationinterviews.com/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.immigrationinterviews.com/es.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.immigrationinterviews.com/"/>
+  </url>
+  <url>
+    <loc>https://www.immigrationinterviews.com/es.html</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.immigrationinterviews.com/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.immigrationinterviews.com/es.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.immigrationinterviews.com/"/>
+  </url>
+  <url>
+    <loc>https://www.immigrationinterviews.com/privacy.html</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://www.immigrationinterviews.com/terms.html</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://www.immigrationinterviews.com/refunds.html</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
 </urlset>
