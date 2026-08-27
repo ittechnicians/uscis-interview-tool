@@ -308,6 +308,7 @@
         let officerRequestedEnd = false;
         let wrapUpRequested = false;
         let sawOfficerContentThisResponse = false;
+        let firstResponseHandled = false;
         let offTopicStrikes = 0;
         let strike3WarningSent = false;
         // A real full mock interview (oath + all N-400 sections + civics + English)
@@ -554,7 +555,10 @@
                 dataChannel.onmessage = handleRealtimeEvent;
                 dataChannel.onopen = function() {
                     console.log('Data channel open — tracks:', peerConnection.getSenders().length);
-                    // Trigger initial officer greeting
+                    // Trigger the initial officer greeting. The session starts with
+                    // turn_detection.create_response=false so nothing else can fire
+                    // a second, competing greeting — we turn auto-response back on
+                    // once this first reply finishes (see response.done handling).
                     setTimeout(function() {
                         if (dataChannel.readyState === 'open') {
                             dataChannel.send(JSON.stringify({ type: 'response.create' }));
@@ -731,6 +735,31 @@
 
             if (type === 'response.audio.done' || type === 'response.done') {
                 setOfficerSpeaking(false);
+                // The very first response (the initial greeting) finishes here —
+                // now it's safe to turn server-side auto-response back on for the
+                // rest of the conversation, since there's no longer a race with
+                // our manual initial response.create.
+                if (type === 'response.done' && !firstResponseHandled) {
+                    firstResponseHandled = true;
+                    if (dataChannel && dataChannel.readyState === 'open') {
+                        dataChannel.send(JSON.stringify({
+                            type: 'session.update',
+                            session: {
+                                type: 'realtime',
+                                audio: {
+                                    input: {
+                                        turn_detection: {
+                                            type: 'semantic_vad',
+                                            eagerness: 'medium',
+                                            create_response: true,
+                                            interrupt_response: true
+                                        }
+                                    }
+                                }
+                            }
+                        }));
+                    }
+                }
                 // Save to history for report
                 const lastItem = Object.values(transcriptItems).filter(i => i.role === 'officer').pop();
                 if (lastItem && lastItem.text) {
