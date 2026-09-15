@@ -112,7 +112,7 @@ async function handler(req, res) {
       const s = event.data.object;
       const userId = s.client_reference_id || (s.metadata && s.metadata.userId);
       if (userId) {
-        // One-time payment model: 90 days of access from the moment of purchase.
+        // One-time payment model: 30 days of access from the moment of purchase.
         const planMeta = s.metadata && s.metadata.plan;
         const plan = (planMeta === 'premium' || planMeta === 'upgrade') ? 'premium' : planMeta === 'topup' ? 'topup' : 'professional';
         const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
