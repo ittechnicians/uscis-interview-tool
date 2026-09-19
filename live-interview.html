@@ -771,12 +771,17 @@
                     conversationHistory.push({ role: 'assistant', content: lastItem.text });
                 }
                 if (type === 'response.done' && officerRequestedEnd && !interviewEnded) {
-                    if (sawOfficerContentThisResponse) {
-                        // Officer spoke its closing AND called the tool — safe to end now.
+                    const respStatus = (msg.response && msg.response.status) || 'completed';
+                    if (sawOfficerContentThisResponse && respStatus === 'completed') {
+                        // Officer spoke its closing IN FULL (not interrupted/cut off)
+                        // AND called the tool — safe to end now.
                         setTimeout(function () { endInterview(); }, 500);
                     } else {
-                        // Silent tool call — it ended the session without saying anything.
-                        // Don't cut the user off mid-interview; ask it to speak first, then retry.
+                        // Either it was a silent tool call, or the closing got cut
+                        // off mid-sentence (e.g. background noise triggered a
+                        // barge-in interrupt). Either way the applicant didn't
+                        // hear the full closing — don't cut them off, ask the
+                        // officer to say it again from the top.
                         officerRequestedEnd = false;
                         if (dataChannel && dataChannel.readyState === 'open') {
                             dataChannel.send(JSON.stringify({
@@ -786,7 +791,7 @@
                                     role: 'system',
                                     content: [{
                                         type: 'input_text',
-                                        text: 'You called end_interview without saying anything out loud. Do not do that. First SPEAK your closing feedback (one strength, one improvement) and ask if the applicant has a final question — wait for their answer if they have one. Only after you have said all of that out loud should you call end_interview again.'
+                                        text: 'Your closing got cut off before you finished (or you called end_interview without fully saying it out loud). Say your FULL closing again from the start — the authentic closing line, then your feedback (one strength, one improvement), then ask if the applicant has a final question — and wait for their answer if they have one. Only after you have said all of that out loud, uninterrupted, should you call end_interview again.'
                                     }]
                                 }
                             }));
