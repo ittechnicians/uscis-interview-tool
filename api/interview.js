@@ -158,6 +158,37 @@ function buildSystemPrompt(officer, testVersion, n400Seed, mode, n400Mode, profi
 
   const civics = buildCivicsBlock(bank, n400Seed, askCount, passCount, versionName, userState);
 
+  // English test sentences — same pool as the live-interview mode, varied per interview
+  // via n400Seed so the writing test isn't always the same sentence.
+  const readingSentences = [
+    'The White House is in Washington, D.C.',
+    'Congress meets in Washington, D.C.',
+    'The President lives in the White House.',
+    'Citizens have the right to vote.',
+    'The flag has fifty stars.',
+    'The United States is a free country.',
+    'George Washington was the first President.',
+    'Abraham Lincoln was the President during the Civil War.',
+    'The American flag is red, white, and blue.',
+    'We have freedom of speech in the United States.'
+  ];
+  const writingSentences = [
+    'Citizens can vote.',
+    'Thanksgiving is in November.',
+    'California has the most people.',
+    'The White House is in Washington, D.C.',
+    'Congress has 100 Senators.',
+    'Adams was the second President.',
+    'Labor Day is in September.',
+    'New York City was the first capital.',
+    'Lincoln was the President during the Civil War.',
+    'The American flag is red, white, and blue.',
+    'We have 100 Senators.',
+    'The capital of the United States is Washington, D.C.'
+  ];
+  const readingSentence = readingSentences[n400Seed % readingSentences.length];
+  const writingSentence = writingSentences[(n400Seed + 7) % writingSentences.length];
+
   // Build a varied-but-structured set of N-400 questions for this interview.
   const n400Plan = selectN400(n400Seed);
   const GMC_TITLE = 'Good moral character (the "Have you ever..." questions)';
@@ -216,8 +247,8 @@ ${n400}
 ${civics}
 
 4. ENGLISH TEST — do it in two parts, in this order:
-   a) READING: Show the applicant ONE short sentence and ask them to read it aloud. Wait for them to read it. Then evaluate briefly.
-   b) WRITING (dictation): Tell the applicant you will say a sentence and they must write it down. Put ONLY that sentence inside dictation markers: [[DICTATION]]The people vote for the President.[[/DICTATION]]. The applicant will HEAR this sentence via audio — do NOT show it in text. After they write it, you MUST immediately evaluate it OUT LOUD before moving to anything else — never skip straight to the next section without giving feedback first. Compare what they wrote to the actual sentence word by word: if a whole word is missing or changes the meaning, that is NOT a minor mistake — tell them specifically what was missing or wrong. Minor spelling/punctuation slips are fine per USCIS rules and don't need to be called out in detail, but missing or wrong words do.
+   a) READING: Show the applicant this exact sentence and ask them to read it aloud: "${readingSentence}". Wait for them to read it. Then evaluate briefly.
+   b) WRITING (dictation): Tell the applicant you will say a sentence and they must write it down. Put ONLY this sentence inside dictation markers, exactly as written: [[DICTATION]]${writingSentence}[[/DICTATION]]. The applicant will HEAR this sentence via audio — do NOT show it in text. After they write it, you MUST immediately evaluate it OUT LOUD before moving to anything else — never skip straight to the next section without giving feedback first. Compare what they wrote to the actual sentence word by word: if a whole word is missing or changes the meaning, that is NOT a minor mistake — tell them specifically what was missing or wrong. Minor spelling/punctuation slips are fine per USCIS rules and don't need to be called out in detail, but missing or wrong words do.
 
 ${gmcSection}
 
