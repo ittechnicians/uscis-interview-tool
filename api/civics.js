@@ -258,23 +258,62 @@ const CIVICS_2020 = [
 // Capitals are permanent; GOVERNORS and SENATORS change with elections.
 // Last verified: June 2026. UPDATE after each election cycle (esp. Nov 2026).
 const STATE_INFO = {
-  'California':     { capital: 'Sacramento',  governor: 'Gavin Newsom',       senators: ['Alex Padilla', 'Adam Schiff'] },
-  'Texas':          { capital: 'Austin',      governor: 'Greg Abbott',        senators: ['John Cornyn', 'Ted Cruz'] },
-  'Florida':        { capital: 'Tallahassee', governor: 'Ron DeSantis',       senators: ['Rick Scott', 'Ashley Moody'] },
-  'New York':       { capital: 'Albany',      governor: 'Kathy Hochul',       senators: ['Chuck Schumer', 'Kirsten Gillibrand'] },
-  'Illinois':       { capital: 'Springfield', governor: 'JB Pritzker',        senators: ['Dick Durbin', 'Tammy Duckworth'] },
-  'Pennsylvania':   { capital: 'Harrisburg',  governor: 'Josh Shapiro',       senators: ['John Fetterman', 'Dave McCormick'] },
-  'Georgia':        { capital: 'Atlanta',     governor: 'Brian Kemp',         senators: ['Jon Ossoff', 'Raphael Warnock'] },
-  'Arizona':        { capital: 'Phoenix',     governor: 'Katie Hobbs',        senators: ['Mark Kelly', 'Ruben Gallego'] },
-  'North Carolina': { capital: 'Raleigh',     governor: 'Josh Stein',         senators: ['Thom Tillis', 'Ted Budd'] },
-  'New Jersey':     { capital: 'Trenton',     governor: 'Mikie Sherrill',     senators: ['Cory Booker', 'Andy Kim'] },
-  'Ohio':           { capital: 'Columbus',    governor: 'Mike DeWine',        senators: ['Bernie Moreno', 'Jon Husted'] },
-  'Michigan':       { capital: 'Lansing',     governor: 'Gretchen Whitmer',   senators: ['Gary Peters', 'Elissa Slotkin'] },
-  'Washington':     { capital: 'Olympia',     governor: 'Bob Ferguson',       senators: ['Patty Murray', 'Maria Cantwell'] },
-  'Virginia':       { capital: 'Richmond',    governor: 'Abigail Spanberger', senators: ['Mark Warner', 'Tim Kaine'] },
-  'Massachusetts':  { capital: 'Boston',      governor: 'Maura Healey',       senators: ['Elizabeth Warren', 'Ed Markey'] }
+  'Alabama':        { capital: 'Montgomery',   governor: 'Kay Ivey',            senators: ['Tommy Tuberville', 'Katie Britt'] },
+  'Alaska':         { capital: 'Juneau',        governor: 'Mike Dunleavy',       senators: ['Lisa Murkowski', 'Dan Sullivan'] },
+  'Arizona':        { capital: 'Phoenix',       governor: 'Katie Hobbs',         senators: ['Mark Kelly', 'Ruben Gallego'] },
+  'Arkansas':       { capital: 'Little Rock',   governor: 'Sarah Huckabee Sanders', senators: ['John Boozman', 'Tom Cotton'] },
+  'California':     { capital: 'Sacramento',    governor: 'Gavin Newsom',        senators: ['Alex Padilla', 'Adam Schiff'] },
+  'Colorado':       { capital: 'Denver',        governor: 'Jared Polis',         senators: ['Michael Bennet', 'John Hickenlooper'] },
+  'Connecticut':    { capital: 'Hartford',      governor: 'Ned Lamont',          senators: ['Richard Blumenthal', 'Chris Murphy'] },
+  'Delaware':       { capital: 'Dover',         governor: 'Matt Meyer',          senators: ['Chris Coons', 'Lisa Blunt Rochester'] },
+  'Florida':        { capital: 'Tallahassee',   governor: 'Ron DeSantis',        senators: ['Rick Scott', 'Ashley Moody'] },
+  'Georgia':        { capital: 'Atlanta',       governor: 'Brian Kemp',          senators: ['Jon Ossoff', 'Raphael Warnock'] },
+  'Hawaii':         { capital: 'Honolulu',      governor: 'Josh Green',          senators: ['Brian Schatz', 'Mazie Hirono'] },
+  'Idaho':          { capital: 'Boise',         governor: 'Brad Little',         senators: ['Mike Crapo', 'Jim Risch'] },
+  'Illinois':       { capital: 'Springfield',   governor: 'JB Pritzker',         senators: ['Dick Durbin', 'Tammy Duckworth'] },
+  'Indiana':        { capital: 'Indianapolis',  governor: 'Mike Braun',          senators: ['Todd Young', 'Jim Banks'] },
+  'Iowa':           { capital: 'Des Moines',    governor: 'Kim Reynolds',        senators: ['Chuck Grassley', 'Joni Ernst'] },
+  'Kansas':         { capital: 'Topeka',        governor: 'Laura Kelly',         senators: ['Jerry Moran', 'Roger Marshall'] },
+  'Kentucky':       { capital: 'Frankfort',     governor: 'Andy Beshear',        senators: ['Mitch McConnell', 'Rand Paul'] },
+  'Louisiana':      { capital: 'Baton Rouge',   governor: 'Jeff Landry',         senators: ['Bill Cassidy', 'John Kennedy'] },
+  'Maine':          { capital: 'Augusta',       governor: 'Janet Mills',         senators: ['Susan Collins', 'Angus King'] },
+  'Maryland':       { capital: 'Annapolis',     governor: 'Wes Moore',           senators: ['Chris Van Hollen', 'Angela Alsobrooks'] },
+  'Massachusetts':  { capital: 'Boston',        governor: 'Maura Healey',        senators: ['Elizabeth Warren', 'Ed Markey'] },
+  'Michigan':       { capital: 'Lansing',       governor: 'Gretchen Whitmer',    senators: ['Gary Peters', 'Elissa Slotkin'] },
+  'Minnesota':      { capital: 'St. Paul',      governor: 'Tim Walz',            senators: ['Amy Klobuchar', 'Tina Smith'] },
+  'Mississippi':    { capital: 'Jackson',       governor: 'Tate Reeves',         senators: ['Roger Wicker', 'Cindy Hyde-Smith'] },
+  'Missouri':       { capital: 'Jefferson City', governor: 'Mike Kehoe',         senators: ['Josh Hawley', 'Eric Schmitt'] },
+  'Montana':        { capital: 'Helena',        governor: 'Greg Gianforte',      senators: ['Steve Daines', 'Tim Sheehy'] },
+  'Nebraska':       { capital: 'Lincoln',       governor: 'Jim Pillen',          senators: ['Deb Fischer', 'Pete Ricketts'] },
+  'Nevada':         { capital: 'Carson City',   governor: 'Joe Lombardo',        senators: ['Catherine Cortez Masto', 'Jacky Rosen'] },
+  'New Hampshire':  { capital: 'Concord',       governor: 'Kelly Ayotte',        senators: ['Jeanne Shaheen', 'Maggie Hassan'] },
+  'New Jersey':     { capital: 'Trenton',       governor: 'Mikie Sherrill',      senators: ['Cory Booker', 'Andy Kim'] },
+  'New Mexico':     { capital: 'Santa Fe',      governor: 'Michelle Lujan Grisham', senators: ['Martin Heinrich', 'Ben Ray Luján'] },
+  'New York':       { capital: 'Albany',        governor: 'Kathy Hochul',        senators: ['Chuck Schumer', 'Kirsten Gillibrand'] },
+  'North Carolina': { capital: 'Raleigh',       governor: 'Josh Stein',          senators: ['Thom Tillis', 'Ted Budd'] },
+  'North Dakota':   { capital: 'Bismarck',      governor: 'Kelly Armstrong',     senators: ['John Hoeven', 'Kevin Cramer'] },
+  'Ohio':           { capital: 'Columbus',      governor: 'Mike DeWine',         senators: ['Bernie Moreno', 'Jon Husted'] },
+  'Oklahoma':       { capital: 'Oklahoma City', governor: 'Kevin Stitt',         senators: ['James Lankford', 'Alan Armstrong'] },
+  'Oregon':         { capital: 'Salem',         governor: 'Tina Kotek',          senators: ['Ron Wyden', 'Jeff Merkley'] },
+  'Pennsylvania':   { capital: 'Harrisburg',    governor: 'Josh Shapiro',        senators: ['John Fetterman', 'Dave McCormick'] },
+  'Rhode Island':   { capital: 'Providence',    governor: 'Dan McKee',           senators: ['Jack Reed', 'Sheldon Whitehouse'] },
+  'South Carolina': { capital: 'Columbia',      governor: 'Henry McMaster',      senators: ['Tim Scott', 'Darline Graham'] },
+  'South Dakota':   { capital: 'Pierre',        governor: 'Larry Rhoden',        senators: ['John Thune', 'Mike Rounds'] },
+  'Tennessee':      { capital: 'Nashville',     governor: 'Bill Lee',            senators: ['Marsha Blackburn', 'Bill Hagerty'] },
+  'Texas':          { capital: 'Austin',        governor: 'Greg Abbott',         senators: ['John Cornyn', 'Ted Cruz'] },
+  'Utah':           { capital: 'Salt Lake City', governor: 'Spencer Cox',        senators: ['Mike Lee', 'John Curtis'] },
+  'Vermont':        { capital: 'Montpelier',    governor: 'Phil Scott',          senators: ['Bernie Sanders', 'Peter Welch'] },
+  'Virginia':       { capital: 'Richmond',      governor: 'Abigail Spanberger',  senators: ['Mark Warner', 'Tim Kaine'] },
+  'Washington':     { capital: 'Olympia',       governor: 'Bob Ferguson',        senators: ['Patty Murray', 'Maria Cantwell'] },
+  'West Virginia':  { capital: 'Charleston',    governor: 'Patrick Morrisey',    senators: ['Shelley Moore Capito', 'Jim Justice'] },
+  'Wisconsin':      { capital: 'Madison',       governor: 'Tony Evers',          senators: ['Ron Johnson', 'Tammy Baldwin'] },
+  'Wyoming':        { capital: 'Cheyenne',      governor: 'Mark Gordon',         senators: ['John Barrasso', 'Cynthia Lummis'] }
 };
 
+// NOTE: verified from Wikipedia's "List of current United States governors" and
+// "List of current United States senators" pages, September 2026. Governors and
+// Senators change after elections/resignations — re-verify and update after the
+// Nov 2026 midterms (many Senate seats and some governorships are up that cycle).
 // Resolve the state-specific questions in a bank for a given state name.
 // Senators/Governor/Capital come from STATE_INFO; the U.S. Representative
 // depends on the applicant's congressional district, so it stays a reminder.
