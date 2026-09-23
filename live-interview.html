@@ -772,16 +772,23 @@
                 }
                 if (type === 'response.done' && officerRequestedEnd && !interviewEnded) {
                     const respStatus = (msg.response && msg.response.status) || 'completed';
-                    if (sawOfficerContentThisResponse && respStatus === 'completed') {
-                        // Officer spoke its closing IN FULL (not interrupted/cut off)
-                        // AND called the tool — safe to end now.
+                    // The closing can legitimately span TWO officer turns (one with
+                    // the full feedback, then a short "thanks, good luck" turn that
+                    // actually calls end_interview) — so check the combined length
+                    // of the last two officer turns, not just this one.
+                    const officerTurns = conversationHistory.filter(function (m) { return m.role === 'assistant'; });
+                    const recentText = officerTurns.slice(-2).map(function (m) { return m.content; }).join(' ');
+                    const closingLooksComplete = recentText.length >= 120;
+                    if (sawOfficerContentThisResponse && respStatus === 'completed' && closingLooksComplete) {
+                        // Officer spoke its closing IN FULL (not interrupted/cut off,
+                        // not suspiciously short) AND called the tool — safe to end now.
                         setTimeout(function () { endInterview(); }, 500);
                     } else {
-                        // Either it was a silent tool call, or the closing got cut
-                        // off mid-sentence (e.g. background noise triggered a
-                        // barge-in interrupt). Either way the applicant didn't
-                        // hear the full closing — don't cut them off, ask the
-                        // officer to say it again from the top.
+                        // Either it was a silent tool call, the closing got cut off
+                        // mid-sentence (e.g. background noise triggered a barge-in
+                        // interrupt), or it was too short to have covered everything
+                        // required. Either way the applicant didn't hear the full
+                        // closing — don't cut them off, ask the officer to redo it.
                         officerRequestedEnd = false;
                         if (dataChannel && dataChannel.readyState === 'open') {
                             dataChannel.send(JSON.stringify({
@@ -791,7 +798,7 @@
                                     role: 'system',
                                     content: [{
                                         type: 'input_text',
-                                        text: 'Your closing got cut off before you finished (or you called end_interview without fully saying it out loud). Say your FULL closing again from the start — the authentic closing line, then your feedback (one strength, one improvement), then ask if the applicant has a final question — and wait for their answer if they have one. Only after you have said all of that out loud, uninterrupted, should you call end_interview again.'
+                                        text: 'Your closing was incomplete — either it got cut off, you called end_interview without saying it out loud, or you skipped some required parts. Say your FULL closing again from the start, covering ALL of these in order: (1) the authentic closing line, (2) one strength, (3) one specific thing to improve, (4) ask if the applicant has a final question and address it (or acknowledge if they say no). Only after you have said ALL of that out loud, uninterrupted, should you call end_interview again.'
                                     }]
                                 }
                             }));
