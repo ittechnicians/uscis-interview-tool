@@ -934,7 +934,7 @@
 <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
 <button class="lang-btn" id="btnES" onclick="setLang('es')">ES</button>
 </div>
-<a class="btn-primary" id="navCta" onclick="openModal('signup')">Comenzar Gratis</a>
+<a class="btn-primary" id="navCta" onclick="selectPlan('free')">Comenzar Gratis</a>
 </div>
 </div>
 </nav>
@@ -945,7 +945,7 @@
 <h1 id="heroH1">Domina Tu <span class="highlight">Entrevista de Ciudadanía</span> con IA</h1>
 <p id="heroSubtitle">Practica con cinco oficiales de IA — cada uno con voz realista y personalidad distinta. Recibe retroalimentación instantánea y llega a tu entrevista preparado y seguro.</p>
 <div class="hero-buttons">
-<button class="btn-primary btn-large" id="heroBtnStart" onclick="openModal('signup')">Comenzar Gratis →</button>
+<button class="btn-primary btn-large" id="heroBtnStart" onclick="selectPlan('free')">Comenzar Gratis →</button>
 <a class="btn-secondary" href="#features" id="heroBtnHow">Cómo funciona</a>
 </div>
 <div class="hero-stats">
@@ -1099,7 +1099,7 @@
 <li id="freeF4">1 entrevista simulada completa con un oficial de IA</li>
 <li id="freeF5">Bilingüe inglés / español</li>
 </ul>
-<button class="btn-pricing secondary" id="freeBtn" onclick="openModal('signup')">Crear Cuenta Gratis</button>
+<button class="btn-pricing secondary" id="freeBtn" onclick="selectPlan('free')">Crear Cuenta Gratis</button>
 </div>
 <div class="pricing-card featured">
 <span class="pricing-badge" id="proBadge">⭐ Más Popular</span>
@@ -1152,7 +1152,7 @@
 <div class="cta-container">
 <h2 data-en="Ready to Practice?" data-es="¿Listo para practicar?">¿Listo para practicar?</h2>
 <p data-en="Create a free account and start practicing with your AI officer today." data-es="Crea una cuenta gratis y empieza a practicar con tu oficial de IA hoy.">Crea una cuenta gratis y empieza a practicar con tu oficial de IA hoy.</p>
-<button class="btn-cta" onclick="openModal('signup')">Comenzar Gratis →</button>
+<button class="btn-cta" onclick="selectPlan('free')">Comenzar Gratis →</button>
 </div>
 </section>
 <section style="max-width:900px; margin:0 auto; padding:20px 24px 8px; text-align:center;">
@@ -1197,30 +1197,30 @@
 <div class="modal-overlay" id="signupModal">
 <div class="modal">
 <button class="modal-close" onclick="closeModal('signup')">×</button>
-<h2>Create Your Free Account</h2>
-<p>Free during early access — no credit card needed</p>
+<h2 id="signupTitle">Crea Tu Cuenta Gratis</h2>
+<p id="signupSubtitle">Gratis durante el acceso anticipado — sin tarjeta de crédito</p>
 <div class="alert error" id="signupError"></div>
 <div class="alert success" id="signupSuccess"></div>
 <form id="signupForm" onsubmit="handleSignup(event)">
 <div class="form-group">
-<label for="signupName">Full Name</label>
-<input class="form-input" id="signupName" placeholder="John Doe" required="" type="text"/>
+<label for="signupName">Nombre Completo</label>
+<input class="form-input" id="signupName" placeholder="Juan Pérez" required="" type="text"/>
 </div>
 <div class="form-group">
-<label for="signupEmail">Email</label>
-<input class="form-input" id="signupEmail" placeholder="you@example.com" required="" type="email"/>
+<label for="signupEmail">Correo Electrónico</label>
+<input class="form-input" id="signupEmail" placeholder="tu@ejemplo.com" required="" type="email"/>
 </div>
 <div class="form-group">
-<label for="signupPassword">Password</label>
-<input class="form-input" id="signupPassword" minlength="6" placeholder="Minimum 6 characters" required="" type="password"/>
+<label for="signupPassword">Contraseña</label>
+<input class="form-input" id="signupPassword" minlength="6" placeholder="Mínimo 6 caracteres" required="" type="password"/>
 </div>
 <label style="display:flex; gap:0.6rem; align-items:flex-start; font-size:0.82rem; color:#475569; line-height:1.5; margin-top:0.25rem; cursor:pointer;">
 <input id="agreeTerms" required="" style="margin-top:0.2rem; width:16px; height:16px; flex-shrink:0;" type="checkbox"/>
-<span>I am 18 or older and I agree to the <a href="terms.html" style="color:#1e40af; font-weight:600;" target="_blank">Terms of Service</a> and <a href="privacy.html" style="color:#1e40af; font-weight:600;" target="_blank">Privacy Policy</a>. I understand this is a practice tool, not legal advice, and is not affiliated with USCIS.</span>
+<span>Tengo 18 años o más y acepto los <a href="terms.html" style="color:#1e40af; font-weight:600;" target="_blank">Términos de Servicio</a> y la <a href="privacy.html" style="color:#1e40af; font-weight:600;" target="_blank">Política de Privacidad</a>. Entiendo que esta es una herramienta de práctica, no asesoría legal, y no está afiliada con USCIS.</span>
 </label>
-<button class="modal-submit" id="signupButton" type="submit">Create Free Account</button>
+<button class="modal-submit" id="signupButton" type="submit">Crear Cuenta Gratis</button>
 </form>
-<p class="modal-switch">Already have an account? <a onclick="switchModal('login')">Login</a></p>
+<p class="modal-switch">¿Ya tienes cuenta? <a onclick="switchModal('login')">Entrar</a></p>
 </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1273,10 +1273,41 @@
                 });
                 
                 if (error) throw error;
-                
-                successAlert.textContent = '✅ Account created! Check your email to verify.';
-                successAlert.style.display = 'block';
-                
+
+                const chosenPlan = localStorage.getItem('selectedPlan');
+
+                if ((chosenPlan === 'pro' || chosenPlan === 'premium') && data && data.user) {
+                    // Plan pagado seleccionado — saltar el dashboard e ir directo
+                    // a Stripe checkout, usando la cuenta recién creada.
+                    successAlert.textContent = '✅ ¡Cuenta creada! Llevándote al pago…';
+                    successAlert.style.display = 'block';
+                    try {
+                        const res = await fetch('/api/checkout', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ userId: data.user.id, email: email, plan: chosenPlan })
+                        });
+                        const checkoutData = await res.json();
+                        if (checkoutData && checkoutData.url) {
+                            localStorage.removeItem('selectedPlan');
+                            window.location.href = checkoutData.url;
+                            return;
+                        }
+                        // El checkout falló — regresar al dashboard, donde el
+                        // botón de Upgrade todavía puede completar la compra.
+                        errorAlert.textContent = (checkoutData && checkoutData.error) || 'No se pudo iniciar el pago — puedes mejorar tu plan desde tu dashboard.';
+                        errorAlert.style.display = 'block';
+                    } catch (checkoutErr) {
+                        console.error('Checkout error:', checkoutErr);
+                        errorAlert.textContent = 'No se pudo iniciar el pago — puedes mejorar tu plan desde tu dashboard.';
+                        errorAlert.style.display = 'block';
+                    }
+                } else {
+                    successAlert.textContent = '✅ ¡Cuenta creada! Revisa tu correo para verificarla.';
+                    successAlert.style.display = 'block';
+                }
+
+                localStorage.removeItem('selectedPlan');
                 setTimeout(() => {
                     window.location.href = '/dashboard.html';
                 }, 2000);
@@ -1346,6 +1377,22 @@
 
         function selectPlan(plan) {
             localStorage.setItem('selectedPlan', plan);
+            const title = document.getElementById('signupTitle');
+            const subtitle = document.getElementById('signupSubtitle');
+            const btn = document.getElementById('signupButton');
+            if (plan === 'premium') {
+                title.textContent = 'Crea Tu Cuenta Para Continuar';
+                subtitle.textContent = 'Siguiente paso: paga $39 por Premium — 30 días de acceso, sin suscripción.';
+                btn.textContent = 'Continuar al Pago →';
+            } else if (plan === 'pro') {
+                title.textContent = 'Crea Tu Cuenta Para Continuar';
+                subtitle.textContent = 'Siguiente paso: paga $19 por Professional — 30 días de acceso, sin suscripción.';
+                btn.textContent = 'Continuar al Pago →';
+            } else {
+                title.textContent = 'Crea Tu Cuenta Gratis';
+                subtitle.textContent = 'Gratis durante el acceso anticipado — sin tarjeta de crédito';
+                btn.textContent = 'Crear Cuenta Gratis';
+            }
             openModal('signup');
         }
         
