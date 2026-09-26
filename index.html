@@ -1062,7 +1062,7 @@
 <div class="price"><span class="price-amount">$39</span><span class="price-period">one-time</span><span class="price-once" id="premNote">✓ 30 days — renew anytime, no subscription</span></div>
 <ul class="features-list">
 <li id="premF1">Everything in Professional</li>
-<li id="premF2"><strong>⚡ 8 Live Interviews</strong> — real-time conversation with instant answers, like the real one</li>
+<li id="premF2"><strong>⚡ 8 Live Interviews</strong> — use them within your 30-day window; real-time conversation with instant answers, like the real one</li>
 <li id="premF3">Need more? Add 5 extra Live Interviews anytime</li>
 </ul>
 <button class="btn-pricing primary" id="premBtn" onclick="selectPlan('premium')">Get Started →</button>
@@ -1081,7 +1081,7 @@
 <details><summary id="faqQ2">How does the AI mock interview work?</summary><p id="faqA2">Choose one of five AI officers, speak your answers out loud, and the officer responds with voice — asking the same types of questions as a real USCIS naturalization interview. At the end you get a personal evaluation: your score, your strengths, and the 3 most important things to improve.</p></details>
 <details><summary id="faqQ3">Is it available in Spanish?</summary><p id="faqA3">Yes — the platform works for immigrants from any country, and the whole interface is bilingual English/Spanish. The mock interview is in English, like the real one; instructions and feedback can be in Spanish.</p></details>
 <details><summary id="faqQ4">Does it include the official civics questions?</summary><p id="faqA4">Yes — both official versions: the 100-question (2008) test and the 128-question test, plus reading, writing and vocabulary practice.</p></details>
-<details><summary id="faqQ5">How much does it cost?</summary><p id="faqA5">The Free plan includes civics, reading, writing, vocabulary and one full mock interview. Paid plans are one-time payments with 30 days of access — no subscription, no automatic charges: Professional $19 founding price (regular $29) gives you 30 days of unlimited practice; renew anytime if you need more time before your interview. Premium $39 founding price (regular $49) adds live real-time interviews.</p></details>
+<details><summary id="faqQ5">How much does it cost?</summary><p id="faqA5">The Free plan includes civics, reading, writing, vocabulary and one full mock interview. Paid plans are one-time payments with 30 days of access — no subscription, no automatic charges: Professional $19 founding price (regular $29) gives you 30 days of unlimited practice; renew anytime if you need more time before your interview. Premium $39 founding price (regular $49) adds 8 live real-time interviews to use within that same 30-day window — unused live interviews don't carry over once it ends.</p></details>
 <details><summary id="faqQ6">Is this affiliated with USCIS?</summary><p id="faqA6">No. Immigration Interviews is an independent educational practice tool. It is not affiliated with, endorsed by, or connected to USCIS or any government agency, and does not provide legal advice.</p></details>
 </div>
 </div>
@@ -1324,7 +1324,7 @@
             const btn = document.getElementById('signupButton');
             if (plan === 'premium') {
                 title.textContent = 'Create Your Account to Continue';
-                subtitle.textContent = 'Next step: pay $39 for Premium — 30 days of access, no subscription.';
+                subtitle.textContent = 'Next step: pay $39 for Premium — 8 live interviews to use within your 30 days (unused ones don\'t carry over), plus everything in Professional.';
                 btn.textContent = 'Continue to Payment →';
             } else if (plan === 'pro') {
                 title.textContent = 'Create Your Account to Continue';
@@ -1387,7 +1387,7 @@
             premTitle: 'Premium', premDesc: 'The closest thing to the real window',
             premNote: '✓ 30 days — renew anytime, no subscription',
             premF1: 'Everything in Professional',
-            premF2: '⚡ 8 Live Interviews — real-time conversation with instant answers, like the real one',
+            premF2: '⚡ 8 Live Interviews — use them within your 30-day window; real-time conversation with instant answers, like the real one',
             premF3: 'Need more? Add 5 extra Live Interviews anytime',
             premF4: '', premBtn: 'Get Started →',
             // FAQ
@@ -1395,7 +1395,7 @@
             faqQ2: 'How does the AI mock interview work?', faqA2: 'Choose one of five AI officers, speak your answers out loud, and the officer responds with voice — asking the same types of questions as a real USCIS naturalization interview. At the end you get a personal evaluation: your score, your strengths, and the 3 most important things to improve.',
             faqQ3: 'Is it available in Spanish?', faqA3: 'Yes — the platform works for immigrants from any country, and the whole interface is bilingual English/Spanish. The mock interview is in English, like the real one; instructions and feedback can be in Spanish.',
             faqQ4: 'Does it include the official civics questions?', faqA4: 'Yes — both official versions: the 100-question (2008) test and the 128-question test, plus reading, writing and vocabulary practice.',
-            faqQ5: 'How much does it cost?', faqA5: 'The Free plan includes civics, reading, writing, vocabulary and one full mock interview. Professional is $19 for 30 days of unlimited practice — pay again anytime if you need more time before your interview. Premium $39 adds live real-time interviews.',
+            faqQ5: 'How much does it cost?', faqA5: 'The Free plan includes civics, reading, writing, vocabulary and one full mock interview. Professional is $19 for 30 days of unlimited practice — pay again anytime if you need more time before your interview. Premium $39 adds 8 live real-time interviews to use within that same 30-day window — unused ones don\'t carry over once it ends.',
             faqQ6: 'Is this affiliated with USCIS?', faqA6: 'No. Immigration Interviews is an independent educational practice tool. It is not affiliated with, endorsed by, or connected to USCIS or any government agency, and does not provide legal advice.',
             // Footer
             footerDisclaimer1: '<strong style="color:#f1f5f9;">Not affiliated with the U.S. government.</strong> Immigration Interviews is an independent practice tool and is not affiliated with, endorsed by, or connected to U.S. Citizenship and Immigration Services (USCIS), the Department of Homeland Security, or any government agency. The officers shown are fictional AI characters.',
@@ -1446,14 +1446,14 @@
             premTitle: 'Premium', premDesc: 'Lo más cercano a la ventanilla real',
             premNote: '✓ 30 días — renueva cuando quieras, sin suscripción',
             premF1: 'Todo en Professional',
-            premF2: '⚡ 8 Entrevistas en Vivo — conversación en tiempo real con respuestas instantáneas, como la real',
+            premF2: '⚡ 8 Entrevistas en Vivo — úsalas dentro de tus 30 días; conversación en tiempo real con respuestas instantáneas, como la real',
             premF3: '¿Necesitas más? Agrega 5 entrevistas en vivo adicionales cuando quieras',
             premF4: '', premBtn: 'Comenzar →',
             faqQ1: '¿Qué es Immigration Interviews?', faqA1: 'Una plataforma de práctica con IA para la entrevista de naturalización de ciudadanía de EE.UU. Practica con oficiales de IA con voces realistas, obtén un reporte de evaluación después de cada entrevista simulada, y estudia las preguntas cívicas oficiales, lectura, escritura y vocabulario — completamente bilingüe inglés/español.',
             faqQ2: '¿Cómo funciona la entrevista simulada con IA?', faqA2: 'Elige uno de cinco oficiales de IA, responde en voz alta y el oficial responde con voz — haciendo los mismos tipos de preguntas que en una entrevista real de naturalización de USCIS. Al final recibes una evaluación personal: tu puntaje, tus fortalezas y las 3 cosas más importantes que debes mejorar.',
             faqQ3: '¿Está disponible en español?', faqA3: 'Sí — la plataforma funciona para inmigrantes de cualquier país, y toda la interfaz es bilingüe inglés/español. La entrevista simulada es en inglés, como la real; las instrucciones y retroalimentación pueden ser en español.',
             faqQ4: '¿Incluye las preguntas cívicas oficiales?', faqA4: 'Sí — ambas versiones oficiales: la prueba de 100 preguntas (2008) y la prueba de 128 preguntas, más práctica de lectura, escritura y vocabulario.',
-            faqQ5: '¿Cuánto cuesta?', faqA5: 'El plan Gratis incluye cívicas, lectura, escritura, vocabulario y una entrevista simulada completa. Professional es $19 por 30 días de práctica ilimitada — paga de nuevo cuando necesites más tiempo antes de tu entrevista. Premium $39 agrega entrevistas en tiempo real.',
+            faqQ5: '¿Cuánto cuesta?', faqA5: 'El plan Gratis incluye cívicas, lectura, escritura, vocabulario y una entrevista simulada completa. Professional es $19 por 30 días de práctica ilimitada — paga de nuevo cuando necesites más tiempo antes de tu entrevista. Premium $39 agrega 8 entrevistas en tiempo real para usar dentro de esos mismos 30 días — las que no uses no se acumulan al vencer.',
             faqQ6: '¿Está afiliado con USCIS?', faqA6: 'No. Immigration Interviews es una herramienta educativa independiente. No está afiliada, respaldada ni conectada con USCIS ni ninguna agencia gubernamental, y no proporciona asesoramiento legal.',
             footerDisclaimer1: '<strong style="color:#f1f5f9;">No afiliado con el gobierno de EE.UU.</strong> Immigration Interviews es una herramienta de práctica independiente y no está afiliada, respaldada ni conectada con el Servicio de Ciudadanía e Inmigración de los Estados Unidos (USCIS), el Departamento de Seguridad Nacional, ni ninguna agencia gubernamental. Los oficiales mostrados son personajes ficticios de IA.',
             footerDisclaimer2: '<strong style="color:#f1f5f9;">No es asesoramiento legal.</strong> No somos abogados ni representantes acreditados. Este servicio es solo para práctica educativa y no constituye asesoramiento legal. Para asesoramiento sobre tu caso, consulta a un abogado de inmigración licenciado o un representante acreditado por el DOJ. El uso de este servicio no garantiza ningún resultado en entrevistas o solicitudes.',
