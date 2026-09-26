@@ -241,4 +241,37 @@ function selectDefinitions(seed, count) {
   return shuffleWith(N400_DEFINITIONS, rng).slice(0, Math.min(count, N400_DEFINITIONS.length));
 }
 
-module.exports = { N400_SECTIONS, selectN400, allN400, selectN400Random, selectDefinitions };
+// Short, simple definitions — same wording used in the Vocabulary practice
+// tool, reused here so the officer gives the EXACT SAME short definition
+// during an interview instead of improvising a longer one on the spot.
+const SHORT_DEFS = {
+  'oath': 'a promise to tell the truth',
+  'oath of allegiance': 'a promise to be loyal to the United States',
+  'taxes': 'money collected by the government from the people',
+  'religion': 'to believe in God',
+  'weapon': 'an object used to harm or kill',
+  'communism': 'no freedom',
+  'totalitarian': 'a government with total control',
+  'crime': 'breaking the law',
+  'genocide': 'killing a large group of people on purpose',
+  'persecution': 'being treated badly for who you are',
+  'torture': 'hurting someone on purpose',
+  'deportation': 'to be expelled from the United States',
+  'deported': 'to be expelled from the United States',
+  'arrested': 'taken by the police',
+  'cited': 'required to go to court',
+  'detained': 'held by authorities',
+  'convicted': 'found guilty by a court',
+  'registered to vote': 'signed up to vote',
+  'lie': 'not the truth',
+  'prison': 'a place for criminals',
+  'jail': 'a place for criminals',
+  'the constitution': 'the supreme law of the land',
+  'hereditary title': 'a noble rank passed down in a family, like a lord or duke',
+  'order of nobility': 'an official noble rank granted by a king or government',
+  'exemption': 'being officially excused from doing something required by law',
+  'noncombatant service': 'military service that does not involve fighting or combat',
+  'alimony': 'money a court orders one spouse to pay the other after divorce'
+};
+
+module.exports = { N400_SECTIONS, selectN400, allN400, selectN400Random, selectDefinitions, SHORT_DEFS };
