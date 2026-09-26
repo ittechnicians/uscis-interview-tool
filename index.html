@@ -872,7 +872,7 @@
 <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
 <button class="lang-btn" id="btnES" onclick="setLang('es')">ES</button>
 </div>
-<a class="btn-primary" id="navCta" onclick="openModal('signup')">Get Started Free</a>
+<a class="btn-primary" id="navCta" onclick="selectPlan('free')">Get Started Free</a>
 </div>
 </div>
 </nav>
@@ -883,7 +883,7 @@
 <h1 id="heroH1">Master Your <span class="highlight">Citizenship Interview</span> with AI</h1>
 <p id="heroSubtitle">Practice with five AI officers — each with a realistic voice and a distinct personality. Get instant feedback and walk into your real interview prepared and confident.</p>
 <div class="hero-buttons">
-<button class="btn-primary btn-large" id="heroBtnStart" onclick="openModal('signup')">Get Started Free →</button>
+<button class="btn-primary btn-large" id="heroBtnStart" onclick="selectPlan('free')">Get Started Free →</button>
 <a class="btn-secondary" href="#features" id="heroBtnHow">See how it works</a>
 </div>
 <div class="hero-stats">
@@ -1037,7 +1037,7 @@
 <li id="freeF4">1 full mock interview with an AI officer</li>
 <li id="freeF5">Bilingual English / Spanish</li>
 </ul>
-<button class="btn-pricing secondary" id="freeBtn" onclick="openModal('signup')">Create Free Account</button>
+<button class="btn-pricing secondary" id="freeBtn" onclick="selectPlan('free')">Create Free Account</button>
 </div>
 <div class="pricing-card featured">
 <span class="pricing-badge" id="proBadge">⭐ Most Popular</span>
@@ -1090,7 +1090,7 @@
 <div class="cta-container">
 <h2 data-en="Ready to Practice?" data-es="¿Listo para practicar?">Ready to Practice?</h2>
 <p data-en="Create a free account and start practicing with your AI officer today." data-es="Crea una cuenta gratis y empieza a practicar con tu oficial de IA hoy.">Create a free account and start practicing with your AI officer today.</p>
-<button class="btn-cta" onclick="openModal('signup')">Get Started Free →</button>
+<button class="btn-cta" onclick="selectPlan('free')">Get Started Free →</button>
 </div>
 </section>
 <section style="max-width:900px; margin:0 auto; padding:20px 24px 8px; text-align:center;">
@@ -1139,8 +1139,8 @@
 <div class="modal-overlay" id="signupModal">
 <div class="modal">
 <button class="modal-close" onclick="closeModal('signup')">×</button>
-<h2>Create Your Free Account</h2>
-<p>Free during early access — no credit card needed</p>
+<h2 id="signupTitle">Create Your Free Account</h2>
+<p id="signupSubtitle">Free during early access — no credit card needed</p>
 <div class="alert error" id="signupError"></div>
 <div class="alert success" id="signupSuccess"></div>
 <form id="signupForm" onsubmit="handleSignup(event)">
@@ -1215,10 +1215,41 @@
                 });
                 
                 if (error) throw error;
-                
-                successAlert.textContent = '✅ Account created! Check your email to verify.';
-                successAlert.style.display = 'block';
-                
+
+                const chosenPlan = localStorage.getItem('selectedPlan');
+
+                if ((chosenPlan === 'pro' || chosenPlan === 'premium') && data && data.user) {
+                    // Paid plan selected — skip the dashboard and go straight to
+                    // Stripe checkout, using the account we just created.
+                    successAlert.textContent = '✅ Account created! Taking you to payment…';
+                    successAlert.style.display = 'block';
+                    try {
+                        const res = await fetch('/api/checkout', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ userId: data.user.id, email: email, plan: chosenPlan })
+                        });
+                        const checkoutData = await res.json();
+                        if (checkoutData && checkoutData.url) {
+                            localStorage.removeItem('selectedPlan');
+                            window.location.href = checkoutData.url;
+                            return;
+                        }
+                        // Checkout failed to start — fall back to the dashboard,
+                        // where the Upgrade button can still complete the purchase.
+                        errorAlert.textContent = (checkoutData && checkoutData.error) || 'Could not start payment — you can upgrade from your dashboard.';
+                        errorAlert.style.display = 'block';
+                    } catch (checkoutErr) {
+                        console.error('Checkout error:', checkoutErr);
+                        errorAlert.textContent = 'Could not start payment — you can upgrade from your dashboard.';
+                        errorAlert.style.display = 'block';
+                    }
+                } else {
+                    successAlert.textContent = '✅ Account created! Check your email to verify.';
+                    successAlert.style.display = 'block';
+                }
+
+                localStorage.removeItem('selectedPlan');
                 setTimeout(() => {
                     window.location.href = '/dashboard.html';
                 }, 2000);
@@ -1288,6 +1319,22 @@
 
         function selectPlan(plan) {
             localStorage.setItem('selectedPlan', plan);
+            const title = document.getElementById('signupTitle');
+            const subtitle = document.getElementById('signupSubtitle');
+            const btn = document.getElementById('signupButton');
+            if (plan === 'premium') {
+                title.textContent = 'Create Your Account to Continue';
+                subtitle.textContent = 'Next step: pay $39 for Premium — 30 days of access, no subscription.';
+                btn.textContent = 'Continue to Payment →';
+            } else if (plan === 'pro') {
+                title.textContent = 'Create Your Account to Continue';
+                subtitle.textContent = 'Next step: pay $19 for Professional — 30 days of access, no subscription.';
+                btn.textContent = 'Continue to Payment →';
+            } else {
+                title.textContent = 'Create Your Free Account';
+                subtitle.textContent = 'Free during early access — no credit card needed';
+                btn.textContent = 'Create Free Account';
+            }
             openModal('signup');
         }
         
