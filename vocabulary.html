@@ -163,38 +163,46 @@
 
         // ---------- Key N-400 interview vocabulary (simple definitions, EN/ES) ----------
         const VOCAB_N400 = [
-            { term:'naturalization', en:'the process of becoming a U.S. citizen if you were born in another country', es:'el proceso de convertirse en ciudadano de EE. UU. si naciste en otro pa\u00eds' },
-            { term:'permanent resident', en:'a person allowed to live and work in the U.S. permanently (a green card holder)', es:'una persona autorizada a vivir y trabajar permanentemente en EE. UU. (tiene green card)' },
-            { term:'applicant', en:'the person who is applying for a benefit (you)', es:'la persona que solicita un beneficio (t\u00fa)' },
-            { term:'eligibility', en:'meeting the requirements to qualify for something', es:'cumplir los requisitos para calificar para algo' },
-            { term:'Oath of Allegiance', en:'the official promise of loyalty you make to the United States to become a citizen', es:'la promesa oficial de lealtad que haces a Estados Unidos para hacerte ciudadano' },
-            { term:'allegiance', en:'loyalty and support given to a country', es:'lealtad y apoyo que se da a un pa\u00eds' },
-            { term:'good moral character', en:'behaving honestly and obeying the law; required to become a citizen', es:'comportarse con honestidad y respetar la ley; es requisito para ser ciudadano' },
-            { term:'persecution', en:'being harmed or treated very badly because of your race, religion, nationality, political opinion, or group', es:'ser da\u00f1ado o maltratado por tu raza, religi\u00f3n, nacionalidad, opini\u00f3n pol\u00edtica o grupo' },
-            { term:'totalitarian party', en:'a government or party that has total control and does not allow other parties or freedoms', es:'un gobierno o partido con control total que no permite otros partidos ni libertades' },
-            { term:'Communist party', en:'a party or government where the state controls property and there is no private ownership', es:'un partido o gobierno donde el estado controla la propiedad y no hay propiedad privada' },
-            { term:'terrorist', en:'a person who uses violence and fear against people for political reasons', es:'una persona que usa violencia y miedo contra la gente por razones pol\u00edticas' },
-            { term:'genocide', en:'the deliberate killing of a large group of people because of their race, religion, or nationality', es:'el asesinato deliberado de un gran grupo de personas por su raza, religi\u00f3n o nacionalidad' },
-            { term:'torture', en:'causing someone severe pain on purpose to punish them or get information', es:'causar dolor severo a alguien a prop\u00f3sito para castigarlo u obtener informaci\u00f3n' },
-            { term:'arrested', en:'taken by the police because you are suspected of a crime', es:'detenido por la polic\u00eda porque te sospechan de un delito' },
-            { term:'cited', en:'officially given a ticket or notice by an officer for breaking a law (like a traffic ticket)', es:'recibir oficialmente una multa o citaci\u00f3n de un oficial por infringir una ley (como una multa de tr\u00e1fico)' },
-            { term:'detained', en:'held or kept by authorities, not free to leave', es:'retenido por las autoridades, sin poder irte' },
-            { term:'convicted', en:'found guilty of a crime by a court', es:'declarado culpable de un delito por un tribunal' },
-            { term:'crime', en:'an act that breaks the law', es:'un acto que viola la ley' },
-            { term:'probation', en:'a period when a person convicted of a crime is supervised instead of, or after, being in jail', es:'un periodo en que una persona condenada es supervisada en lugar de, o despu\u00e9s de, estar en la c\u00e1rcel' },
-            { term:'parole', en:'early release from prison under supervision, before the sentence ends', es:'liberaci\u00f3n anticipada de prisi\u00f3n bajo supervisi\u00f3n, antes de terminar la condena' },
-            { term:'deport / removal', en:'to be officially ordered to leave the United States', es:'recibir la orden oficial de salir de Estados Unidos' },
-            { term:'asylum', en:'protection given by a country to someone who fled persecution', es:'protecci\u00f3n que un pa\u00eds da a alguien que huy\u00f3 de la persecuci\u00f3n' },
-            { term:'refugee', en:'a person who flees their country to escape war or persecution', es:'una persona que huye de su pa\u00eds para escapar de la guerra o la persecuci\u00f3n' },
-            { term:'affiliated', en:'connected to, or a member of, a group or organization', es:'conectado a, o miembro de, un grupo u organizaci\u00f3n' },
-            { term:'bear arms', en:'to carry or use a weapon, such as a gun', es:'portar o usar un arma, como una pistola' },
-            { term:'Selective Service', en:'a system requiring most men ages 18 to 25 to register in case the military needs them', es:'un sistema que exige que la mayor\u00eda de los hombres de 18 a 25 a\u00f1os se registren por si el ej\u00e9rcito los necesita' },
-            { term:'spouse', en:'your husband or wife', es:'tu esposo o esposa' },
-            { term:'continuous residence', en:'living in the U.S. without long trips away during the required period', es:'vivir en EE. UU. sin viajes largos durante el periodo requerido' },
-            { term:'taxes', en:'money you must pay to the government from your income', es:'dinero que debes pagar al gobierno de tus ingresos' },
-            { term:'smuggling', en:'secretly and illegally bringing people or goods into a country', es:'introducir personas o bienes a un pa\u00eds en secreto e ilegalmente' },
-            { term:'habitual drunkard', en:'a person who is regularly or frequently drunk', es:'una persona que se emborracha habitual o frecuentemente' },
-            { term:'misrepresentation', en:'giving false information or lying to get a benefit', es:'dar informaci\u00f3n falsa o mentir para obtener un beneficio' }
+            { term:'naturalization', en:'the process of becoming a U.S. citizen if you were born in another country', es:'el proceso de convertirse en ciudadano de EE. UU. si naciste en otro pa\u00eds' , short:{en:'Becoming a U.S. citizen.', es:'Convertirse en ciudadano de EE. UU.'} },
+            { term:'permanent resident', en:'a person allowed to live and work in the U.S. permanently (a green card holder)', es:'una persona autorizada a vivir y trabajar permanentemente en EE. UU. (tiene green card)' , short:{en:'A green card holder.', es:'Alguien con tarjeta verde.'} },
+            { term:'applicant', en:'the person who is applying for a benefit (you)', es:'la persona que solicita un beneficio (t\u00fa)' , short:{en:'The person applying (you).', es:'La persona que solicita (tú).'} },
+            { term:'eligibility', en:'meeting the requirements to qualify for something', es:'cumplir los requisitos para calificar para algo' , short:{en:'Meeting the requirements.', es:'Cumplir los requisitos.'} },
+            { term:'Oath of Allegiance', en:'the official promise of loyalty you make to the United States to become a citizen', es:'la promesa oficial de lealtad que haces a Estados Unidos para hacerte ciudadano' , short:{en:'A promise to be loyal to the United States.', es:'Una promesa de lealtad a Estados Unidos.'} },
+            { term:'allegiance', en:'loyalty and support given to a country', es:'lealtad y apoyo que se da a un pa\u00eds' , short:{en:'Loyalty to a country.', es:'Lealtad a un país.'} },
+            { term:'good moral character', en:'behaving honestly and obeying the law; required to become a citizen', es:'comportarse con honestidad y respetar la ley; es requisito para ser ciudadano' , short:{en:'Behaving honestly and following the law.', es:'Comportarse con honestidad y respetar la ley.'} },
+            { term:'persecution', en:'being harmed or treated very badly because of your race, religion, nationality, political opinion, or group', es:'ser da\u00f1ado o maltratado por tu raza, religi\u00f3n, nacionalidad, opini\u00f3n pol\u00edtica o grupo' , short:{en:'Being treated badly for who you are.', es:'Ser maltratado por quién eres.'} },
+            { term:'totalitarian party', en:'a government or party that has total control and does not allow other parties or freedoms', es:'un gobierno o partido con control total que no permite otros partidos ni libertades' , short:{en:'A government with total control.', es:'Un gobierno con control total.'} },
+            { term:'Communist party', en:'a party or government where the state controls property and there is no private ownership', es:'un partido o gobierno donde el estado controla la propiedad y no hay propiedad privada' , short:{en:'A government with no private property.', es:'Un gobierno sin propiedad privada.'} },
+            { term:'terrorist', en:'a person who uses violence and fear against people for political reasons', es:'una persona que usa violencia y miedo contra la gente por razones pol\u00edticas' , short:{en:'Someone who uses violence for political reasons.', es:'Alguien que usa violencia por razones políticas.'} },
+            { term:'genocide', en:'the deliberate killing of a large group of people because of their race, religion, or nationality', es:'el asesinato deliberado de un gran grupo de personas por su raza, religi\u00f3n o nacionalidad' , short:{en:'Killing a large group of people on purpose.', es:'Matar a un gran grupo de personas a propósito.'} },
+            { term:'torture', en:'causing someone severe pain on purpose to punish them or get information', es:'causar dolor severo a alguien a prop\u00f3sito para castigarlo u obtener informaci\u00f3n' , short:{en:'Hurting someone on purpose.', es:'Hacerle daño a alguien a propósito.'} },
+            { term:'arrested', en:'taken by the police because you are suspected of a crime', es:'detenido por la polic\u00eda porque te sospechan de un delito' , short:{en:'Taken by the police.', es:'Detenido por la policía.'} },
+            { term:'cited', en:'officially given a ticket or notice by an officer for breaking a law (like a traffic ticket)', es:'recibir oficialmente una multa o citaci\u00f3n de un oficial por infringir una ley (como una multa de tr\u00e1fico)' , short:{en:'Required to go to court.', es:'Obligado a ir a la corte.'} },
+            { term:'detained', en:'held or kept by authorities, not free to leave', es:'retenido por las autoridades, sin poder irte' , short:{en:'Held by authorities.', es:'Retenido por las autoridades.'} },
+            { term:'convicted', en:'found guilty of a crime by a court', es:'declarado culpable de un delito por un tribunal' , short:{en:'Found guilty by a court.', es:'Declarado culpable por un tribunal.'} },
+            { term:'crime', en:'an act that breaks the law', es:'un acto que viola la ley' , short:{en:'Breaking the law.', es:'Romper la ley.'} },
+            { term:'probation', en:'a period when a person convicted of a crime is supervised instead of, or after, being in jail', es:'un periodo en que una persona condenada es supervisada en lugar de, o despu\u00e9s de, estar en la c\u00e1rcel' , short:{en:'Supervision instead of jail.', es:'Supervisión en lugar de cárcel.'} },
+            { term:'parole', en:'early release from prison under supervision, before the sentence ends', es:'liberaci\u00f3n anticipada de prisi\u00f3n bajo supervisi\u00f3n, antes de terminar la condena' , short:{en:'Early release from prison.', es:'Salida anticipada de prisión.'} },
+            { term:'deport / removal', en:'to be officially ordered to leave the United States', es:'recibir la orden oficial de salir de Estados Unidos' , short:{en:'To be expelled from the United States.', es:'Ser expulsado de Estados Unidos.'} },
+            { term:'asylum', en:'protection given by a country to someone who fled persecution', es:'protecci\u00f3n que un pa\u00eds da a alguien que huy\u00f3 de la persecuci\u00f3n' , short:{en:'Protection from persecution.', es:'Protección contra la persecución.'} },
+            { term:'refugee', en:'a person who flees their country to escape war or persecution', es:'una persona que huye de su pa\u00eds para escapar de la guerra o la persecuci\u00f3n' , short:{en:'Someone who flees war or persecution.', es:'Alguien que huye de la guerra o persecución.'} },
+            { term:'affiliated', en:'connected to, or a member of, a group or organization', es:'conectado a, o miembro de, un grupo u organizaci\u00f3n' , short:{en:'Connected to a group.', es:'Conectado a un grupo.'} },
+            { term:'bear arms', en:'to carry or use a weapon, such as a gun', es:'portar o usar un arma, como una pistola' , short:{en:'To carry or use a weapon.', es:'Portar o usar un arma.'} },
+            { term:'Selective Service', en:'a system requiring most men ages 18 to 25 to register in case the military needs them', es:'un sistema que exige que la mayor\u00eda de los hombres de 18 a 25 a\u00f1os se registren por si el ej\u00e9rcito los necesita' , short:{en:'Military registration for young men.', es:'Registro militar para hombres jóvenes.'} },
+            { term:'spouse', en:'your husband or wife', es:'tu esposo o esposa' , short:{en:'Your husband or wife.', es:'Tu esposo o esposa.'} },
+            { term:'continuous residence', en:'living in the U.S. without long trips away during the required period', es:'vivir en EE. UU. sin viajes largos durante el periodo requerido' , short:{en:'Living in the U.S. without long trips away.', es:'Vivir en EE. UU. sin viajes largos.'} },
+            { term:'taxes', en:'money you must pay to the government from your income', es:'dinero que debes pagar al gobierno de tus ingresos' , short:{en:'Money collected by the government from the people.', es:'Dinero que el gobierno recauda de la gente.'} },
+            { term:'smuggling', en:'secretly and illegally bringing people or goods into a country', es:'introducir personas o bienes a un pa\u00eds en secreto e ilegalmente' , short:{en:'Illegally bringing people or goods into a country.', es:'Introducir personas o bienes ilegalmente.'} },
+            { term:'habitual drunkard', en:'a person who is regularly or frequently drunk', es:'una persona que se emborracha habitual o frecuentemente' , short:{en:'Someone often drunk.', es:'Alguien que se emborracha seguido.'} },
+            { term:'misrepresentation', en:'giving false information or lying to get a benefit', es:'dar informaci\u00f3n falsa o mentir para obtener un beneficio' , short:{en:'Lying to get a benefit.', es:'Mentir para obtener un beneficio.'} },
+            { term:'religion', en:'a belief in and worship of God or gods', es:'creencia y adoraci\u00f3n de Dios o dioses', short:{en:'To believe in God.', es:'Creer en Dios.'} },
+            { term:'weapon', en:'an object, such as a gun or knife, used to harm or kill', es:'un objeto, como una pistola o cuchillo, usado para da\u00f1ar o matar', short:{en:'An object used to harm or kill.', es:'Un objeto usado para da\u00f1ar o matar.'} },
+            { term:'communism', en:'a political system where the state controls property and there is no personal freedom or private ownership', es:'un sistema pol\u00edtico donde el estado controla la propiedad y no hay libertad personal ni propiedad privada', short:{en:'No freedom.', es:'Sin libertad.'} },
+            { term:'oath', en:'a formal, solemn promise', es:'una promesa formal y solemne', short:{en:'A promise to tell the truth.', es:'Una promesa de decir la verdad.'} },
+            { term:'registered to vote', en:'officially signed up on the list of people allowed to vote', es:'inscrito oficialmente en la lista de personas autorizadas a votar', short:{en:'Signed up to vote.', es:'Inscrito para votar.'} },
+            { term:'lie', en:'a statement that is not true, said on purpose', es:'una declaraci\u00f3n falsa dicha a prop\u00f3sito', short:{en:'Not the truth.', es:'No es la verdad.'} },
+            { term:'prison / jail', en:'a place where people are kept as punishment for a crime', es:'un lugar donde se mantiene a personas como castigo por un delito', short:{en:'A place for criminals.', es:'Un lugar para criminales.'} },
+            { term:'the Constitution', en:'the document containing the supreme law of the United States', es:'el documento que contiene la ley suprema de Estados Unidos', short:{en:'The supreme law of the land.', es:'La ley suprema del pa\u00eds.'} }
         ];
 
         const state = {
@@ -235,7 +243,7 @@
         }
         function curItem() { const q = state.quiz; return (q.questions && q.questions[q.index]) ? q.questions[q.index].correctObj : null; }
         function speakTerm() { const it = curItem(); if (it) speak(it.term, 'en-US'); }
-        function speakDef() { const it = curItem(); if (it) speak(it[lang], lang === 'es' ? 'es-ES' : 'en-US'); }
+        function speakDef() { const it = curItem(); if (it) speak(it.short ? it.short[lang] : it[lang], lang === 'es' ? 'es-ES' : 'en-US'); }
 
         function tabsHtml() {
             return '<div class="tabs">' +
@@ -288,7 +296,7 @@
                     else if (o === q.chosen) cls += ' wrong';
                 }
                 return '<button class="' + cls + '" ' + (q.answered ? 'disabled' : '') +
-                    ' onclick="answer(' + item.opts.indexOf(o) + ')">' + escapeHtml(o[lang]) + '</button>';
+                    ' onclick="answer(' + item.opts.indexOf(o) + ')">' + escapeHtml(o.short ? o.short[lang] : o[lang]) + '</button>';
             }).join('');
             app.innerHTML =
                 '<div class="progress">' +
