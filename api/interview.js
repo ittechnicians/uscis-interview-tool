@@ -19,7 +19,11 @@ const FOCUS_RULES = `
 - COMPLETION: When the interview genuinely finishes (after your closing/feedback), end your final message with [[END]]. Only ever include [[END]] when the interview is actually over. Both [[OFFTRACK]] and [[END]] are hidden control markers — never mention them.`;
 
 const { CIVICS_2008, CIVICS_2020, STATE_INFO, STATE } = require('./civics.js');
-const { selectN400, allN400, selectN400Random, selectDefinitions } = require('./n400.js');
+const { selectN400, allN400, selectN400Random, selectDefinitions, SHORT_DEFS } = require('./n400.js');
+
+function formatShortDefs() {
+  return Object.keys(SHORT_DEFS).map(function (t) { return t + ' = ' + SHORT_DEFS[t]; }).join('; ');
+}
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -208,7 +212,7 @@ ${n400List}
 
   const gmcList = gmcSec ? gmcSec.questions.map(function (q) { return `   - ${q}`; }).join('\n') : '';
   const attachList = attachSec ? attachSec.questions.map(function (q) { return `   - ${q}`; }).join('\n') : '';
-  const gmcSection = `5. GOOD MORAL CHARACTER AND ATTACHMENT TO THE CONSTITUTION: Before you start, briefly congratulate the applicant on passing the civics and English portions. Then tell them you now need to ask some yes-or-no questions required by law. Ask these ONE AT A TIME, in this exact wording and order, waiting for an answer each time. Most applicants answer "no" to all the good-moral-character questions — that is expected and normal; if they answer "yes" to something serious, ask one short follow-up, then move on, don't dwell or lecture. Some of these questions use legal terms the applicant may not know (for example: communism, totalitarian, weapon, crime, genocide, persecution, deportation). If they seem confused or ask what a term means, briefly define it in plain language before waiting for their answer — real USCIS officers do this routinely.
+  const gmcSection = `5. GOOD MORAL CHARACTER AND ATTACHMENT TO THE CONSTITUTION: Before you start, briefly congratulate the applicant on passing the civics and English portions. Then tell them you now need to ask some yes-or-no questions required by law. Ask these ONE AT A TIME, in this exact wording and order, waiting for an answer each time. Some of these questions use legal terms the applicant may not know. If they seem confused or ask what a term means, use this EXACT short definition (do not improvise a longer one) — DEFINITIONS REFERENCE: ${formatShortDefs()}. If a term they ask about is not in that list, briefly define it in plain, simple language before waiting for their answer — real USCIS officers do this routinely.
 
 === GOOD MORAL CHARACTER QUESTIONS ===
 ${gmcList}
@@ -371,7 +375,7 @@ You are running a FOCUSED practice of ONLY the N-400 application questions — N
 
 Do this, in order:
 1. Start with one brief, warm small-talk line (for example asking how their day is going or if the wait was long) — keep it to one line. Then greet them and tell them you will go through their application questions. Do NOT administer the oath, the civics test, or the English reading/writing test — those are not part of this practice. Then ask: "Did you fill out this application yourself?" and "Is there anything on your application that needs to be updated?"
-2. Then ask the questions listed below, in this exact order, ONE at a time, waiting for each answer before moving to the next. Acknowledge each answer briefly and naturally. If the applicant answers "yes" to a good-moral-character question, ask one short follow-up, then continue. Some questions use legal terms the applicant may not know (for example: communism, totalitarian, weapon, crime, genocide, persecution, deportation). If they seem confused or ask what a term means, briefly define it in plain language before waiting for their answer — real USCIS officers do this routinely.
+2. Then ask the questions listed below, in this exact order, ONE at a time, waiting for each answer before moving to the next. Acknowledge each answer briefly and naturally. If the applicant answers "yes" to a good-moral-character question, ask one short follow-up, then continue. Some questions use legal terms the applicant may not know. If they seem confused or ask what a term means, use this EXACT short definition (do not improvise a longer one) — DEFINITIONS REFERENCE: ${formatShortDefs()}. If a term they ask about is not in that list, briefly define it in plain, simple language before waiting for their answer — real USCIS officers do this routinely.
 3. After the LAST question, start with the authentic closing line real USCIS officers use: something like "Congratulations, I will recommend your application for approval." Then, since this is a practice tool, add one short, encouraging tip for their benefit.
 
 === N-400 QUESTIONS (ask in this exact order, one at a time) ===
