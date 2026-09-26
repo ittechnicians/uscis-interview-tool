@@ -165,16 +165,28 @@ function buildSystemPrompt(officer, testVersion, n400Seed, mode, n400Mode, profi
   // English test sentences — same pool as the live-interview mode, varied per interview
   // via n400Seed so the writing test isn't always the same sentence.
   const readingSentences = [
-    'The White House is in Washington, D.C.',
-    'Congress meets in Washington, D.C.',
     'The President lives in the White House.',
-    'Citizens have the right to vote.',
-    'The flag has fifty stars.',
-    'The United States is a free country.',
     'George Washington was the first President.',
-    'Abraham Lincoln was the President during the Civil War.',
-    'The American flag is red, white, and blue.',
-    'We have freedom of speech in the United States.'
+    'George Washington is the Father of Our Country.',
+    'Citizens have the right to vote.',
+    'Citizens can vote.',
+    'We elect the President.',
+    'Senators meet in Congress.',
+    'Who elects Congress?',
+    'The White House is in the United States.',
+    'The White House is in America.',
+    'What is the capital of the United States?',
+    'What was the first capital?',
+    'What state has the most people?',
+    'Who was Abraham Lincoln?',
+    'Who was the first President?',
+    'Who was the second President?',
+    'When is Thanksgiving?',
+    'When is Labor Day?',
+    'How many Senators do we have?',
+    'What are the colors of the American flag?',
+    'The Bill of Rights is for citizens.',
+    'America is a country.'
   ];
   const writingSentences = [
     'The president lives in the White House.',
