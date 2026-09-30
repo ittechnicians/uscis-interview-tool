@@ -75,6 +75,45 @@ async function updateProfile(userId, fields) {
   return true;
 }
 
+async function getProfile(userId, select) {
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const url = SUPABASE_URL + '/rest/v1/profiles?id=eq.' + encodeURIComponent(userId) + '&select=' + encodeURIComponent(select);
+  const r = await fetch(url, {
+    headers: { 'apikey': key, 'Authorization': 'Bearer ' + key }
+  });
+  if (!r.ok) {
+    console.error('Supabase read failed:', r.status);
+    return null;
+  }
+  const rows = await r.json();
+  return (rows && rows[0]) || null;
+}
+
+// Paying customers should never get stuck behind Supabase's "confirm your
+// email" gate — free signups still go through it (anti-spam/bad-email
+// protection), but a successful Stripe payment is itself strong proof the
+// account is real, so we auto-confirm the email the moment payment lands.
+async function confirmUserEmail(userId) {
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const url = SUPABASE_URL + '/auth/v1/admin/users/' + encodeURIComponent(userId);
+  const r = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      'apikey': key,
+      'Authorization': 'Bearer ' + key,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ email_confirm: true })
+  });
+  if (!r.ok) {
+    let detail = '';
+    try { detail = await r.text(); } catch (e) {}
+    console.error('Auto email-confirm failed:', r.status, detail);
+    return false;
+  }
+  return true;
+}
+
 async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -122,8 +161,8 @@ async function handler(req, res) {
         };
         if (plan === 'topup') {
           // Top-up: add 5 credits without changing plan or expiry
-          const profileRes = await supabaseAdmin.from('profiles').select('live_credits').eq('id', userId).single();
-          const cur = (profileRes.data && typeof profileRes.data.live_credits === 'number') ? profileRes.data.live_credits : 0;
+          const profile = await getProfile(userId, 'live_credits');
+          const cur = (profile && typeof profile.live_credits === 'number') ? profile.live_credits : 0;
           fields.live_credits = cur + 5;
         } else {
           fields.plan = plan;
@@ -131,6 +170,7 @@ async function handler(req, res) {
           if (plan === 'premium') fields.live_credits = 8;
         }
         await updateProfile(userId, fields);
+        await confirmUserEmail(userId);
         console.log('Activated plan', plan, 'until', expires, 'for user:', userId);
       } else {
         console.error('checkout.session.completed without userId');
