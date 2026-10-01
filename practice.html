@@ -657,13 +657,14 @@
         const REPORT_L = {
             en: { loading: '\ud83d\udcdd The officer is writing your evaluation\u2026',
                   verdicts: { ready: ['\ud83c\udf89', 'You are ready!'], almost: ['\ud83d\udc4d', 'Almost there'], practice: ['\ud83d\udcaa', 'Keep practicing'] },
-                  strengths: 'What you did well', improve: 'Focus on these 3 things', btn: 'Back to Dashboard' },
+                  strengths: 'What you did well', improve: 'Focus on these 3 things', btn: 'Back to Dashboard', translateBtn: '\ud83c\udf10 Ver en Espa\u00f1ol' },
             es: { loading: '\ud83d\udcdd El oficial est\u00e1 escribiendo tu evaluaci\u00f3n\u2026',
                   verdicts: { ready: ['\ud83c\udf89', '\u00a1Est\u00e1s listo!'], almost: ['\ud83d\udc4d', 'Ya casi'], practice: ['\ud83d\udcaa', 'Sigue practicando'] },
-                  strengths: 'Lo que hiciste bien', improve: 'Enf\u00f3cate en estas 3 cosas', btn: 'Volver al Dashboard' }
+                  strengths: 'Lo que hiciste bien', improve: 'Enf\u00f3cate en estas 3 cosas', btn: 'Volver al Dashboard', translateBtn: '\ud83c\udf10 View in English' }
         };
         let sessionLogged = false;
         let reportShown = false;
+        let reportTranslating = false;
         function escapeHtml(x) { const d = document.createElement('div'); d.textContent = String(x); return d.innerHTML; }
         async function logSession(score) {
             if (sessionLogged) return;
@@ -673,10 +674,10 @@
                 if (n > 0) await saveSession('full_interview', n, null, score);
             } catch (e) {}
         }
-        async function generateReport() {
-            if (reportShown) return;
+        async function generateReport(forceLang) {
+            if (reportShown && !forceLang) return;
             reportShown = true;
-            const lang = (localStorage.getItem('lang') === 'es') ? 'es' : 'en';
+            const lang = forceLang || ((localStorage.getItem('lang') === 'es') ? 'es' : 'en');
             const L = REPORT_L[lang];
             document.getElementById('reportLoading').textContent = L.loading;
             document.getElementById('reportLoading').style.display = 'block';
@@ -691,14 +692,23 @@
                 const data = await res.json();
                 if (!res.ok || !data.report) throw new Error(data.error || 'report failed');
                 await logSession(data.report.score);
-                renderReport(data.report, L);
+                renderReport(data.report, L, lang);
             } catch (e) {
                 console.log('report skipped:', e);
                 await logSession(null);
                 document.getElementById('reportOverlay').classList.remove('show');
+            } finally {
+                reportTranslating = false;
             }
         }
-        function renderReport(r, L) {
+        function translateReport() {
+            if (reportTranslating) return;
+            reportTranslating = true;
+            const currentLang = (document.getElementById('reportBody').getAttribute('data-lang') === 'es') ? 'es' : 'en';
+            const targetLang = currentLang === 'es' ? 'en' : 'es';
+            generateReport(targetLang);
+        }
+        function renderReport(r, L, lang) {
             const v = L.verdicts[r.verdict] || L.verdicts.almost;
             let html = '<div class="report-emoji">' + v[0] + '</div>' +
                 '<div class="report-title">' + escapeHtml(v[1]) + '</div>' +
@@ -712,9 +722,11 @@
                     r.improvements.map(function (x) { return '<li>' + escapeHtml(x) + '</li>'; }).join('') + '</ul>';
             }
             if (r.note) html += '<div class="report-note">' + escapeHtml(r.note) + '</div>';
+            html += '<button class="report-btn" style="background:#fff;color:#1e40af;border:1px solid #bfdbfe;margin-bottom:0.5rem;" onclick="translateReport()">' + escapeHtml(L.translateBtn) + '</button>';
             html += '<button class="report-btn" onclick="window.location.href=\'dashboard.html\'">' + escapeHtml(L.btn) + '</button>';
             document.getElementById('reportLoading').style.display = 'none';
             const b = document.getElementById('reportBody');
+            b.setAttribute('data-lang', lang);
             b.innerHTML = html;
             b.style.display = 'block';
         }
