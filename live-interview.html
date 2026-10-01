@@ -925,19 +925,20 @@
             en: {
                 loading: '\uD83D\uDCDD The officer is writing your evaluation\u2026',
                 verdicts: { ready: ['\uD83C\uDF89','You are ready!'], almost: ['\uD83D\uDC4D','Almost there'], practice: ['\uD83D\uDCAA','Keep practicing'] },
-                strengths: 'What you did well', improve: 'Focus on these 3 things', btn: 'Back to Dashboard'
+                strengths: 'What you did well', improve: 'Focus on these 3 things', btn: 'Back to Dashboard', translateBtn: '\uD83C\uDF10 Ver en Espa\u00f1ol'
             },
             es: {
                 loading: '\uD83D\uDCDD El oficial est\u00e1 escribiendo tu evaluaci\u00f3n\u2026',
                 verdicts: { ready: ['\uD83C\uDF89','\u00a1Est\u00e1s listo!'], almost: ['\uD83D\uDC4D','Ya casi'], practice: ['\uD83D\uDCAA','Sigue practicando'] },
-                strengths: 'Lo que hiciste bien', improve: 'Enf\u00f3cate en estas 3 cosas', btn: 'Volver al Dashboard'
+                strengths: 'Lo que hiciste bien', improve: 'Enf\u00f3cate en estas 3 cosas', btn: 'Volver al Dashboard', translateBtn: '\uD83C\uDF10 View in English'
             }
         };
 
+        let reportTranslating = false;
         function escapeHtml(x) { const d = document.createElement('div'); d.textContent = String(x); return d.innerHTML; }
 
-        async function generateReport() {
-            const lang = (localStorage.getItem('lang') === 'es') ? 'es' : 'en';
+        async function generateReport(forceLang) {
+            const lang = forceLang || ((localStorage.getItem('lang') === 'es') ? 'es' : 'en');
             const L = REPORT_L[lang];
             document.getElementById('reportLoading').textContent = L.loading;
             document.getElementById('reportLoading').style.display = 'block';
@@ -965,15 +966,24 @@
                     }
                 } catch(e) { console.log('stats skip:', e); }
 
-                renderReport(data.report, L);
+                renderReport(data.report, L, lang);
             } catch(e) {
                 console.log('report skipped:', e);
                 document.getElementById('reportOverlay').style.display = 'none';
                 document.getElementById('endedRow').classList.add('visible');
+            } finally {
+                reportTranslating = false;
             }
         }
+        function translateReport() {
+            if (reportTranslating) return;
+            reportTranslating = true;
+            const currentLang = (document.getElementById('reportBody').getAttribute('data-lang') === 'es') ? 'es' : 'en';
+            const targetLang = currentLang === 'es' ? 'en' : 'es';
+            generateReport(targetLang);
+        }
 
-        function renderReport(r, L) {
+        function renderReport(r, L, lang) {
             const v = L.verdicts[r.verdict] || L.verdicts.almost;
             let html = '<div style="font-size:2.5rem;text-align:center;">' + v[0] + '</div>' +
                 '<div style="font-size:1.35rem;font-weight:800;text-align:center;margin:0.25rem 0 0.1rem;color:#0f172a;">' + escapeHtml(v[1]) + '</div>' +
@@ -987,9 +997,11 @@
                     r.improvements.map(x => '<li style="margin-bottom:0.35rem;">' + escapeHtml(x) + '</li>').join('') + '</ul>';
             }
             if (r.note) html += '<div style="background:#f1f5f9;border-radius:0.6rem;padding:0.7rem 0.9rem;font-size:0.9rem;color:#334155;margin-top:0.9rem;">' + escapeHtml(r.note) + '</div>';
-            html += '<button style="display:block;width:100%;margin-top:1.2rem;background:#1e40af;color:#fff;border:none;padding:0.8rem;border-radius:0.6rem;font-weight:700;font-size:1rem;cursor:pointer;" onclick="window.location.href=\'dashboard.html\'">' + escapeHtml(L.btn) + '</button>';
+            html += '<button style="display:block;width:100%;margin-top:1.2rem;background:#fff;color:#1e40af;border:1px solid #bfdbfe;padding:0.75rem;border-radius:0.6rem;font-weight:700;font-size:0.95rem;cursor:pointer;" onclick="translateReport()">' + escapeHtml(L.translateBtn) + '</button>';
+            html += '<button style="display:block;width:100%;margin-top:0.6rem;background:#1e40af;color:#fff;border:none;padding:0.8rem;border-radius:0.6rem;font-weight:700;font-size:1rem;cursor:pointer;" onclick="window.location.href=\'dashboard.html\'">' + escapeHtml(L.btn) + '</button>';
             document.getElementById('reportLoading').style.display = 'none';
             const b = document.getElementById('reportBody');
+            b.setAttribute('data-lang', lang);
             b.innerHTML = html;
             b.style.display = 'block';
         }
