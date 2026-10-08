@@ -206,7 +206,7 @@ function buildInstructions(id, civicsVer, userState, gmcQuestions) {
   const civicsList = civicsSelected.map(function (item) {
     return 'Q' + item.n + '. ' + item.q + ' | ACCEPTED ANSWER(S): ' + item.a;
   }).join(' — ');
-  const civicsNote = (civicsVer === '128' ? 'Use the 128-question (2020 updated) civics test. ' : 'Use the 100-question (2008 standard) civics test. ')
+  const civicsNote = (civicsVer === '128' ? 'Use the 128-question (2025 updated) civics test. ' : 'Use the 100-question (2008 standard) civics test. ')
     + 'Ask ONLY the questions listed below, in the order given, one at a time — never invent your own questions or use ones not on this list: ' + civicsList;
   const gmcList = (gmcQuestions || []).map((q, i) => (i + 1) + '. ' + q).join(' ');
 
