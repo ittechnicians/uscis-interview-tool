@@ -121,7 +121,7 @@ const CIVICS_2008 = [
   { n: 100, q: 'Name two national U.S. holidays.', a: "New Year's Day; Martin Luther King, Jr. Day; Presidents' Day; Memorial Day; Independence Day; Labor Day; Columbus Day; Veterans Day; Thanksgiving; Christmas" }
 ];
 
-// 2020 test (also the version in effect for filings on/after Oct 20, 2025): 128 questions.
+// 2025 test (128 questions; same bank as the 2020 test, in effect for filings on/after Oct 20, 2025).
 // The officer asks up to 20; the applicant must answer 12 correctly to pass.
 const CIVICS_2020 = [
   { n: 1,  q: 'What is the form of government of the United States?', a: 'Republic; Constitution-based federal republic; Representative democracy' },
