@@ -157,7 +157,7 @@ function buildSystemPrompt(officer, testVersion, n400Seed, mode, n400Mode, profi
   const bank = is128 ? CIVICS_2020 : CIVICS_2008;
   const askCount = is128 ? 20 : 10;
   const passCount = is128 ? 12 : 6;
-  const versionName = is128 ? 'official USCIS 2020 civics test (the 128-question version)'
+  const versionName = is128 ? 'official USCIS 2025 civics test (the 128-question version)'
                             : 'official USCIS 2008 civics test (the 100-question version)';
 
   const civics = buildCivicsBlock(bank, n400Seed, askCount, passCount, versionName, userState);
