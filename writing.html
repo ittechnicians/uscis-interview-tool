@@ -110,7 +110,7 @@
                 hear:'🔊 Hear the sentence', again:'Hear again',
                 placeholder:'Type the sentence you hear…', check:'Check', skip:'Skip',
                 hintListen:'Tap the button to hear the sentence. You can replay it as many times as you need.',
-                correct:'Correct!', notQuite:'Not quite.', theSentence:'The sentence was:',
+                correct:'Correct!', notQuite:'Not quite.', capTitle:'Almost — check your capital letters.', capMsg:'The officer grades capitalization. Capitalize:', theSentence:'The sentence was:',
                 qof:(i,n)=>`Sentence ${i} of ${n}`,
                 done:'Practice complete!', score:(k,n)=>`You wrote ${k} of ${n} correctly`,
                 againBtn:'Practice again', toHub:'Back to hub',
@@ -123,7 +123,7 @@
                 hear:'🔊 Escuchar la oración', again:'Escuchar de nuevo',
                 placeholder:'Escribe la oración que escuchas…', check:'Revisar', skip:'Saltar',
                 hintListen:'Toca el botón para escuchar la oración. Puedes repetirla las veces que necesites.',
-                correct:'¡Correcto!', notQuite:'Casi.', theSentence:'La oración era:',
+                correct:'¡Correcto!', notQuite:'Casi.', capTitle:'Casi — revisa las mayúsculas.', capMsg:'El oficial califica las mayúsculas. Debe ir con mayúscula:', theSentence:'La oración era:',
                 qof:(i,n)=>`Oración ${i} de ${n}`,
                 done:'¡Práctica completa!', score:(k,n)=>`Escribiste ${k} de ${n} correctamente`,
                 againBtn:'Practicar de nuevo', toHub:'Volver al inicio',
@@ -194,7 +194,59 @@
         }
 
         function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
-        function normalize(s){ return String(s).toLowerCase().replace(/[.,!?;:'"-]/g,'').replace(/\s+/g,' ').trim(); }
+        function normalize(s){
+            return String(s)
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // strip accents (á->a, é->e, ñ->n, etc.)
+                .toLowerCase()
+                .replace(/[.,!?;:'"-]/g,'')
+                .replace(/\s+/g,' ')
+                .trim();
+        }
+        function levenshtein(a, b) {
+            const m = a.length, n = b.length;
+            const dp = Array.from({length: m + 1}, (_, i) => [i].concat(Array(n).fill(0)));
+            for (let j = 0; j <= n; j++) dp[0][j] = j;
+            for (let i = 1; i <= m; i++) {
+                for (let j = 1; j <= n; j++) {
+                    dp[i][j] = a[i-1] === b[j-1]
+                        ? dp[i-1][j-1]
+                        : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+                }
+            }
+            return dp[m][n];
+        }
+        function wordsMatch(typedWord, correctWord) {
+            if (typedWord === correctWord) return true;
+            const len = correctWord.length;
+            const tolerance = len <= 3 ? 0 : (len <= 6 ? 1 : 2);
+            return levenshtein(typedWord, correctWord) <= tolerance;
+        }
+        // Keep letter case (strip accents + punctuation only) so we can grade capitalization.
+        function caseWords(s){
+            return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+                .replace(/[.,!?;:'"-]/g,'').replace(/\s+/g,' ').trim().split(' ').filter(Boolean);
+        }
+        // Returns 'ok' | 'case' | 'wrong'.
+        // 'case' = words and spelling are right but a capital letter is missing/extra
+        // (real USCIS officers grade capitalization of the first word and proper nouns).
+        function gradeSentence(typed, correct) {
+            const typedWords = normalize(typed).split(' ').filter(Boolean);
+            const correctWords = normalize(correct).split(' ').filter(Boolean);
+            if (typedWords.length !== correctWords.length) return {result:'wrong', caseErrors:[]};
+            if (!typedWords.every((w, i) => wordsMatch(w, correctWords[i]))) return {result:'wrong', caseErrors:[]};
+            const tc = caseWords(typed), cc = caseWords(correct);
+            const caseErrors = [];
+            if (tc.length === cc.length) {
+                cc.forEach(function (cw, i) {
+                    const tw = tc[i];
+                    if (tw.charAt(0) !== cw.charAt(0) && tw.charAt(0).toLowerCase() === cw.charAt(0).toLowerCase()) {
+                        caseErrors.push(cw);
+                    }
+                });
+            }
+            return {result: caseErrors.length ? 'case' : 'ok', caseErrors: caseErrors};
+        }
+        function sentencesMatch(typed, correct) { return gradeSentence(typed, correct).result === 'ok'; }
 
         function speak(text){
             if(!('speechSynthesis' in window)) return;
@@ -251,7 +303,8 @@
                     </div>
                     <textarea id="answer" rows="2" placeholder="${t('placeholder')}" ${state.checked?'disabled':''}>${state.typed||''}</textarea>
                     <div class="feedback ${state.checked?(state.lastOk?'ok show':'no show'):''}">
-                        <div class="ftitle">${state.lastOk? t('correct') : t('notQuite')}</div>
+                        <div class="ftitle">${state.lastOk? t('correct') : (state.caseErrors && state.caseErrors.length ? t('capTitle') : t('notQuite'))}</div>
+                        ${(!state.lastOk && state.caseErrors && state.caseErrors.length) ? `<div class="lbl">${t('capMsg')} <b>${escapeHtml(state.caseErrors.join(', '))}</b></div>` : ''}
                         <div class="lbl">${t('theSentence')}</div>
                         <div class="correct">${escapeHtml(cur)}</div>
                     </div>
@@ -269,14 +322,16 @@
             const a=document.getElementById('answer');
             state.typed=a.value;
             const cur=state.list[state.index];
-            state.lastOk = normalize(a.value)===normalize(cur);
+            const g = gradeSentence(a.value, cur);
+            state.lastOk = (g.result === 'ok');
+            state.caseErrors = g.result === 'case' ? g.caseErrors : [];
             if(state.lastOk) state.score++;
             state.checked=true;
             renderPractice();
         }
 
         function next(){
-            state.index++; state.checked=false; state.typed='';
+            state.index++; state.checked=false; state.typed=''; state.caseErrors=[];
             if(state.index>=state.list.length){ state.screen='results'; render(); }
             else { renderPractice(); setTimeout(()=>speak(state.list[state.index]), 300); }
         }
