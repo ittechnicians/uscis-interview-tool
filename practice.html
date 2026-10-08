@@ -204,7 +204,7 @@
                 <p class="test-q">Which civics test are you preparing for?</p>
                 <div class="test-toggle">
                     <button class="test-opt selected" data-v="100" onclick="selectTest('100')">100 Questions<small>2008 test · 6 of 10 to pass</small></button>
-                    <button class="test-opt" data-v="128" onclick="selectTest('128')">128 Questions<small>2020 test · 12 of 20 to pass</small></button>
+                    <button class="test-opt" data-v="128" onclick="selectTest('128')">128 Questions<small>2025 test · 12 of 20 to pass</small></button>
                 </div>
                 <br>
                 <p class="test-q" style="margin-top:0.75rem;">Your state <span style="font-weight:400;color:#64748b;font-size:0.82rem;">(for state-specific civics)</span></p>
@@ -440,7 +440,7 @@
             document.getElementById('startRow').style.display = 'none';
             document.getElementById('micRow').style.display = 'flex';
             document.getElementById('testBadge').textContent =
-                (testVersion === '128') ? 'Civics: 2020 test · 128 questions' : 'Civics: 2008 test · 100 questions';
+                (testVersion === '128') ? 'Civics: 2025 test · 128 questions' : 'Civics: 2008 test · 100 questions';
             setStatus('Connecting...', 'live');
             askOfficer(); // empty history -> officer greets
         }
