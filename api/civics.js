@@ -329,8 +329,26 @@ function resolveStateAnswers(bank, stateName) {
     else if (q.indexOf('governor') !== -1) a = info.governor + ' (Governor of ' + stateName + ')';
     else if (q.indexOf('capital') !== -1) a = info.capital;
     else a = item.a;
-    return { n: item.n, q: item.q, a: a };
+    return { n: item.n, q: item.q, a: capitalizeAnswer(a) };
   });
+}
+
+
+// Capitalize the first letter of every answer and of each ";"-separated alternative
+// (so "the President" is shown as "The President"). Applies to ALL answers.
+function capitalizeAnswer(a) {
+  if (typeof a !== 'string') return a;
+  return a.split(';').map(function (seg) {
+    const lead = seg.match(/^\s*/)[0];
+    const rest = seg.slice(lead.length);
+    const i = rest.search(/[A-Za-z]/);
+    if (i === -1) return seg;
+    // only capitalize if the first alphabetic char starts the segment (or follows an opening paren)
+    if (/^[^A-Za-z]*$/.test(rest.slice(0, i)) && !/\d/.test(rest.slice(0, i))) {
+      return lead + rest.slice(0, i) + rest.charAt(i).toUpperCase() + rest.slice(i + 1);
+    }
+    return seg;
+  }).join(';');
 }
 
 // Resolve the dynamic placeholders using the current officials.
@@ -342,7 +360,7 @@ function resolveBank(bank) {
     '__SPEAKER__': CURRENT_OFFICIALS.speaker,
     '__CHIEF_JUSTICE__': CURRENT_OFFICIALS.chiefJustice
   };
-  return bank.map(item => ({ n: item.n, q: item.q, a: map[item.a] || item.a }));
+  return bank.map(item => ({ n: item.n, q: item.q, a: capitalizeAnswer(map[item.a] || item.a) }));
 }
 
 module.exports = {
