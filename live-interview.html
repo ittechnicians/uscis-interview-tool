@@ -308,6 +308,10 @@
         let officerRequestedEnd = false;
         let wrapUpRequested = false;
         let sawOfficerContentThisResponse = false;
+        let closingAsked = false;        // officer already delivered closing + asked "any final questions?"
+        let closingRetries = 0;          // retry cap for incomplete closings
+        let postClosingOfficerTurns = 0; // officer responses after the final-question was asked and applicant replied
+        let userRepliedAfterClosing = false;
         let firstResponseHandled = false;
         let offTopicStrikes = 0;
         let strike3WarningSent = false;
@@ -684,6 +688,7 @@
                         var text = c.transcript || c.text || '';
                         if (text) {
                             sawOfficerContentThisResponse = true;
+                            if (/final questions?|any (other|more) questions? for me|questions? for me before/i.test(text)) { closingAsked = true; }
                             var itemId = item.id || 'officer-done';
                             if (!transcriptItems[itemId]) {
                                 transcriptItems[itemId] = { role: 'officer', text: text, el: addBubble('officer', text) };
@@ -769,41 +774,54 @@
                 // Save to history for report
                 const lastItem = Object.values(transcriptItems).filter(i => i.role === 'officer').pop();
                 if (lastItem && lastItem.text) {
-                    conversationHistory.push({ role: 'assistant', content: lastItem.text });
+                    var _lastA = conversationHistory.filter(function (m) { return m.role === 'assistant'; }).pop();
+                    if (!_lastA || _lastA.content !== lastItem.text) {
+                        conversationHistory.push({ role: 'assistant', content: lastItem.text });
+                    }
                 }
-                if (type === 'response.done' && officerRequestedEnd && !interviewEnded) {
-                    const respStatus = (msg.response && msg.response.status) || 'completed';
-                    // The closing can legitimately span TWO officer turns (one with
-                    // the full feedback, then a short "thanks, good luck" turn that
-                    // actually calls end_interview) — so check the combined length
-                    // of the last two officer turns, not just this one.
-                    const officerTurns = conversationHistory.filter(function (m) { return m.role === 'assistant'; });
-                    const recentText = officerTurns.slice(-2).map(function (m) { return m.content; }).join(' ');
-                    const closingLooksComplete = recentText.length >= 120;
-                    if (sawOfficerContentThisResponse && respStatus === 'completed' && closingLooksComplete) {
-                        // Officer spoke its closing IN FULL (not interrupted/cut off,
-                        // not suspiciously short) AND called the tool — safe to end now.
-                        setTimeout(function () { endInterview(); }, 500);
-                    } else {
-                        // Either it was a silent tool call, the closing got cut off
-                        // mid-sentence (e.g. background noise triggered a barge-in
-                        // interrupt), or it was too short to have covered everything
-                        // required. Either way the applicant didn't hear the full
-                        // closing — don't cut them off, ask the officer to redo it.
-                        officerRequestedEnd = false;
-                        if (dataChannel && dataChannel.readyState === 'open') {
-                            dataChannel.send(JSON.stringify({
-                                type: 'conversation.item.create',
-                                item: {
-                                    type: 'message',
-                                    role: 'system',
-                                    content: [{
-                                        type: 'input_text',
-                                        text: 'Your closing was incomplete — either it got cut off, you called end_interview without saying it out loud, or you skipped some required parts. Say your FULL closing again from the start, covering ALL of these in order: (1) the authentic closing line, (2) one strength, (3) one specific thing to improve, (4) ask if the applicant has a final question and address it (or acknowledge if they say no). Only after you have said ALL of that out loud, uninterrupted, should you call end_interview again.'
-                                    }]
-                                }
-                            }));
-                            dataChannel.send(JSON.stringify({ type: 'response.create' }));
+                if (type === 'response.done' && !interviewEnded) {
+                    var respStatus = (msg.response && msg.response.status) || 'completed';
+                    var officerTurns = conversationHistory.filter(function (m) { return m.role === 'assistant'; });
+                    var recentText = officerTurns.slice(-2).map(function (m) { return m.content; }).join(' ');
+                    var closingLooksComplete = closingAsked || recentText.length >= 120;
+
+                    // Count officer turns that come AFTER the applicant answered the final-question prompt.
+                    if (closingAsked && userRepliedAfterClosing && sawOfficerContentThisResponse && respStatus === 'completed') {
+                        postClosingOfficerTurns++;
+                    }
+
+                    if (officerRequestedEnd) {
+                        if (sawOfficerContentThisResponse && respStatus === 'completed' && (closingLooksComplete || closingRetries >= 1)) {
+                            setTimeout(function () { endInterview(); }, 500);
+                        } else if (closingRetries >= 1) {
+                            // Already retried once — never loop. End now.
+                            setTimeout(function () { endInterview(); }, 500);
+                        } else {
+                            closingRetries++;
+                            officerRequestedEnd = false;
+                            if (dataChannel && dataChannel.readyState === 'open') {
+                                dataChannel.send(JSON.stringify({
+                                    type: 'conversation.item.create',
+                                    item: { type: 'message', role: 'system', content: [{ type: 'input_text',
+                                        text: 'Your closing was incomplete. Speak it now, out loud: the authentic closing line, one strength, one specific thing to improve, and ask if the applicant has a final question. Then wait for their answer.' }] }
+                                }));
+                                dataChannel.send(JSON.stringify({ type: 'response.create' }));
+                            }
+                        }
+                    } else if (closingAsked && userRepliedAfterClosing && postClosingOfficerTurns >= 1 && sawOfficerContentThisResponse) {
+                        // The final-question stage is over but the officer did NOT call end_interview
+                        // (kept asking things / repeated feedback). Force a clean ending.
+                        if (postClosingOfficerTurns === 1) {
+                            if (dataChannel && dataChannel.readyState === 'open') {
+                                dataChannel.send(JSON.stringify({
+                                    type: 'conversation.item.create',
+                                    item: { type: 'message', role: 'system', content: [{ type: 'input_text',
+                                        text: 'The final-question stage is finished. Do NOT repeat any feedback or ask anything else. Say ONE short goodbye line (e.g. wishing them good luck) and call end_interview in this same turn.' }] }
+                                }));
+                                dataChannel.send(JSON.stringify({ type: 'response.create' }));
+                            }
+                        } else {
+                            setTimeout(function () { endInterview(); }, 500);
                         }
                     }
                 }
@@ -815,6 +833,7 @@
                     // Avoid duplicates — only add if not already shown
                     const itemId = 'user-' + (msg.item_id || 'done');
                     if (!transcriptItems[itemId]) {
+                        if (closingAsked) { userRepliedAfterClosing = true; }
                         transcriptItems[itemId] = { role: 'user', text: text, el: addBubble('user', text) };
                         conversationHistory.push({ role: 'user', content: text });
                         scrollTranscript();
