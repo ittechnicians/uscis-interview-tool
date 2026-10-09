@@ -96,6 +96,7 @@
     <div class="wrap" id="app"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/tts.js"></script>
     <script>
         const SUPABASE_URL = 'https://vugvnqapdxyewxyfaayl.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_vFFY4GL2f8PIGrArW05ncg_PVkcgV4M';
@@ -248,13 +249,7 @@
         }
         function sentencesMatch(typed, correct) { return gradeSentence(typed, correct).result === 'ok'; }
 
-        function speak(text){
-            if(!('speechSynthesis' in window)) return;
-            window.speechSynthesis.cancel();
-            const u = new SpeechSynthesisUtterance(text);
-            u.lang = 'en-US'; u.rate = 0.9;
-            window.speechSynthesis.speak(u);
-        }
+        function speak(text){ window.speakText(text, 'en-US', 0.9); }
 
         function render(){
             if(state.screen==='setup') renderSetup();

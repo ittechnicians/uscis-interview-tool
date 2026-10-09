@@ -98,6 +98,7 @@
     <div class="wrap" id="app"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/tts.js"></script>
     <script>
         const SUPABASE_URL = 'https://vugvnqapdxyewxyfaayl.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_vFFY4GL2f8PIGrArW05ncg_PVkcgV4M';
@@ -229,18 +230,8 @@
         function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
         function escapeHtml(s) { return String(s).replace(/</g, '&lt;'); }
 
-        // ---------- Text-to-speech (browser voice) ----------
-        function speak(text, voiceLang) {
-            if (!('speechSynthesis' in window) || !text) return;
-            window.speechSynthesis.cancel();
-            const u = new SpeechSynthesisUtterance(text);
-            u.lang = voiceLang || 'en-US';
-            u.rate = 0.95;
-            const pref = (voiceLang || 'en').slice(0, 2).toLowerCase();
-            const vs = window.speechSynthesis.getVoices().filter(function (v) { return v.lang && v.lang.toLowerCase().startsWith(pref); });
-            if (vs.length) u.voice = vs[0];
-            window.speechSynthesis.speak(u);
-        }
+        // ---------- Text-to-speech (neural MP3 if available, else best browser voice; see tts.js) ----------
+        function speak(text, voiceLang) { window.speakText(text, voiceLang || 'en-US', 0.95); }
         function curItem() { const q = state.quiz; return (q.questions && q.questions[q.index]) ? q.questions[q.index].correctObj : null; }
         function speakTerm() { const it = curItem(); if (it) speak(it.term, 'en-US'); }
         function speakDef() { const it = curItem(); if (it) speak(it.short ? it.short[lang] : it[lang], lang === 'es' ? 'es-ES' : 'en-US'); }

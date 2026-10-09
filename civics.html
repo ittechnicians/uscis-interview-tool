@@ -109,6 +109,7 @@
     <div class="wrap" id="app"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/tts.js"></script>
     <script>
         // ---------- Supabase (auth guard) ----------
         const SUPABASE_URL = 'https://vugvnqapdxyewxyfaayl.supabase.co';
@@ -318,19 +319,9 @@
             speakQuestion();
         }
 
-        // ---------- Text-to-speech (browser voice) ----------
-        function speak(text, voiceLang) {
-            if (!('speechSynthesis' in window) || !text) return;
-            window.speechSynthesis.cancel();
-            const u = new SpeechSynthesisUtterance(text);
-            u.lang = voiceLang || 'en-US';
-            u.rate = 0.95;
-            const pref = (voiceLang || 'en').slice(0, 2).toLowerCase();
-            const vs = window.speechSynthesis.getVoices().filter(v => v.lang && v.lang.toLowerCase().startsWith(pref));
-            if (vs.length) u.voice = vs[0];
-            window.speechSynthesis.speak(u);
-        }
-        function stopSpeech() { if ('speechSynthesis' in window) window.speechSynthesis.cancel(); }
+        // ---------- Text-to-speech (neural MP3 if available, else best browser voice; see tts.js) ----------
+        function speak(text, voiceLang) { window.speakText(text, voiceLang || 'en-US', 0.95); }
+        function stopSpeech() { window.ttsStop(); }
         function speakQuestion() { const q = state.working[state.index]; if (q) speak(q.q, 'en-US'); }
         function speakAnswer() { const q = state.working[state.index]; if (q) speak(q.a, 'en-US'); }
 
