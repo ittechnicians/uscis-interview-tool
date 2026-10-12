@@ -206,72 +206,39 @@ function selectN400Random(seed, total) {
   return N400_SECTIONS.map(function (sec, si) { return bySection[si]; }).filter(Boolean);
 }
 
-// Key N-400 words an officer may ask the applicant to EXPLAIN (used in random mode).
-// The "ref" is a short reference so the officer can judge a reasonable explanation.
-const N400_DEFINITIONS = [
-  // Core N-400 vocabulary — asked most frequently in real interviews
-  { term: 'naturalization', ref: 'the process of becoming a U.S. citizen if you were not born in the United States' },
-  { term: 'permanent resident', ref: 'a person who has permission to live and work in the U.S. permanently; a green card holder' },
-  { term: 'allegiance', ref: 'loyalty and support given to a country or its government' },
-  { term: 'Oath of Allegiance', ref: 'the promise of loyalty you make to the United States to become a citizen' },
-  { term: 'good moral character', ref: 'behaving honestly, obeying the law, and being responsible' },
-  { term: 'continuous residence', ref: 'living in the United States without long trips outside the country during the required period' },
-  { term: 'physical presence', ref: 'the total time you were physically inside the United States' },
-  { term: 'the Constitution', ref: 'the supreme law of the United States' },
-  { term: 'an amendment', ref: 'a change or addition to the Constitution' },
-  { term: 'the Bill of Rights', ref: 'the first 10 amendments to the Constitution, which protect the rights of citizens' },
-  { term: 'a dependent', ref: 'a person, usually a child, who relies on you financially for food, clothing, and shelter' },
-  { term: 'a citation', ref: 'an official written notice from law enforcement, such as a ticket for a traffic violation' },
-  { term: 'probation', ref: 'a period of supervision ordered by a court instead of serving time in jail' },
-  { term: 'a felony', ref: 'a serious crime, more serious than a misdemeanor, such as robbery or assault' },
-  { term: 'a misdemeanor', ref: 'a less serious crime, such as a minor traffic violation or disorderly conduct' },
-  { term: 'deported', ref: 'officially removed from the country by the government and sent back to your country of origin' },
-  { term: 'Selective Service', ref: 'the U.S. system that registers men aged 18-25 in case they are needed for military service' },
-  { term: 'persecution', ref: 'being harmed or treated very badly because of race, religion, nationality, or political opinion' },
-  { term: 'genocide', ref: 'the deliberate killing of a large group of people because of their race, religion, or nationality' },
-  { term: 'totalitarian', ref: 'describing a government with total control that allows no other parties or individual freedoms' },
-  { term: 'affiliation', ref: 'a formal connection or membership with a group or organization' },
-  { term: 'habitual drunkard', ref: 'a person who regularly drinks too much alcohol as a habit' },
-  { term: 'claimed to be a U.S. citizen', ref: 'told someone you were a U.S. citizen when you were not' },
-  { term: 'child support', ref: 'money a parent is ordered by a court to pay for the care of their child' }
-];
+// Key N-400 words an officer may ask the applicant to EXPLAIN (used in random mode),
+// and the short definitions the officer gives if the applicant asks what a term means.
+// Both now come from ONE shared file, /definitions.js (same data as the Vocabulary page),
+// so the quiz, the Professional interview and the Premium live interview always agree.
+let DEFINITIONS = [];
+try {
+  DEFINITIONS = require('../definitions.js');
+} catch (e) {
+  console.error('definitions.js could not be loaded; definition checks are disabled:', e && e.message);
+}
+
+// { term, ref } — "ref" is the official definition so the officer can judge an explanation.
+const N400_DEFINITIONS = DEFINITIONS
+  .filter(function (d) { return d.interview; })
+  .map(function (d) { return { term: d.term, ref: d.official.en }; });
 
 function selectDefinitions(seed, count) {
   const rng = mulberry32(((seed >>> 0) + 999) || 1);
   return shuffleWith(N400_DEFINITIONS, rng).slice(0, Math.min(count, N400_DEFINITIONS.length));
 }
 
-// Short, simple definitions — same wording used in the Vocabulary practice
-// tool, reused here so the officer gives the EXACT SAME short definition
-// during an interview instead of improvising a longer one on the spot.
-const SHORT_DEFS = {
-  'oath': 'a promise to tell the truth',
-  'oath of allegiance': 'a promise to be loyal to the United States',
-  'taxes': 'money collected by the government from the people',
-  'religion': 'to believe in God',
-  'weapon': 'an object used to harm or kill',
-  'communism': 'no freedom',
-  'totalitarian': 'a government with total control',
-  'crime': 'breaking the law',
-  'genocide': 'killing a large group of people on purpose',
-  'persecution': 'being treated badly for who you are',
-  'torture': 'hurting someone on purpose',
-  'deportation': 'to be expelled from the United States',
-  'deported': 'to be expelled from the United States',
-  'arrested': 'taken by the police',
-  'cited': 'required to go to court',
-  'detained': 'held by authorities',
-  'convicted': 'found guilty by a court',
-  'registered to vote': 'signed up to vote',
-  'lie': 'not the truth',
-  'prison': 'a place for criminals',
-  'jail': 'a place for criminals',
-  'the constitution': 'the supreme law of the land',
-  'hereditary title': 'a noble rank passed down in a family, like a lord or duke',
-  'order of nobility': 'an official noble rank granted by a king or government',
-  'exemption': 'being officially excused from doing something required by law',
-  'noncombatant service': 'military service that does not involve fighting or combat',
-  'alimony': 'money a court orders one spouse to pay the other after divorce'
-};
+// Short, simple definitions — same wording used in the Vocabulary practice tool,
+// reused so the officer gives the EXACT SAME short definition during an interview
+// instead of improvising a longer one on the spot. Keys are lowercase terms + aliases.
+const SHORT_DEFS = {};
+DEFINITIONS.forEach(function (d) {
+  if (!d.gmc) return;
+  const text = String(d.short.en).replace(/\.$/, '');
+  const value = text.charAt(0).toLowerCase() + text.slice(1);
+  [d.term].concat(d.aliases || []).forEach(function (k) {
+    if (k.indexOf(' / ') !== -1) return;
+    SHORT_DEFS[k.toLowerCase()] = value;
+  });
+});
 
-module.exports = { N400_SECTIONS, selectN400, allN400, selectN400Random, selectDefinitions, SHORT_DEFS };
+module.exports = { N400_SECTIONS, selectN400, allN400, selectN400Random, selectDefinitions, N400_DEFINITIONS, SHORT_DEFS };

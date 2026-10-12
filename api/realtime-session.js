@@ -1,6 +1,6 @@
 // api/realtime-session.js — GA endpoint: /v1/realtime/client_secrets
 const { CIVICS_2008, CIVICS_2020, resolveStateAnswers } = require('./civics.js');
-const { SHORT_DEFS } = require('./n400.js');
+const { SHORT_DEFS, N400_DEFINITIONS } = require('./n400.js');
 
 function mulberry32(a) {
   return function () {
@@ -173,7 +173,9 @@ function buildInstructions(id, civicsVer, userState, gmcQuestions) {
     'Congress makes the federal laws for the United States.'
   ];
 
-  const vocabDefs = [
+  // Shared list (definitions.js) — same terms as the Vocabulary page and the Professional interview.
+  // The inline list below is only a safety net if the shared file cannot be loaded.
+  const legacyVocabDefs = [
     { term: 'naturalization', def: 'the process of becoming a U.S. citizen if you were not born in the United States' },
     { term: 'permanent resident', def: 'a person who has permission to live and work in the U.S. permanently; a green card holder' },
     { term: 'allegiance', def: 'loyalty and support given to a country or its government' },
@@ -193,6 +195,10 @@ function buildInstructions(id, civicsVer, userState, gmcQuestions) {
     { term: 'a misdemeanor', def: 'a less serious crime, such as a minor traffic violation' },
     { term: 'affiliation', def: 'a formal connection or membership with a group or organization' }
   ];
+  const vocabDefs = (N400_DEFINITIONS && N400_DEFINITIONS.length >= 12)
+    ? N400_DEFINITIONS.map(function (d) { return { term: d.term, def: d.ref }; })
+    : legacyVocabDefs;
+
 
   const readingSentence = readingSentences[seed % readingSentences.length];
   const writingSentence = writingSentences[(seed + 7) % writingSentences.length];
