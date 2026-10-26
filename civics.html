@@ -76,6 +76,22 @@
         .result-score { font-size: 2.5rem; font-weight: 800; color: #1e40af; margin: 0.5rem 0; }
         .result-actions { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.75rem; }
     
+        /* Repaso de hoy */
+        .review-cta { background: #eff6ff; border: 2px solid #bfdbfe; border-radius: 1rem; padding: 1.25rem; margin-bottom: 1.75rem; display: flex; gap: 1rem; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+        .review-cta .rc-text { min-width: 0; flex: 1 1 220px; }
+        .rc-title { font-weight: 800; font-size: 1.1rem; color: #1e3a8a; }
+        .rc-sub { color: #475569; font-size: 0.88rem; margin-top: 0.15rem; }
+        .rc-hint { color: #64748b; font-size: 0.8rem; margin-top: 0.35rem; }
+        .review-cta .btn-primary { padding: 0.8rem 1.4rem; font-size: 1rem; }
+        .review-cta .btn-primary:disabled, .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .think { background: #eff6ff; color: #1e40af; border-radius: 0.75rem; padding: 0.9rem 1rem; font-weight: 600; margin-bottom: 1.25rem; }
+        .btn-known small, .btn-miss small { display: block; font-weight: 500; font-size: 0.72rem; opacity: 0.85; }
+        .rv-sum { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; margin-top: 1.25rem; text-align: center; }
+        .rv-sum div { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.75rem; }
+        .rv-sum b { display: block; font-size: 1.5rem; color: #1e40af; }
+        .rv-sum span { font-size: 0.78rem; color: #64748b; }
+        .rv-note { color: #64748b; margin-top: 1rem; font-size: 0.95rem; }
+
         .brand-logo { height: 104px; width: 104px; object-fit: contain; vertical-align: middle; margin-right: 0.45rem; }
         @media (max-width: 600px) { .brand-logo { height: 56px; width: 56px; } .logo { font-size: 1.15rem; } }
             .brand-text { white-space: nowrap; line-height: 1.1; }
@@ -142,7 +158,25 @@
                 again: 'Practice again',
                 redoMissed: 'Review the ones I missed',
                 toHub: 'Back to hub',
-                catGov: 'American Government', catHist: 'American History', catCivics: 'Integrated Civics'
+                catGov: 'American Government', catHist: 'American History', catCivics: 'Integrated Civics',
+                revTitle: 'Review of the day',
+                revSub: (d, f) => (d ? d + ' to review' : '') + (d && f ? ' + ' : '') + (f ? f + ' new' : ''),
+                revNone: 'Nothing to review today. Come back tomorrow.',
+                revMastered: (k, n) => k + ' of ' + n + ' mastered',
+                revHint: 'Say each answer out loud before you see it. The ones you miss come back soon; the ones you know take longer to return.',
+                revStart: n => 'Start review (' + n + ')',
+                revLoading: 'Loading review…',
+                revThink: '🎤 Think of your answer and say it out loud.',
+                revShow: 'Show answer',
+                revKnown: 'I said it right', revKnownSub: 'moves up a level',
+                revMiss: 'I did not know it', revMissSub: 'comes back in a few cards',
+                revLeft: n => n + ' left',
+                revNewTag: 'New', revAgainTag: 'Again',
+                lv1: 'Hard', lv2: 'Learning', lv3: 'Improving', lv4: 'Almost there', lv5: 'Mastered',
+                revDoneTitle: 'Review complete!',
+                revFirstTry: 'Said right the first time', revToMorrow: 'To review tomorrow',
+                revTomorrow: n => n ? 'Tomorrow you will review ' + n + (n === 1 ? ' question.' : ' questions.') : 'No reviews scheduled for tomorrow yet.',
+                revBack: 'Back to civics'
             },
             es: {
                 back: '← Inicio',
@@ -167,7 +201,25 @@
                 again: 'Practicar de nuevo',
                 redoMissed: 'Repasar las que fallé',
                 toHub: 'Volver al inicio',
-                catGov: 'Gobierno de EE. UU.', catHist: 'Historia de EE. UU.', catCivics: 'Civismo Integrado'
+                catGov: 'Gobierno de EE. UU.', catHist: 'Historia de EE. UU.', catCivics: 'Civismo Integrado',
+                revTitle: 'Repaso de hoy',
+                revSub: (d, f) => (d ? d + (d === 1 ? ' para repasar' : ' para repasar') : '') + (d && f ? ' + ' : '') + (f ? f + (f === 1 ? ' nueva' : ' nuevas') : ''),
+                revNone: 'Nada para repasar hoy. Vuelve mañana.',
+                revMastered: (k, n) => k + ' de ' + n + ' dominadas',
+                revHint: 'Di cada respuesta en voz alta antes de verla. Las que falles vuelven pronto; las que sabes tardan más en volver.',
+                revStart: n => 'Empezar repaso (' + n + ')',
+                revLoading: 'Cargando repaso…',
+                revThink: '🎤 Piensa tu respuesta y dila en voz alta.',
+                revShow: 'Mostrar respuesta',
+                revKnown: 'La dije bien', revKnownSub: 'sube un escalón',
+                revMiss: 'No la sabía', revMissSub: 'vuelve en unas tarjetas',
+                revLeft: n => 'Quedan ' + n,
+                revNewTag: 'Nueva', revAgainTag: 'Otra vez',
+                lv1: 'Difícil', lv2: 'Aprendiendo', lv3: 'Mejorando', lv4: 'Casi lista', lv5: 'Dominada',
+                revDoneTitle: '¡Repaso completo!',
+                revFirstTry: 'Las dijiste bien a la primera', revToMorrow: 'Para repasar mañana',
+                revTomorrow: n => n ? 'Mañana te tocará repasar ' + n + (n === 1 ? ' pregunta.' : ' preguntas.') : 'Aún no tienes repasos programados para mañana.',
+                revBack: 'Volver a civismo'
             }
         };
 
@@ -239,6 +291,8 @@
             if (state.screen === 'setup') renderSetup();
             else if (state.screen === 'study') renderStudy();
             else if (state.screen === 'results') renderResults();
+            else if (state.screen === 'review') renderReview();
+            else if (state.screen === 'reviewDone') renderReviewDone();
         }
 
         function renderSetup() {
@@ -255,6 +309,8 @@
             app.innerHTML = `
                 <h1>${t('title')}</h1>
                 <p class="sub">${t('sub')}</p>
+
+                <div id="reviewCta"></div>
 
                 <div class="field">
                     <div class="field-label">${t('whichTest')}</div>
@@ -285,6 +341,7 @@
                 <button class="btn-primary" onclick="startStudy()">${t('start')}</button>
                 <p class="note">${t('noteEng')}</p>
             `;
+            updateReviewCta();
         }
 
         function pick(field, value) {
@@ -392,12 +449,198 @@
             speakQuestion();
         }
 
+        // ---------- Repaso de hoy (repaso espaciado) ----------
+        // Practicar recuperando la respuesta y espaciar los repasos son las dos técnicas con mayor utilidad
+        // en la revisión de Dunlosky et al. (2013). Los intervalos son una regla práctica, no un valor probado.
+        // El progreso se guarda en este navegador, por usuario y por examen (100 / 128).
+        const REV_INTERVAL = { 1: 1, 2: 2, 3: 4, 4: 8, 5: 16 };   // días por nivel
+        const REV_SESSION = 10;                                    // tarjetas por sesión (repasos + nuevas)
+        const REV_NEW_PER_DAY = 10;                                // preguntas nuevas máximo por día
+        const REV_WAIT = 3;                                        // segundos para pensar antes de ver la respuesta
+        let reviewUid = 'anon';
+        let review = null;
+        let reviewTimer = null;
+
+        function todayNum() { return Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86400000); }
+        function revKey(test) { return 'civicsReview.v1.' + reviewUid + '.' + test; }
+        function revLoad(test) {
+            try { const r = localStorage.getItem(revKey(test)); if (r) { const o = JSON.parse(r); if (o && o.cards) return o; } } catch (e) {}
+            return { cards: {} };
+        }
+        function revSave(test, data) { try { localStorage.setItem(revKey(test), JSON.stringify(data)); } catch (e) {} }
+
+        function revPlan(bank, data) {
+            const today = todayNum();
+            const due = bank.filter(q => data.cards[q.n] && data.cards[q.n].box > 0 && data.cards[q.n].due <= today)
+                            .sort((a, b) => (data.cards[a.n].box - data.cards[b.n].box) || (a.n - b.n));
+            const fresh = bank.filter(q => !data.cards[q.n]).sort((a, b) => a.n - b.n);
+            const newToday = (data.newDay === today) ? (data.newCount || 0) : 0;
+            const room = Math.min(Math.max(0, REV_NEW_PER_DAY - newToday), Math.max(0, REV_SESSION - due.length));
+            return { due: due, fresh: fresh.slice(0, room) };
+        }
+
+        async function updateReviewCta() {
+            const el = document.getElementById('reviewCta');
+            if (!el) return;
+            const test = state.test;
+            let bank;
+            try { bank = await loadBank(test, state.userState); } catch (e) { return; }
+            const el2 = document.getElementById('reviewCta');
+            if (!el2 || test !== state.test || state.screen !== 'setup' || !bank || !bank.length) return;
+            const data = revLoad(test);
+            const p = revPlan(bank, data);
+            const n = p.due.length + p.fresh.length;
+            const mastered = bank.filter(q => data.cards[q.n] && data.cards[q.n].box === 5).length;
+            el2.innerHTML = `
+                <div class="review-cta">
+                    <div class="rc-text">
+                        <div class="rc-title">${t('revTitle')}</div>
+                        <div class="rc-sub">${n ? t('revSub')(p.due.length, p.fresh.length) : t('revNone')} · ${t('revMastered')(mastered, bank.length)}</div>
+                        <div class="rc-hint">${t('revHint')}</div>
+                    </div>
+                    <button class="btn-primary" ${n ? '' : 'disabled'} onclick="startReview()">${n ? t('revStart')(n) : '✓'}</button>
+                </div>`;
+        }
+
+        async function startReview() {
+            document.getElementById('loadingText').textContent = t('revLoading');
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+            let bank;
+            try { bank = await loadBank(state.test, state.userState); }
+            catch (e) { document.getElementById('loadingOverlay').classList.add('hidden'); return; }
+            document.getElementById('loadingOverlay').classList.add('hidden');
+            const data = revLoad(state.test);
+            const p = revPlan(bank, data);
+            const list = p.due.concat(p.fresh);
+            if (!list.length) { renderSetup(); return; }
+            const byN = {};
+            bank.forEach(q => { byN[q.n] = q; });
+            review = { test: state.test, data: data, byN: byN, queue: list.map(q => q.n), total: list.length,
+                       known: 0, missed: 0, lapsed: {}, phase: 'think', left: REV_WAIT };
+            state.screen = 'review';
+            reviewThink();
+        }
+
+        function reviewThink() {
+            clearTimeout(reviewTimer);
+            review.phase = 'think';
+            review.left = REV_WAIT;
+            render();
+            reviewSpeakQ();
+            reviewTick();
+        }
+        function reviewTick() {
+            if (!review || review.phase !== 'think' || state.screen !== 'review') return;
+            if (review.left <= 0) return;
+            reviewTimer = setTimeout(() => { review.left--; renderReview(); reviewTick(); }, 1000);
+        }
+        function reviewCurrent() { return review ? review.byN[review.queue[0]] : null; }
+        function reviewSpeakQ() { const q = reviewCurrent(); if (q) speak(q.q, 'en-US'); }
+        function reviewSpeakA() { const q = reviewCurrent(); if (q) speak(q.a, 'en-US'); }
+
+        function renderReview() {
+            if (!review) return;
+            const q = reviewCurrent();
+            const c = review.data.cards[q.n];
+            const pct = Math.round((review.total - review.queue.length) / review.total * 100);
+            const tag = review.lapsed[q.n] ? t('revAgainTag') : (c && c.box > 0 ? t('lv' + c.box) : t('revNewTag'));
+            let body;
+            if (review.phase === 'think') {
+                const ready = review.left <= 0;
+                body = `<div class="think">${t('revThink')}</div>
+                        <button class="btn-primary" style="width:100%;" ${ready ? '' : 'disabled'} onclick="reviewReveal()">${t('revShow')}${ready ? '' : ' (' + review.left + ')'}</button>`;
+            } else {
+                body = `<div class="answer show">
+                            <div class="lbl">${t('official')}</div>
+                            <div class="txt">${escapeHtml(q.a)} <button class="btn-speak" onclick="reviewSpeakA()" title="Hear">🔊</button></div>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn-miss" onclick="reviewRate(false)">${t('revMiss')}<small>${t('revMissSub')}</small></button>
+                            <button class="btn-known" onclick="reviewRate(true)">${t('revKnown')}<small>${t('revKnownSub')}</small></button>
+                        </div>`;
+            }
+            app.innerHTML = `
+                <div class="progress">
+                    <button class="btn-exit" onclick="exitReview()">${t('exit')}</button>
+                    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+                    <div class="progress-text">${t('revLeft')(review.queue.length)}</div>
+                </div>
+                <div class="card">
+                    <div class="q-num">Q${q.n} · ${tag}</div>
+                    <div class="q-text">${escapeHtml(q.q)} <button class="btn-speak" onclick="reviewSpeakQ()" title="Hear">🔊</button></div>
+                    ${body}
+                </div>`;
+        }
+
+        function reviewReveal() {
+            if (!review || review.left > 0) return;
+            clearTimeout(reviewTimer);
+            review.phase = 'reveal';
+            renderReview();
+            reviewSpeakA();
+        }
+
+        function reviewRate(knew) {
+            const n = review.queue.shift();
+            const today = todayNum();
+            const cards = review.data.cards;
+            let c = cards[n];
+            if (!c) {
+                c = cards[n] = { box: 0, due: today };
+                const d = review.data;
+                if (d.newDay !== today) { d.newDay = today; d.newCount = 0; }
+                d.newCount++;
+            }
+            if (knew) {
+                if (review.lapsed[n]) { delete review.lapsed[n]; }          // la recordó tras repasar: ya queda para mañana
+                else { c.box = (c.box === 0) ? 2 : Math.min(5, c.box + 1); c.due = today + REV_INTERVAL[c.box]; review.known++; }
+            } else {
+                if (!review.lapsed[n]) review.missed++;
+                c.box = 1; c.due = today + 1; review.lapsed[n] = true;       // si sale de la sesión, igual vuelve mañana
+                review.queue.splice(Math.min(3, review.queue.length), 0, n); // reaparece en unas tarjetas
+            }
+            revSave(review.test, review.data);
+            if (!review.queue.length) reviewFinish(); else reviewThink();
+        }
+
+        function reviewFinish() {
+            clearTimeout(reviewTimer);
+            stopSpeech();
+            const today = todayNum();
+            const cards = review.data.cards;
+            review.tomorrow = Object.keys(cards).filter(k => cards[k].box > 0 && cards[k].due === today + 1).length;
+            saveSession('civics', review.total, review.known);
+            state.screen = 'reviewDone';
+            render();
+        }
+
+        function renderReviewDone() {
+            if (!review) { state.screen = 'setup'; render(); return; }
+            app.innerHTML = `
+                <div class="result-card">
+                    <div class="result-emoji">🎉</div>
+                    <h1>${t('revDoneTitle')}</h1>
+                    <div class="rv-sum">
+                        <div><b>${review.known} / ${review.total}</b><span>${t('revFirstTry')}</span></div>
+                        <div><b>${review.missed}</b><span>${t('revToMorrow')}</span></div>
+                    </div>
+                    <p class="rv-note">${t('revTomorrow')(review.tomorrow)}</p>
+                    <div class="result-actions">
+                        <button class="btn-primary" onclick="leaveReview()">${t('revBack')}</button>
+                    </div>
+                </div>`;
+        }
+
+        function exitReview() { clearTimeout(reviewTimer); stopSpeech(); review = null; state.screen = 'setup'; render(); }
+        function leaveReview() { review = null; state.screen = 'setup'; render(); }
+
         function escapeHtml(s) { return String(s).replace(/</g, '&lt;'); }
 
         // ---------- Init ----------
         async function init() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (!session) { window.location.href = 'index.html'; return; }
+            reviewUid = (session.user && session.user.id) || 'anon';
             setLang(lang); // sets toggles + back button + renders
             document.getElementById('loadingOverlay').classList.add('hidden');
         }
