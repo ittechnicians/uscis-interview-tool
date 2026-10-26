@@ -89,6 +89,12 @@
         .rc-steps { margin: 0.6rem 0 0 1.15rem; padding: 0; color: #334155; font-size: 0.88rem; }
         .rc-steps li { margin-bottom: 0.2rem; }
         .review-cta .btn-ghost { padding: 0.75rem 1.2rem; font-size: 0.95rem; white-space: nowrap; }
+        .civ-imgs { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.9rem; }
+        .civ-fig { margin: 0; width: 112px; }
+        .civ-fig img { display: block; width: 112px; height: 112px; border-radius: 0.6rem; border: 1px solid #bbf7d0; background: #fff; object-fit: contain; }
+        .civ-fig img.person { object-fit: cover; object-position: top; }
+        .civ-fig figcaption { font-size: 0.72rem; color: #166534; font-weight: 600; line-height: 1.25; margin-top: 0.25rem; text-align: center; }
+        @media (max-width: 480px) { .civ-fig { width: 96px; } .civ-fig img { width: 96px; height: 96px; } }
         .think { background: #eff6ff; color: #1e40af; border-radius: 0.75rem; padding: 0.9rem 1rem; font-weight: 600; margin-bottom: 1.25rem; }
         .btn-known small, .btn-miss small { display: block; font-weight: 500; font-size: 0.72rem; opacity: 0.85; }
         .rv-sum { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; margin-top: 1.25rem; text-align: center; }
@@ -131,6 +137,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/tts.js"></script>
+    <script src="/civics-images.js"></script>
     <script>
         // ---------- Supabase (auth guard) ----------
         const SUPABASE_URL = 'https://vugvnqapdxyewxyfaayl.supabase.co';
@@ -182,6 +189,7 @@
                 revFirstTry: 'Said right the first time', revToMorrow: 'To review tomorrow',
                 revTomorrow: n => n ? 'Tomorrow you will review ' + n + (n === 1 ? ' question.' : ' questions.') : 'No reviews scheduled for tomorrow yet.',
                 revBack: 'Back to civics',
+                imgCredits: 'Image credits',
                 revSteps: ['Read the question and say your answer out loud.', 'Tap Show answer and compare it with yours.', 'Mark whether you got it right. The ones you miss come back soon; the ones you know take longer to return.'],
                 revLimit: 'Up to 10 questions a day. To practice more, use the options below.',
                 revDoneToday: '✓ Done for today!',
@@ -230,6 +238,7 @@
                 revFirstTry: 'Las dijiste bien a la primera', revToMorrow: 'Para repasar mañana',
                 revTomorrow: n => n ? 'Mañana te tocará repasar ' + n + (n === 1 ? ' pregunta.' : ' preguntas.') : 'Aún no tienes repasos programados para mañana.',
                 revBack: 'Volver a civismo',
+                imgCredits: 'Créditos de imágenes',
                 revSteps: ['Lee la pregunta y di tu respuesta en voz alta.', 'Pulsa Mostrar respuesta y compárala con la tuya.', 'Marca si la dijiste bien o no. Las que falles vuelven pronto; las que sabes tardan más en volver.'],
                 revLimit: 'Hasta 10 preguntas al día. Para practicar más, usa las opciones de abajo.',
                 revDoneToday: '✓ ¡Listo por hoy!',
@@ -355,6 +364,7 @@
 
                 <button class="btn-primary" id="startBtn" onclick="startStudy()">${t('start')}</button>
                 <p class="note">${t('noteEng')}</p>
+                <p class="note" style="margin-top:0.4rem;"><a href="/creditos-imagenes.html" style="color:inherit;">${t('imgCredits')}</a></p>
             `;
             updateReviewCta();
         }
@@ -413,6 +423,7 @@
                     <div class="answer ${state.revealed ? 'show' : ''}" id="answerBox">
                         <div class="lbl">${t('official')}</div>
                         <div class="txt">${escapeHtml(q.a)} <button class="btn-speak" onclick="speakAnswer()" title="Hear">🔊</button></div>
+                        ${imagesHtml(state.test, q.n)}
                     </div>
                     ${state.revealed
                         ? `<div class="card-actions">
@@ -591,6 +602,7 @@
                 body = `<div class="answer show">
                             <div class="lbl">${t('official')}</div>
                             <div class="txt">${escapeHtml(q.a)} <button class="btn-speak" onclick="reviewSpeakA()" title="Hear">🔊</button></div>
+                            ${imagesHtml(review.test, q.n)}
                         </div>
                         <div class="card-actions">
                             <button class="btn-miss" onclick="reviewRate(false)">${t('revMiss')}<small>${t('revMissSub')}</small></button>
@@ -671,6 +683,18 @@
 
         function exitReview() { clearTimeout(reviewTimer); stopSpeech(); review = null; state.screen = 'setup'; render(); }
         function leaveReview() { review = null; state.screen = 'setup'; render(); }
+
+        // Imágenes que ilustran la respuesta (solo después de que el estudiante intentó responder). Ver /civics-images.js
+        function imagesHtml(test, n) {
+            const D = window.CIVICS_IMAGES;
+            const keys = (D && D.map && D.map[test] && D.map[test][n]) || [];
+            if (!keys.length) return '';
+            return '<div class="civ-imgs">' + keys.map(k => {
+                const L = D.labels[k]; const lab = L ? L[lang === 'es' ? 1 : 0] : '';
+                const cls = (D.people || []).indexOf(k) >= 0 ? ' class="person"' : '';
+                return '<figure class="civ-fig"><img' + cls + ' src="/img/civics/' + k + '.webp" alt="' + escapeHtml(lab) + '" width="112" height="112" loading="lazy" decoding="async" onerror="this.parentNode.style.display=\'none\'"><figcaption>' + escapeHtml(lab) + '</figcaption></figure>';
+            }).join('') + '</div>';
+        }
 
         function escapeHtml(s) { return String(s).replace(/</g, '&lt;'); }
 
