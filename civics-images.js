@@ -148,9 +148,6 @@ window.CIVICS_IMAGES = {
    "97": [
     "bandera"
    ],
-   "98": [
-    "star-spangled-banner"
-   ],
    "99": [
     "declaracion-independencia"
    ]
@@ -339,9 +336,6 @@ window.CIVICS_IMAGES = {
    "122": [
     "bandera"
    ],
-   "123": [
-    "star-spangled-banner"
-   ],
    "124": [
     "gran-sello"
    ],
@@ -510,10 +504,6 @@ window.CIVICS_IMAGES = {
   "segunda-guerra-mundial": [
    "World War II",
    "Segunda Guerra Mundial"
-  ],
-  "star-spangled-banner": [
-   "The original flag (Star-Spangled Banner)",
-   "La bandera original"
   ],
   "susan-b-anthony": [
    "Susan B. Anthony",
