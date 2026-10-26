@@ -35,6 +35,9 @@ window.CIVICS_IMAGES = {
    "17": [
     "capitolio"
    ],
+   "29": [
+    "vicepresidente"
+   ],
    "37": [
     "edificio-corte-suprema"
    ],
@@ -192,6 +195,9 @@ window.CIVICS_IMAGES = {
    ],
    "20": [
     "capitolio"
+   ],
+   "39": [
+    "vicepresidente"
    ],
    "50": [
     "edificio-corte-suprema"
@@ -520,6 +526,10 @@ window.CIVICS_IMAGES = {
   "woodrow-wilson": [
    "Woodrow Wilson",
    "Woodrow Wilson"
+  ],
+  "vicepresidente": [
+   "Vice President of the United States",
+   "Vicepresidente de EE. UU."
   ]
  },
  "people": [
@@ -536,6 +546,7 @@ window.CIVICS_IMAGES = {
   "martin-luther-king-jr",
   "susan-b-anthony",
   "elizabeth-cady-stanton",
-  "harriet-tubman"
+  "harriet-tubman",
+  "vicepresidente"
  ]
 };
