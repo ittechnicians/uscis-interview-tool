@@ -84,6 +84,11 @@
         .rc-hint { color: #64748b; font-size: 0.8rem; margin-top: 0.35rem; }
         .review-cta .btn-primary { padding: 0.8rem 1.4rem; font-size: 1rem; }
         .review-cta .btn-primary:disabled, .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .review-cta.done { background: #f0fdf4; border-color: #bbf7d0; }
+        .review-cta.done .rc-title { color: #166534; }
+        .rc-steps { margin: 0.6rem 0 0 1.15rem; padding: 0; color: #334155; font-size: 0.88rem; }
+        .rc-steps li { margin-bottom: 0.2rem; }
+        .review-cta .btn-ghost { padding: 0.75rem 1.2rem; font-size: 0.95rem; white-space: nowrap; }
         .think { background: #eff6ff; color: #1e40af; border-radius: 0.75rem; padding: 0.9rem 1rem; font-weight: 600; margin-bottom: 1.25rem; }
         .btn-known small, .btn-miss small { display: block; font-weight: 500; font-size: 0.72rem; opacity: 0.85; }
         .rv-sum { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; margin-top: 1.25rem; text-align: center; }
@@ -176,7 +181,12 @@
                 revDoneTitle: 'Review complete!',
                 revFirstTry: 'Said right the first time', revToMorrow: 'To review tomorrow',
                 revTomorrow: n => n ? 'Tomorrow you will review ' + n + (n === 1 ? ' question.' : ' questions.') : 'No reviews scheduled for tomorrow yet.',
-                revBack: 'Back to civics'
+                revBack: 'Back to civics',
+                revSteps: ['Read the question and say your answer out loud.', 'Tap Show answer and compare it with yours.', 'Mark whether you got it right. The ones you miss come back soon; the ones you know take longer to return.'],
+                revLimit: 'Up to 10 questions a day. To practice more, use the options below.',
+                revDoneToday: '✓ Done for today!',
+                revMoreHint: 'Want to keep going? Practice more below. That does not change your review schedule.',
+                revMore: 'Practice more now'
             },
             es: {
                 back: '← Inicio',
@@ -219,7 +229,12 @@
                 revDoneTitle: '¡Repaso completo!',
                 revFirstTry: 'Las dijiste bien a la primera', revToMorrow: 'Para repasar mañana',
                 revTomorrow: n => n ? 'Mañana te tocará repasar ' + n + (n === 1 ? ' pregunta.' : ' preguntas.') : 'Aún no tienes repasos programados para mañana.',
-                revBack: 'Volver a civismo'
+                revBack: 'Volver a civismo',
+                revSteps: ['Lee la pregunta y di tu respuesta en voz alta.', 'Pulsa Mostrar respuesta y compárala con la tuya.', 'Marca si la dijiste bien o no. Las que falles vuelven pronto; las que sabes tardan más en volver.'],
+                revLimit: 'Hasta 10 preguntas al día. Para practicar más, usa las opciones de abajo.',
+                revDoneToday: '✓ ¡Listo por hoy!',
+                revMoreHint: '¿Quieres seguir? Practica más abajo. Eso no cambia tu calendario de repaso.',
+                revMore: 'Practicar más ahora'
             }
         };
 
@@ -338,7 +353,7 @@
                     </select>
                 </div>
 
-                <button class="btn-primary" onclick="startStudy()">${t('start')}</button>
+                <button class="btn-primary" id="startBtn" onclick="startStudy()">${t('start')}</button>
                 <p class="note">${t('noteEng')}</p>
             `;
             updateReviewCta();
@@ -491,15 +506,38 @@
             const p = revPlan(bank, data);
             const n = p.due.length + p.fresh.length;
             const mastered = bank.filter(q => data.cards[q.n] && data.cards[q.n].box === 5).length;
-            el2.innerHTML = `
-                <div class="review-cta">
-                    <div class="rc-text">
-                        <div class="rc-title">${t('revTitle')}</div>
-                        <div class="rc-sub">${n ? t('revSub')(p.due.length, p.fresh.length) : t('revNone')} · ${t('revMastered')(mastered, bank.length)}</div>
-                        <div class="rc-hint">${t('revHint')}</div>
-                    </div>
-                    <button class="btn-primary" ${n ? '' : 'disabled'} onclick="startReview()">${n ? t('revStart')(n) : '✓'}</button>
-                </div>`;
+            const today = todayNum();
+            const tmr = Object.keys(data.cards).filter(k => data.cards[k].box > 0 && data.cards[k].due === today + 1).length;
+            if (n) {
+                const steps = t('revSteps').map(x => '<li>' + x + '</li>').join('');
+                el2.innerHTML = `
+                    <div class="review-cta">
+                        <div class="rc-text">
+                            <div class="rc-title">${t('revTitle')}</div>
+                            <div class="rc-sub">${t('revSub')(p.due.length, p.fresh.length)} · ${t('revMastered')(mastered, bank.length)}</div>
+                            <ol class="rc-steps">${steps}</ol>
+                            <div class="rc-hint">${t('revLimit')}</div>
+                        </div>
+                        <button class="btn-primary" onclick="startReview()">${t('revStart')(n)}</button>
+                    </div>`;
+            } else {
+                el2.innerHTML = `
+                    <div class="review-cta done">
+                        <div class="rc-text">
+                            <div class="rc-title">${t('revDoneToday')}</div>
+                            <div class="rc-sub">${t('revTomorrow')(tmr)} · ${t('revMastered')(mastered, bank.length)}</div>
+                            <div class="rc-hint">${t('revMoreHint')}</div>
+                        </div>
+                        <button class="btn-ghost" onclick="goPractice()">${t('revMore')}</button>
+                    </div>`;
+            }
+        }
+
+        function goPractice() {
+            const b = document.getElementById('startBtn');
+            if (!b) return;
+            b.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            try { b.focus({ preventScroll: true }); } catch (e) {}
         }
 
         async function startReview() {
