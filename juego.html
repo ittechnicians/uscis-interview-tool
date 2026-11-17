@@ -55,7 +55,7 @@ a{color:inherit}
 .narrow{max-width:560px;margin:0 auto}
 
 /* Generic chunky buttons */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--display);font-weight:700;font-size:19px;
+.btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--display);font-weight:700;font-size:19px;
   border-radius:18px;padding:13px 22px;background:var(--blue);color:#fff;box-shadow:0 5px 0 var(--blue-dd);transition:transform .08s, box-shadow .08s}
 .btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--blue-dd)}
 .btn.gold{background:var(--gold);color:var(--gold-ink);box-shadow:0 5px 0 var(--gold-d)}
@@ -222,6 +222,15 @@ a{color:inherit}
 .nudge .btn{margin-top:8px;align-self:flex-start}
 .nudge.new{animation:none}
 @media (prefers-reduced-motion:no-preference){.nudge.new{animation:pop .45s ease-out}}
+.resetzone{margin-top:22px;text-align:center}
+.resetlink{color:#c7d2fe;font-weight:800;font-size:14px;text-decoration:underline;padding:6px}
+.resetbox{background:var(--card);border:3px solid var(--red);border-radius:22px;padding:18px;text-align:left;display:flex;flex-direction:column;gap:8px}
+.resetbox h3{font-family:var(--display);font-weight:700;font-size:21px;color:var(--red-d)}
+.resetbox p{font-weight:700;font-size:15px}
+.resetbox .keep{color:var(--green-d)}
+.resetbox .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.btn.red{background:var(--red);box-shadow:0 5px 0 var(--red-d)}
+.btn.red:active{box-shadow:0 1px 0 var(--red-d)}
 .loading{color:#fff;text-align:center;padding:60px 0;font-family:var(--display);font-size:22px}
 .err{background:var(--card);border-radius:20px;padding:20px;text-align:center}
 #confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
@@ -300,6 +309,9 @@ const T = {
     nudgeReady0D:'Dominas los tres mundos. Ya usaste tus entrevistas en vivo; sigue practicando con la entrevista simulada completa del Hub.',
     credits:n=>'🎙️ Te quedan '+n+(n===1?' entrevista en vivo':' entrevistas en vivo'), daysLeft:n=>'⏳ Tu Premium vence en '+n+(n===1?' día':' días'),
     nudgeBtn:'Ir a la entrevista en vivo →', nudgeHub:'Ir al Hub →',
+    resetLink:'↺ Empezar de nuevo', resetTitle:'¿Empezar el juego desde cero?',
+    resetLose:'Se borrarán tus estrellas, tu XP, tu nivel de jugador, los niveles abiertos y tu racha de días.',
+    resetKeep:'Tus entrevistas en vivo y tu Premium no cambian.', resetYes:'Sí, borrar mi avance', resetNo:'Cancelar', resetDone:'Listo, empezaste de nuevo. ¡Mucha suerte!',
     streakTip:'Días seguidos jugando', xpTip:'Experiencia total', soundOn:'Sonido activado', soundOff:'Sonido apagado'
   },
   en: {
@@ -346,6 +358,9 @@ const T = {
     nudgeReady0D:'You mastered all three worlds. You used your live interviews; keep practicing with the full mock interview in the Hub.',
     credits:n=>'🎙️ '+n+(n===1?' live interview left':' live interviews left'), daysLeft:n=>'⏳ Your Premium ends in '+n+(n===1?' day':' days'),
     nudgeBtn:'Go to the live interview →', nudgeHub:'Go to the Hub →',
+    resetLink:'↺ Start over', resetTitle:'Start the game from zero?',
+    resetLose:'Your stars, XP, player level, opened levels and day streak will be erased.',
+    resetKeep:'Your live interviews and your Premium do not change.', resetYes:'Yes, erase my progress', resetNo:'Cancel', resetDone:'Done, you started over. Good luck!',
     streakTip:'Days in a row playing', xpTip:'Total experience', soundOn:'Sound on', soundOff:'Sound off'
   }
 };
@@ -612,7 +627,12 @@ function nLevelsSync(w){
 }
 
 // ===================== Screens =====================
-let screen = 'home', curWorld = null, R = null, quitArmed = false;
+let screen = 'home', curWorld = null, R = null, quitArmed = false, resetOpen = false, resetMsg = false;
+// Start over: erases only this game's progress (stars, XP, levels, streak). Live interviews and the plan live on the server and are not touched.
+function doReset(){
+  G.xp = 0; G.stars = {}; G.streak = {last:0, count:0}; G.masteredSeen = 0;
+  saveG(); resetOpen = false; resetMsg = true; SFX.tap(); render(); window.scrollTo({top:0});
+}
 
 function paintTop(){
   document.getElementById('topTitle').textContent = t('title');
@@ -650,7 +670,11 @@ function renderHome(){
       '<div class="stats"><div class="stat"><b>⭐ ' + totalStars() + '</b><span>' + t('statStars') + '</span></div><div class="stat"><b>🔥 ' + streakNow() + '</b><span>' + t('statStreak') + '</span></div><div class="stat"><b>' + G.xp + '</b><span>' + t('statXp') + '</span></div></div>' +
     '</div>' + nudgeHtml(false) + '</div>' +
     '<div class="worlds">' + w('civ', t('wCiv'), t('wCivD')) + w('def', t('wDef'), t('wDefD')) + w('wri', t('wWri'), t('wWriD')) + '</div>' +
-    '<div class="how narrow"><b>' + esc(t('howTitle')) + '</b> ' + esc(t('how')) + '</div>';
+    '<div class="how narrow"><b>' + esc(t('howTitle')) + '</b> ' + esc(t('how')) + '</div>' +
+    '<div class="resetzone narrow" id="resetZone">' + (resetOpen
+      ? '<div class="resetbox" role="alertdialog" aria-labelledby="rsT"><h3 id="rsT">' + esc(t('resetTitle')) + '</h3><p>' + esc(t('resetLose')) + '</p><p class="keep">✅ ' + esc(t('resetKeep')) + '</p>' +
+        '<div class="row"><button class="btn red" type="button" onclick="doReset()">' + esc(t('resetYes')) + '</button><button class="btn ghost" type="button" onclick="resetOpen=false;render()">' + esc(t('resetNo')) + '</button></div></div>'
+      : (resetMsg ? '<div class="how">' + esc(t('resetDone')) + '</div>' : '<button class="resetlink" type="button" onclick="resetOpen=true;resetMsg=false;render();setTimeout(()=>{const z=document.getElementById(\'resetZone\');if(z)z.scrollIntoView({block:\'center\'})},30)">' + esc(t('resetLink')) + '</button>')) + '</div>';
 }
 
 async function openWorld(w){
