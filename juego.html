@@ -213,6 +213,15 @@ a{color:inherit}
 .missed li small{display:block;color:var(--green-d);font-weight:800}
 .levelup{background:linear-gradient(135deg,var(--gold),#fb923c);color:var(--gold-ink);border-radius:18px;padding:10px 14px;font-weight:900;margin-top:12px}
 
+.nudge{margin-top:18px;background:linear-gradient(135deg,#fff7d6,#ffe08a);border:3px solid var(--gold);border-radius:24px;padding:16px 18px;
+  display:flex;flex-direction:column;gap:6px;box-shadow:0 6px 0 var(--gold-d);text-align:left;color:var(--gold-ink)}
+.nudge h3{font-family:var(--display);font-weight:700;font-size:22px;line-height:1.15;text-wrap:balance}
+.nudge p{font-weight:700;font-size:15.5px}
+.nudge .meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
+.nudge .meta span{background:rgba(255,255,255,.7);border-radius:99px;padding:3px 11px;font-weight:900;font-size:14px}
+.nudge .btn{margin-top:8px;align-self:flex-start}
+.nudge.new{animation:none}
+@media (prefers-reduced-motion:no-preference){.nudge.new{animation:pop .45s ease-out}}
 .loading{color:#fff;text-align:center;padding:60px 0;font-family:var(--display);font-size:22px}
 .err{background:var(--card);border-radius:20px;padding:20px;text-align:center}
 #confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
@@ -285,6 +294,12 @@ const T = {
     quitConfirm:'Toca otra vez para salir (perderás esta ronda)', loading:'Cargando…',
     loadErr:'No se pudieron cargar las preguntas. Revisa tu conexión e inténtalo de nuevo.', tryAgain:'Reintentar',
     hintKeys:'Atajos: números para elegir · Enter para continuar',
+    nudgeStartT:'🎙️ Haz tu primera entrevista en vivo', nudgeStartD:'Antes de jugar mucho, haz una entrevista en vivo para ver dónde estás. Así sabrás qué practicar aquí.',
+    nudgeMidT:w=>'🏅 ¡Ya dominas '+w+'!', nudgeMidD:'Ponlo a prueba en una entrevista en vivo, como el día real.',
+    nudgeReadyT:'🇺🇸 ¡Estás listo para la entrevista!', nudgeReadyD:'Dominas los tres mundos. Usa tus entrevistas en vivo para practicar como el día real.',
+    nudgeReady0D:'Dominas los tres mundos. Ya usaste tus entrevistas en vivo; sigue practicando con la entrevista simulada completa del Hub.',
+    credits:n=>'🎙️ Te quedan '+n+(n===1?' entrevista en vivo':' entrevistas en vivo'), daysLeft:n=>'⏳ Tu Premium vence en '+n+(n===1?' día':' días'),
+    nudgeBtn:'Ir a la entrevista en vivo →', nudgeHub:'Ir al Hub →',
     streakTip:'Días seguidos jugando', xpTip:'Experiencia total', soundOn:'Sonido activado', soundOff:'Sonido apagado'
   },
   en: {
@@ -325,6 +340,12 @@ const T = {
     quitConfirm:'Tap again to leave (you will lose this round)', loading:'Loading…',
     loadErr:'Could not load the questions. Check your connection and try again.', tryAgain:'Retry',
     hintKeys:'Shortcuts: numbers to pick · Enter to continue',
+    nudgeStartT:'🎙️ Do your first live interview', nudgeStartD:'Before playing a lot, do one live interview to see where you are. Then you will know what to practice here.',
+    nudgeMidT:w=>'🏅 You mastered '+w+'!', nudgeMidD:'Put it to the test in a live interview, like the real day.',
+    nudgeReadyT:'🇺🇸 You are ready for the interview!', nudgeReadyD:'You mastered all three worlds. Use your live interviews to practice like the real day.',
+    nudgeReady0D:'You mastered all three worlds. You used your live interviews; keep practicing with the full mock interview in the Hub.',
+    credits:n=>'🎙️ '+n+(n===1?' live interview left':' live interviews left'), daysLeft:n=>'⏳ Your Premium ends in '+n+(n===1?' day':' days'),
+    nudgeBtn:'Go to the live interview →', nudgeHub:'Go to the Hub →',
     streakTip:'Days in a row playing', xpTip:'Total experience', soundOn:'Sound on', soundOff:'Sound off'
   }
 };
@@ -356,7 +377,7 @@ const SENTENCES = [
 const DEFS = (Array.isArray(window.DEFINITIONS) ? window.DEFINITIONS : []).filter(d => d.quiz !== false && d.short && d.short.en);
 
 // ===================== Saved progress (per user, this browser) =====================
-let uid = 'anon', userName = '';
+let uid = 'anon', userName = '', liveCredits = null, premiumUntil = null;
 let G = null;
 function gKey(){ return 'game.v1.' + uid; }
 function loadG(){
@@ -364,11 +385,11 @@ function loadG(){
   try { g = JSON.parse(localStorage.getItem(gKey()) || 'null'); } catch(e){}
   g = g || {};
   g.xp = g.xp || 0; g.stars = g.stars || {}; g.streak = g.streak || {last:0,count:0};
-  g.test = g.test === '128' ? '128' : '100'; g.state = g.state || '';
+  g.test = g.test === '128' ? '128' : '100'; g.state = g.state || ''; g.masteredSeen = g.masteredSeen || 0;
   try { const s = localStorage.getItem('game.sound'); g.sound = s === null ? true : s === '1'; } catch(e){ g.sound = true; }
   return g;
 }
-function saveG(){ try { localStorage.setItem(gKey(), JSON.stringify({xp:G.xp,stars:G.stars,streak:G.streak,test:G.test,state:G.state})); } catch(e){} }
+function saveG(){ try { localStorage.setItem(gKey(), JSON.stringify({xp:G.xp,stars:G.stars,streak:G.streak,test:G.test,state:G.state,masteredSeen:G.masteredSeen})); } catch(e){} }
 function todayNum(){ return Math.floor((Date.now() - new Date().getTimezoneOffset()*60000) / 86400000); }
 function touchStreak(){
   const d = todayNum(), s = G.streak;
@@ -563,6 +584,27 @@ async function itemsFor(w){
 }
 function worldStars(w, nLevels){ let s = 0; for (let i=0;i<nLevels;i++) s += G.stars[progKey(w)+'-'+i] || 0; return s; }
 function totalStars(){ return Object.values(G.stars).reduce((a,b) => a + b, 0); }
+// ---- Path to the live interview: three nudges (start, one world mastered, all mastered) ----
+// A world is mastered when every level has 2+ stars.
+function worldMastered(w){ const n = nLevelsSync(w); for (let i=0;i<n;i++) if ((G.stars[progKey(w)+'-'+i] || 0) < 2) return false; return true; }
+function masteredWorlds(){ return ['civ','def','wri'].filter(worldMastered); }
+function worldName(w){ return w === 'civ' ? t('wCiv') : w === 'def' ? t('wDef') : t('wWri'); }
+function nudge(){
+  if (liveCredits === null) return null;
+  const m = masteredWorlds();
+  if (m.length === 3) return {stage:'ready', title:t('nudgeReadyT'), desc: liveCredits > 0 ? t('nudgeReadyD') : t('nudgeReady0D'), live: liveCredits > 0};
+  if (liveCredits <= 0) return null;
+  if (m.length >= 1) return {stage:'mid', title:t('nudgeMidT')(worldName(m[m.length-1])), desc:t('nudgeMidD'), live:true};
+  if (liveCredits >= 8) return {stage:'start', title:t('nudgeStartT'), desc:t('nudgeStartD'), live:true};
+  return null;
+}
+function nudgeHtml(isNew){
+  const n = nudge(); if (!n) return '';
+  const days = premiumUntil ? Math.max(0, Math.ceil((premiumUntil - Date.now()) / 86400000)) : null;
+  const meta = (n.live ? '<span>' + esc(t('credits')(liveCredits)) + '</span>' : '') + (days !== null ? '<span>' + esc(t('daysLeft')(days)) + '</span>' : '');
+  return '<div class="nudge' + (isNew ? ' new' : '') + '"><h3>' + esc(n.title) + '</h3><p>' + esc(n.desc) + '</p>' + (meta ? '<div class="meta">' + meta + '</div>' : '') +
+    '<a class="btn gold" href="' + (n.live ? 'live-interview.html' : 'dashboard.html') + '">' + esc(n.live ? t('nudgeBtn') : t('nudgeHub')) + '</a></div>';
+}
 function nLevelsSync(w){
   if (w === 'def') return chunks(DEFS).length;
   if (w === 'wri') return chunks(SENTENCES).length;
@@ -606,7 +648,7 @@ function renderHome(){
       '<div><div class="pname">' + esc(userName || t('player')) + '</div><div class="prank">' + esc(rankName(L.n)) + '</div>' +
       '<div class="xpbar"><i style="width:' + Math.round(L.into / L.need * 100) + '%"></i></div><div class="xptxt">' + t('xpTo')(L.into, L.need) + '</div></div>' +
       '<div class="stats"><div class="stat"><b>⭐ ' + totalStars() + '</b><span>' + t('statStars') + '</span></div><div class="stat"><b>🔥 ' + streakNow() + '</b><span>' + t('statStreak') + '</span></div><div class="stat"><b>' + G.xp + '</b><span>' + t('statXp') + '</span></div></div>' +
-    '</div></div>' +
+    '</div>' + nudgeHtml(false) + '</div>' +
     '<div class="worlds">' + w('civ', t('wCiv'), t('wCivD')) + w('def', t('wDef'), t('wDefD')) + w('wri', t('wWri'), t('wWriD')) + '</div>' +
     '<div class="how narrow"><b>' + esc(t('howTitle')) + '</b> ' + esc(t('how')) + '</div>';
 }
@@ -834,8 +876,11 @@ function finishRound(won){
   const bonus = won ? 20 * stars : 0;
   G.xp += R.xp + bonus;
   if (won && R.levelIdx >= 0) { const k = progKey(R.w) + '-' + R.levelIdx; G.stars[k] = Math.max(G.stars[k] || 0, stars); }
-  touchStreak(); saveG();
-  lastResult = { won, stars, xp: R.xp + bonus, firstOk: R.firstOk, total: R.total, best: R.best, missed: R.missed.slice(), w: R.w, levelIdx: R.levelIdx, nLevels: R.nLevels, levelUp: lvlInfo(G.xp).n > before ? lvlInfo(G.xp).n : 0 };
+  touchStreak();
+  const mNow = masteredWorlds().length, newMastery = mNow > (G.masteredSeen || 0);
+  if (newMastery) G.masteredSeen = mNow;
+  saveG();
+  lastResult = { newMastery, won, stars, xp: R.xp + bonus, firstOk: R.firstOk, total: R.total, best: R.best, missed: R.missed.slice(), w: R.w, levelIdx: R.levelIdx, nLevels: R.nLevels, levelUp: lvlInfo(G.xp).n > before ? lvlInfo(G.xp).n : 0 };
   saveSession(R.total, R.firstOk);
   screen = 'result'; render(); window.scrollTo({top:0});
   if (won) { SFX.win(); if (stars >= 2) confetti(); } else SFX.lose();
@@ -858,6 +903,7 @@ function renderResult(){
       (hasNext ? '<button class="btn gold block" type="button" onclick="startRound(lastResult.w, lastResult.levelIdx + 1)">' + esc(t('nextLevel')) + '</button>' : '') +
       '<button class="btn ' + (hasNext ? 'ghost' : 'gold') + ' block" type="button" onclick="startRound(lastResult.w, lastResult.levelIdx)">' + esc(t('retry')) + '</button>' +
       '<button class="btn ghost block" type="button" onclick="goMap()">' + esc(t('toMap')) + '</button></div>';
+  if (r.newMastery) html += nudgeHtml(true);
   if (r.missed.length) html += '<div class="missed"><h4>' + esc(t('missedTitle')) + '</h4><ul>' + r.missed.slice(0,10).map(it => { const m = missedLabel(it); return '<li lang="en">' + esc(m.q) + (m.a ? '<small>' + esc(m.a) + '</small>' : '') + '</li>'; }).join('') + '</ul></div>';
   html += '</div></div>';
   app.innerHTML = html;
@@ -896,15 +942,18 @@ async function init(){
   // Premium only (same check as live-interview.html): anyone else goes back to the Hub, where the upgrade is offered.
   let isPremium = false;
   try {
-    const { data: profile } = await supabaseClient.from('profiles').select('plan, plan_expires_at').eq('id', uid).single();
+    const { data: profile } = await supabaseClient.from('profiles').select('plan, plan_expires_at, live_credits').eq('id', uid).single();
     const notExpired = profile && (!profile.plan_expires_at || new Date(profile.plan_expires_at) > new Date());
     isPremium = !!(profile && profile.plan === 'premium' && notExpired);
+    if (profile) { liveCredits = typeof profile.live_credits === 'number' ? profile.live_credits : 0; premiumUntil = profile.plan_expires_at ? new Date(profile.plan_expires_at).getTime() : null; }
   } catch(e){ isPremium = false; }
   if (!isPremium) { window.location.href = 'dashboard.html'; return; }
   const md = (session.user && session.user.user_metadata) || {};
   userName = (md.full_name || md.name || '').split(' ')[0] || (session.user.email || '').split('@')[0];
   G = loadG();
   render();
+  // Load the civics bank in the background so level counts (and mastery) are exact; then refresh the home screen.
+  loadCivics(G.test, G.state).then(() => { if (screen === 'home') render(); }).catch(() => {});
   document.getElementById('loadingOverlay').classList.add('hidden');
 }
 init();
