@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Camino a la Ciudadanía | Immigration Interviews</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png">
+<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* Juego: "Camino a la Ciudadanía". Mundo único (no cambia con el tema del sistema): cielo azul, tarjetas blancas,
+   botones gruesos con sombra inferior, estrellas doradas, corazones rojos. Móvil primero; columna de 560px para jugar. */
+:root{
+  color-scheme:light;
+  --sky1:#1e40af; --sky2:#312e81; --sky3:#4c1d95;
+  --card:#ffffff; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0; --soft:#f1f5f9;
+  --blue:#2563eb; --blue-d:#1d4ed8; --blue-dd:#1e3a8a;
+  --gold:#facc15; --gold-d:#ca8a04; --gold-ink:#422006;
+  --green:#22c55e; --green-d:#15803d; --green-bg:#dcfce7;
+  --red:#ef4444; --red-d:#b91c1c; --red-bg:#fee2e2;
+  --purple:#8b5cf6; --pink:#ec4899; --teal:#14b8a6;
+  --display:"Fredoka","Nunito",system-ui,sans-serif; --body:"Nunito",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{font-family:var(--body);color:var(--ink);font-size:17px;line-height:1.45;
+  background:radial-gradient(1200px 600px at 50% -10%, #3b82f6 0%, transparent 60%),
+             linear-gradient(170deg,var(--sky1) 0%,var(--sky2) 55%,var(--sky3) 100%) fixed;
+  background-color:var(--sky2)}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.35;
+  background-image:radial-gradient(2px 2px at 20px 30px,#fff,transparent),radial-gradient(1.5px 1.5px at 120px 80px,#fff,transparent),
+  radial-gradient(1px 1px at 200px 150px,#fff,transparent),radial-gradient(1.5px 1.5px at 300px 40px,#fff,transparent),
+  radial-gradient(1px 1px at 380px 210px,#fff,transparent);background-size:420px 260px}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+a{color:inherit}
+.hidden{display:none!important}
+
+/* Top bar */
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;padding:10px 16px;
+  background:rgba(15,23,42,.35);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff}
+.top .back{font-weight:800;text-decoration:none;background:rgba(255,255,255,.14);border-radius:99px;padding:6px 14px;font-size:15px;white-space:nowrap}
+.top .title{font-family:var(--display);font-weight:700;font-size:19px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .sp{flex:1}
+.pill{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.14);border-radius:99px;padding:5px 11px;font-weight:900;font-size:15px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.iconbtn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.14);display:grid;place-items:center;font-size:17px}
+.lang{display:flex;background:rgba(255,255,255,.14);border-radius:99px;padding:3px}
+.lang button{padding:3px 9px;border-radius:99px;font-weight:900;font-size:13px;color:#cbd5e1}
+.lang button.on{background:#fff;color:var(--blue-dd)}
+@media (max-width:520px){.top .title{display:none}.pill.hide-sm{display:none}}
+
+.wrap{max-width:980px;margin:0 auto;padding:18px 16px 60px;position:relative}
+.narrow{max-width:560px;margin:0 auto}
+
+/* Generic chunky buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--display);font-weight:700;font-size:19px;
+  border-radius:18px;padding:13px 22px;background:var(--blue);color:#fff;box-shadow:0 5px 0 var(--blue-dd);transition:transform .08s, box-shadow .08s}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--blue-dd)}
+.btn.gold{background:var(--gold);color:var(--gold-ink);box-shadow:0 5px 0 var(--gold-d)}
+.btn.gold:active{box-shadow:0 1px 0 var(--gold-d)}
+.btn.green{background:var(--green);box-shadow:0 5px 0 var(--green-d)}
+.btn.green:active{box-shadow:0 1px 0 var(--green-d)}
+.btn.ghost{background:#fff;color:var(--blue-dd);box-shadow:0 5px 0 #cbd5e1}
+.btn.ghost:active{box-shadow:0 1px 0 #cbd5e1}
+.btn.block{width:100%}
+.btn[disabled]{opacity:.5;cursor:default}
+
+/* Home */
+.hero{color:#fff;text-align:center;padding:10px 0 18px}
+.hero h1{font-family:var(--display);font-weight:700;font-size:clamp(32px,6vw,48px);line-height:1.05;text-wrap:balance;text-shadow:0 3px 0 rgba(0,0,0,.18)}
+.hero p{opacity:.85;margin-top:6px;font-weight:700}
+.player{background:var(--card);border-radius:26px;padding:18px;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.avatar{width:70px;height:70px;border-radius:22px;background:linear-gradient(135deg,var(--gold),#fb923c);display:grid;place-items:center;
+  font-family:var(--display);font-weight:700;font-size:30px;color:var(--gold-ink);position:relative}
+.avatar .lv{position:absolute;bottom:-8px;right:-8px;background:var(--blue);color:#fff;font-size:13px;border-radius:99px;padding:2px 8px;border:3px solid #fff}
+.pname{font-family:var(--display);font-weight:700;font-size:22px;line-height:1.1}
+.prank{color:var(--muted);font-weight:800;font-size:14px}
+.xpbar{height:14px;background:var(--soft);border-radius:99px;overflow:hidden;margin-top:8px}
+.xpbar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#fb923c);border-radius:99px;transition:width .6s}
+.xptxt{font-size:13px;color:var(--muted);font-weight:800;margin-top:3px;font-variant-numeric:tabular-nums}
+.stats{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--soft);border-radius:16px;padding:8px 6px;text-align:center}
+.stat b{display:block;font-family:var(--display);font-size:22px;font-variant-numeric:tabular-nums}
+.stat span{font-size:12.5px;color:var(--muted);font-weight:800}
+
+.worlds{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px}
+@media (max-width:820px){.worlds{grid-template-columns:1fr}}
+.world{border-radius:26px;padding:20px;color:#fff;text-align:left;position:relative;overflow:hidden;
+  box-shadow:0 7px 0 rgba(0,0,0,.25);transition:transform .12s;display:flex;flex-direction:column;gap:6px;min-height:190px}
+.world:hover{transform:translateY(-3px)}
+.world:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.world.civ{background:linear-gradient(140deg,#3b82f6,#1d4ed8)}
+.world.def{background:linear-gradient(140deg,#a855f7,#7c3aed)}
+.world.wri{background:linear-gradient(140deg,#f472b6,#db2777)}
+.world .big{position:absolute;right:-10px;bottom:-24px;font-size:120px;opacity:.22;line-height:1}
+.world h2{font-family:var(--display);font-weight:700;font-size:26px;line-height:1.1}
+.world p{opacity:.92;font-weight:700;font-size:15px;max-width:30ch}
+.world .meta{margin-top:auto;display:flex;gap:8px;flex-wrap:wrap}
+.world .meta span{background:rgba(255,255,255,.2);border-radius:99px;padding:3px 11px;font-weight:900;font-size:14px}
+.how{margin-top:22px;background:rgba(255,255,255,.12);color:#e0e7ff;border-radius:20px;padding:14px 18px;font-weight:700;font-size:15px}
+.how b{color:#fff}
+
+/* Map */
+.maphead{background:var(--card);border-radius:24px;padding:16px 18px;box-shadow:0 10px 30px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:12px}
+.maphead .row1{display:flex;align-items:center;gap:12px}
+.maphead .wicon{width:54px;height:54px;border-radius:18px;display:grid;place-items:center;font-size:28px;color:#fff;flex:none}
+.maphead h2{font-family:var(--display);font-weight:700;font-size:24px;line-height:1.1}
+.maphead .sub{color:var(--muted);font-weight:800;font-size:14px}
+.seg{display:inline-flex;background:var(--soft);border-radius:14px;padding:4px;gap:4px}
+.seg button{padding:7px 14px;border-radius:11px;font-weight:900;font-size:15px;color:var(--muted)}
+.seg button.on{background:var(--blue);color:#fff}
+.opts-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.opts-row select{font:inherit;font-weight:800;font-size:15px;border:2px solid var(--line);border-radius:12px;padding:7px 10px;background:#fff;color:var(--ink);max-width:100%}
+.opts-row label{font-weight:800;font-size:14px;color:var(--muted)}
+.quick{display:flex;gap:10px;flex-wrap:wrap}
+.path{display:flex;flex-direction:column;align-items:center;gap:0;padding:26px 0 10px}
+.node-wrap{display:flex;flex-direction:column;align-items:center;position:relative}
+.node{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:30px;
+  background:#fff;color:var(--blue-dd);box-shadow:0 7px 0 #94a3b8;transition:transform .1s;position:relative;margin-top:34px}
+.node-wrap:first-child .node{margin-top:0}
+.node:active{transform:translateY(5px);box-shadow:0 2px 0 #94a3b8}
+.node.done{background:var(--gold);color:var(--gold-ink);box-shadow:0 7px 0 var(--gold-d)}
+.node.next{background:#fff;box-shadow:0 7px 0 var(--blue-dd),0 0 0 6px rgba(250,204,21,.6)}
+@media (prefers-reduced-motion:no-preference){.node.next{animation:pulse 1.6s ease-in-out infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 7px 0 var(--blue-dd),0 0 0 6px rgba(250,204,21,.6)}50%{box-shadow:0 7px 0 var(--blue-dd),0 0 0 14px rgba(250,204,21,.15)}}}
+.node.locked{background:#cbd5e1;color:#64748b;box-shadow:0 7px 0 #94a3b8;cursor:not-allowed;font-size:26px}
+.nstars{margin-top:10px;font-size:18px;letter-spacing:2px;color:var(--gold);text-shadow:0 2px 0 rgba(0,0,0,.25);min-height:22px}
+.nstars .off{color:rgba(255,255,255,.3)}
+.nlabel{color:#e0e7ff;font-weight:800;font-size:13px;text-align:center;max-width:180px}
+.cat-tag{margin-top:26px;background:rgba(255,255,255,.18);color:#fff;border-radius:99px;padding:5px 14px;font-weight:900;font-size:14px}
+
+/* Play */
+.playtop{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.xbtn{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;font-size:20px;font-weight:900;display:grid;place-items:center;flex:none}
+.prog{flex:1;height:18px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,#4ade80,var(--green));border-radius:99px;transition:width .4s;
+  box-shadow:inset 0 -4px 0 rgba(0,0,0,.12)}
+.hearts{color:#fff;font-weight:900;font-size:20px;white-space:nowrap;letter-spacing:1px}
+.hearts .lost{opacity:.25;filter:grayscale(1)}
+.combo{display:inline-block;background:linear-gradient(135deg,#fb923c,#ef4444);color:#fff;border-radius:99px;padding:3px 12px;font-weight:900;font-size:15px;margin-bottom:10px}
+@media (prefers-reduced-motion:no-preference){.combo{animation:pop .35s ease-out}@keyframes pop{0%{transform:scale(.6)}70%{transform:scale(1.15)}100%{transform:scale(1)}}}
+.qcard{background:var(--card);border-radius:26px;padding:22px 20px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.qkind{font-weight:900;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--purple);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.qkind .again{background:#fef3c7;color:#92400e;border-radius:99px;padding:2px 10px;letter-spacing:0;text-transform:none}
+.qtext{font-family:var(--display);font-weight:600;font-size:clamp(22px,4.6vw,28px);line-height:1.2;margin:8px 0 4px;text-wrap:balance}
+.qtext .term{color:var(--blue)}
+.qsub{color:var(--muted);font-weight:700;font-size:15px}
+.speak{display:inline-flex;align-items:center;gap:6px;background:#eff6ff;color:var(--blue-d);border-radius:99px;padding:6px 14px;font-weight:900;font-size:15px;margin-top:10px}
+.choices{display:flex;flex-direction:column;gap:12px;margin-top:18px}
+.choice{display:flex;align-items:center;gap:12px;text-align:left;background:#fff;border:2px solid var(--line);border-radius:18px;padding:12px 14px;
+  box-shadow:0 4px 0 var(--line);font-weight:800;font-size:17px;line-height:1.25;transition:transform .06s}
+.choice:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.choice .k{flex:none;width:34px;height:34px;border-radius:11px;border:2px solid var(--line);display:grid;place-items:center;font-family:var(--display);font-weight:700;color:var(--muted);font-size:16px}
+.choice small{display:block;color:var(--muted);font-weight:700;font-size:14px;margin-top:2px}
+.choice.right{border-color:var(--green);background:var(--green-bg);box-shadow:0 4px 0 var(--green)}
+.choice.right .k{background:var(--green);border-color:var(--green);color:#fff}
+.choice.wrong{border-color:var(--red);background:var(--red-bg);box-shadow:0 4px 0 var(--red)}
+.choice.wrong .k{background:var(--red);border-color:var(--red);color:#fff}
+.choice[disabled]{cursor:default}
+.choice.dim{opacity:.55}
+@media (prefers-reduced-motion:no-preference){.shake{animation:shake .4s}@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}}
+.write-in{width:100%;margin-top:18px;font:inherit;font-size:20px;font-weight:700;border:3px solid var(--line);border-radius:18px;padding:14px 16px;color:var(--ink);background:#fff}
+.write-in:focus{border-color:var(--blue);outline:none}
+.write-in.ok{border-color:var(--green);background:var(--green-bg)}
+.write-in.bad{border-color:var(--red);background:var(--red-bg)}
+.listen-big{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;margin-top:16px;padding:22px;border-radius:22px;
+  background:linear-gradient(135deg,#f472b6,#db2777);color:#fff;font-family:var(--display);font-weight:700;font-size:22px;box-shadow:0 6px 0 #9d174d}
+.listen-big:active{transform:translateY(5px);box-shadow:0 1px 0 #9d174d}
+.actions{margin-top:18px}
+
+.fb{margin-top:16px;border-radius:22px;padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+.fb.good{background:var(--green-bg);color:#14532d}
+.fb.bad{background:var(--red-bg);color:#7f1d1d}
+.fb.mid{background:#fef3c7;color:#713f12}
+.fb h3{font-family:var(--display);font-weight:700;font-size:22px}
+.fb .lbl{font-size:12.5px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;opacity:.75}
+.fb ul{padding-left:20px;font-weight:700}
+.fb .say{font-weight:900;font-size:18px}
+.fb .xp{font-weight:900}
+.fb img{width:140px;height:140px;object-fit:cover;border-radius:16px;border:3px solid #fff;box-shadow:0 4px 10px rgba(0,0,0,.12)}
+.fb .imgrow{display:flex;gap:10px;flex-wrap:wrap}
+.sent{font-weight:900;font-size:19px}
+.sent .w-bad{background:#fecaca;border-radius:6px;padding:0 3px}
+.sent .w-case{background:#fde68a;border-radius:6px;padding:0 3px}
+.kbd-hint{color:rgba(255,255,255,.7);font-weight:700;font-size:13px;text-align:center;margin-top:14px}
+
+/* Result */
+.result{background:var(--card);border-radius:28px;padding:26px 20px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.result h2{font-family:var(--display);font-weight:700;font-size:32px;line-height:1.1;text-wrap:balance}
+.bigstars{font-size:58px;letter-spacing:6px;margin:10px 0 2px;line-height:1}
+.bigstars span{display:inline-block;color:#e2e8f0}
+.bigstars span.on{color:var(--gold);text-shadow:0 4px 0 var(--gold-d)}
+@media (prefers-reduced-motion:no-preference){.bigstars span.on{animation:starIn .5s both}.bigstars span.on:nth-child(2){animation-delay:.25s}.bigstars span.on:nth-child(3){animation-delay:.5s}
+  @keyframes starIn{0%{transform:scale(0) rotate(-40deg)}70%{transform:scale(1.25) rotate(8deg)}100%{transform:scale(1)}}}
+.rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
+.rgrid div{background:var(--soft);border-radius:16px;padding:10px 6px}
+.rgrid b{display:block;font-family:var(--display);font-size:26px;font-variant-numeric:tabular-nums}
+.rgrid span{font-size:13px;color:var(--muted);font-weight:800}
+.rbtns{display:flex;flex-direction:column;gap:12px;margin-top:6px}
+.missed{text-align:left;margin-top:16px;background:var(--soft);border-radius:18px;padding:14px 16px}
+.missed h4{font-family:var(--display);font-size:18px;margin-bottom:6px}
+.missed li{margin-left:18px;font-weight:700;font-size:15px;margin-top:4px}
+.missed li small{display:block;color:var(--green-d);font-weight:800}
+.levelup{background:linear-gradient(135deg,var(--gold),#fb923c);color:var(--gold-ink);border-radius:18px;padding:10px 14px;font-weight:900;margin-top:12px}
+
+.loading{color:#fff;text-align:center;padding:60px 0;font-family:var(--display);font-size:22px}
+.err{background:var(--card);border-radius:20px;padding:20px;text-align:center}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+.overlay{position:fixed;inset:0;background:linear-gradient(170deg,var(--sky1),var(--sky2));z-index:100;display:grid;place-items:center;color:#fff;font-family:var(--display);font-size:24px}
+</style>
+</head>
+<body>
+<div class="overlay" id="loadingOverlay">…</div>
+
+<header class="top">
+  <a class="back" id="backBtn" href="dashboard.html">← Hub</a>
+  <div class="title" id="topTitle">Camino a la Ciudadanía</div>
+  <div class="sp"></div>
+  <span class="pill" id="pStreak" title="">🔥 0</span>
+  <span class="pill hide-sm" id="pXp" title="">⭐ 0</span>
+  <button class="iconbtn" id="soundBtn" type="button" aria-label="Sonido">🔊</button>
+  <div class="lang"><button id="langEs" type="button">ES</button><button id="langEn" type="button">EN</button></div>
+</header>
+
+<main class="wrap" id="app"></main>
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/tts.js"></script>
+<script src="/definitions.js"></script>
+<script src="/civics-images.js"></script>
+<script>
+// ===================== Supabase (auth guard, same project as the other pages) =====================
+const SUPABASE_URL = 'https://vugvnqapdxyewxyfaayl.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_vFFY4GL2f8PIGrArW05ncg_PVkcgV4M';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ===================== Text =====================
+const T = {
+  es: {
+    back:'← Hub', title:'Camino a la Ciudadanía',
+    heroSub:'Juega, gana estrellas y prepárate para tu entrevista.',
+    player:'Jugador', xpTo:(a,b)=>a+' / '+b+' XP para el siguiente nivel', lvl:'Nv',
+    statStars:'Estrellas', statStreak:'Días seguidos', statXp:'XP total',
+    ranks:['Aspirante','Estudiante','Preparado','Experto','Casi ciudadano','Listo para la entrevista'],
+    wCiv:'Cívica', wCivD:'Las preguntas oficiales de cívica de USCIS.',
+    wDef:'Definiciones', wDefD:'Las palabras del N-400 que el oficial te puede pedir explicar.',
+    wWri:'Escritura', wWriD:'Escucha la oración y escríbela como en el examen.',
+    levels:n=>n+' niveles', starsOf:(a,b)=>'⭐ '+a+' / '+b,
+    howTitle:'Cómo se juega:',
+    how:'Cada nivel tiene unas 10 preguntas y 3 vidas. Si fallas, la pregunta vuelve al final de la ronda hasta que la aciertes. Con 1 estrella se abre el siguiente nivel; con 3 estrellas lo dominas.',
+    test:'Examen', t100:'100 preguntas', t128:'128 preguntas', yourState:'Tu estado', stateNone:'Elige tu estado',
+    stateNote:'Con tu estado se agregan las preguntas de tu gobernador, senadores y capital.',
+    quick:'⚡ Partida rápida', quickSub:'10 preguntas al azar de este mundo',
+    level:'Nivel', qRange:(a,b)=>'Preguntas '+a+'–'+b, locked:'Gana 1 estrella en el nivel anterior para abrir este.',
+    catGov:'Gobierno', catHist:'Historia', catCiv:'Cívica integrada',
+    kCiv:'Cívica', kDef:'Definición del N-400', kWri:'Escritura',
+    again:'Otra vez', defAsk:'¿Qué significa', defPick:'Elige la respuesta corta correcta',
+    listen:'🔊 Escuchar', listenBig:'🔊 Escuchar la oración', writeHere:'Escribe aquí en inglés…',
+    writeAsk:'Escucha y escribe la oración en inglés', check:'Comprobar', cont:'Continuar',
+    right:['¡Correcto!','¡Muy bien!','¡Excelente!','¡Así se hace!','¡Perfecto!'],
+    wrong:'Casi… esta es la respuesta', comesBack:'Esta pregunta volverá al final de la ronda.',
+    accepted:'Respuestas aceptadas', sayIt:'Dila en voz alta', officialDef:'Definición oficial', pron:'Se pronuncia',
+    twoNote:'En la entrevista tienes que decir dos.',
+    caseTitle:'¡Bien escrita! Revisa las mayúsculas', caseNote:'En el examen real, el oficial revisa las mayúsculas del inicio y de los nombres propios.',
+    writeWrong:'No es igual. La oración correcta es:', yourAnswer:'Tú escribiste:',
+    combo:n=>'🔥 Racha x'+n, xpGain:n=>'+'+n+' XP',
+    winTitle:['¡Nivel superado!','¡Bien hecho!','¡Lo dominas!'], loseTitle:'¡Te quedaste sin vidas!',
+    loseSub:'No pasa nada: cada error te ayuda a recordar. Inténtalo otra vez.',
+    rFirst:'A la primera', rCombo:'Mejor racha', rXp:'XP ganada',
+    nextLevel:'Siguiente nivel →', retry:'Intentar de nuevo', toMap:'Volver al mapa', toHome:'Elegir otro mundo',
+    missedTitle:'Para repasar', levelUp:n=>'⬆️ ¡Subiste al nivel '+n+'!',
+    quitConfirm:'Toca otra vez para salir (perderás esta ronda)', loading:'Cargando…',
+    loadErr:'No se pudieron cargar las preguntas. Revisa tu conexión e inténtalo de nuevo.', tryAgain:'Reintentar',
+    hintKeys:'Atajos: 1-4 para elegir · Enter para continuar',
+    streakTip:'Días seguidos jugando', xpTip:'Experiencia total', soundOn:'Sonido activado', soundOff:'Sonido apagado'
+  },
+  en: {
+    back:'← Hub', title:'Road to Citizenship',
+    heroSub:'Play, earn stars and get ready for your interview.',
+    player:'Player', xpTo:(a,b)=>a+' / '+b+' XP to next level', lvl:'Lv',
+    statStars:'Stars', statStreak:'Day streak', statXp:'Total XP',
+    ranks:['Applicant','Student','Prepared','Expert','Almost a citizen','Interview ready'],
+    wCiv:'Civics', wCivD:'The official USCIS civics questions.',
+    wDef:'Definitions', wDefD:'The N-400 words the officer may ask you to explain.',
+    wWri:'Writing', wWriD:'Listen to the sentence and write it like on the test.',
+    levels:n=>n+' levels', starsOf:(a,b)=>'⭐ '+a+' / '+b,
+    howTitle:'How to play:',
+    how:'Each level has about 10 questions and 3 lives. If you miss one, it comes back at the end of the round until you get it right. 1 star opens the next level; 3 stars means you mastered it.',
+    test:'Test', t100:'100 questions', t128:'128 questions', yourState:'Your state', stateNone:'Choose your state',
+    stateNote:'With your state, the questions about your governor, senators and capital are added.',
+    quick:'⚡ Quick game', quickSub:'10 random questions from this world',
+    level:'Level', qRange:(a,b)=>'Questions '+a+'–'+b, locked:'Earn 1 star in the previous level to open this one.',
+    catGov:'Government', catHist:'History', catCiv:'Integrated civics',
+    kCiv:'Civics', kDef:'N-400 definition', kWri:'Writing',
+    again:'Again', defAsk:'What does', defPick:'Pick the correct short answer',
+    listen:'🔊 Listen', listenBig:'🔊 Listen to the sentence', writeHere:'Type here in English…',
+    writeAsk:'Listen and write the sentence in English', check:'Check', cont:'Continue',
+    right:['Correct!','Great job!','Excellent!','Way to go!','Perfect!'],
+    wrong:'Almost… this is the answer', comesBack:'This question will come back at the end of the round.',
+    accepted:'Accepted answers', sayIt:'Say it out loud', officialDef:'Official definition', pron:'Say it like',
+    twoNote:'In the interview you must say two.',
+    caseTitle:'Well written! Check the capital letters', caseNote:'On the real test, the officer checks capitals at the start and on proper names.',
+    writeWrong:'Not quite. The correct sentence is:', yourAnswer:'You wrote:',
+    combo:n=>'🔥 Streak x'+n, xpGain:n=>'+'+n+' XP',
+    winTitle:['Level complete!','Well done!','You mastered it!'], loseTitle:'Out of lives!',
+    loseSub:'That is OK: every mistake helps you remember. Try again.',
+    rFirst:'First try', rCombo:'Best streak', rXp:'XP earned',
+    nextLevel:'Next level →', retry:'Try again', toMap:'Back to map', toHome:'Choose another world',
+    missedTitle:'To review', levelUp:n=>'⬆️ You reached level '+n+'!',
+    quitConfirm:'Tap again to leave (you will lose this round)', loading:'Loading…',
+    loadErr:'Could not load the questions. Check your connection and try again.', tryAgain:'Retry',
+    hintKeys:'Shortcuts: 1-4 to pick · Enter to continue',
+    streakTip:'Days in a row playing', xpTip:'Total experience', soundOn:'Sound on', soundOff:'Sound off'
+  }
+};
+let lang = (function(){ try { return localStorage.getItem('lang') || 'en'; } catch(e){ return 'en'; } })();
+if (!T[lang]) lang = 'en';
+const t = k => T[lang][k];
+
+// ===================== Content =====================
+// Keep in sync with STATE_INFO in api/civics.js
+const STATE_NAMES = ['Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana','Maine','Maryland','Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana','Nebraska','Nevada','New Hampshire','New Jersey','New Mexico','New York','North Carolina','North Dakota','Ohio','Oklahoma','Oregon','Pennsylvania','Rhode Island','South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont','Virginia','Washington','West Virginia','Wisconsin','Wyoming'];
+
+// Keep in sync with SENTENCES in writing.html (these have pre-recorded audio in /audio/manifest.json)
+const SENTENCES = [
+  'The president lives in the White House.','The White House is in Washington, D.C.','George Washington was the first president.',
+  'Abraham Lincoln was president during the Civil War.','Citizens can vote for president.','Citizens have the right to vote.',
+  'The president signs bills.','The president vetoes bills.','The president is the commander in chief.','Congress makes federal laws.',
+  'Congress meets in Washington.','There are 100 U.S. Senators.','Senators meet in Congress.','New York City was the first capital.',
+  'Washington is the capital of the United States.','The Constitution is the supreme law of the land.','The Bill of Rights protects our rights.',
+  'Freedom of speech is an important right.','We have freedom of speech.','We pay taxes every year.','April is the month to file taxes.',
+  'The Supreme Court is the highest court in the United States.','Independence Day is on July 4th.','We celebrate Independence Day in July.',
+  'Thanksgiving is in November.','Labor Day is in September.','Memorial Day is in May.',"Presidents' Day is in February.",
+  'Columbus Day is in October.','New York has the Statue of Liberty.','California has the most people.','Alaska is the largest state.',
+  'The American flag has 50 stars.','The American flag is red, white, and blue.','The United States has 50 states.',
+  'Canada is north of the United States.','Mexico is south of the United States.','The Civil War was between the North and the South.',
+  'Adams was the second president of the United States.','American Indians lived in America first.','Citizens can come to the United States.',
+  'The president lives in the White House in Washington, D.C.','Citizens have the right to vote for the president.',
+  'Congress makes the federal laws for the United States.'
+];
+const DEFS = (Array.isArray(window.DEFINITIONS) ? window.DEFINITIONS : []).filter(d => d.quiz !== false && d.short && d.short.en);
+
+// ===================== Saved progress (per user, this browser) =====================
+let uid = 'anon', userName = '';
+let G = null;
+function gKey(){ return 'game.v1.' + uid; }
+function loadG(){
+  let g = null;
+  try { g = JSON.parse(localStorage.getItem(gKey()) || 'null'); } catch(e){}
+  g = g || {};
+  g.xp = g.xp || 0; g.stars = g.stars || {}; g.streak = g.streak || {last:0,count:0};
+  g.test = g.test === '128' ? '128' : '100'; g.state = g.state || '';
+  try { const s = localStorage.getItem('game.sound'); g.sound = s === null ? true : s === '1'; } catch(e){ g.sound = true; }
+  return g;
+}
+function saveG(){ try { localStorage.setItem(gKey(), JSON.stringify({xp:G.xp,stars:G.stars,streak:G.streak,test:G.test,state:G.state})); } catch(e){} }
+function todayNum(){ return Math.floor((Date.now() - new Date().getTimezoneOffset()*60000) / 86400000); }
+function touchStreak(){
+  const d = todayNum(), s = G.streak;
+  if (s.last === d) return;
+  s.count = (s.last === d - 1) ? s.count + 1 : 1; s.last = d;
+}
+function streakNow(){ const s = G.streak, d = todayNum(); return (s.last === d || s.last === d - 1) ? s.count : 0; }
+// Level n starts at 50*n*(n-1) XP: 0, 100, 300, 600, 1000…
+function lvlInfo(xp){
+  let n = 1; while (50*(n+1)*n <= xp) n++;
+  const base = 50*n*(n-1), next = 50*(n+1)*n;
+  return {n, into: xp - base, need: next - base};
+}
+function rankName(n){ const r = t('ranks'); return r[Math.min(r.length-1, Math.floor((n-1)/2))]; }
+
+// ===================== Sound (tiny synth, no files) =====================
+let actx = null;
+function tone(freq, start, dur, type, vol){
+  if (!G || !G.sound) return;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = type || 'sine'; o.frequency.value = freq;
+    const t0 = actx.currentTime + start;
+    g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol || 0.18, t0 + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g); g.connect(actx.destination); o.start(t0); o.stop(t0 + dur + 0.02);
+  } catch(e){}
+}
+const SFX = {
+  ok(){ tone(660,0,.12,'triangle'); tone(990,.09,.18,'triangle'); },
+  bad(){ tone(180,0,.25,'sawtooth',.08); tone(140,.12,.3,'sawtooth',.07); },
+  combo(){ tone(784,0,.1,'square',.08); tone(988,.07,.1,'square',.08); tone(1318,.14,.16,'square',.08); },
+  win(){ [523,659,784,1047].forEach((f,i)=>tone(f,i*.12,.25,'triangle')); },
+  lose(){ [392,330,262].forEach((f,i)=>tone(f,i*.16,.3,'triangle',.12)); },
+  tap(){ tone(520,0,.06,'sine',.08); }
+};
+
+// ===================== Confetti =====================
+function confetti(){
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const c = document.getElementById('confetti'), x = c.getContext('2d');
+  c.width = innerWidth; c.height = innerHeight;
+  const cols = ['#facc15','#22c55e','#3b82f6','#ec4899','#a855f7','#fb923c','#ffffff'];
+  const P = Array.from({length:150}, () => ({x:Math.random()*c.width, y:-20-Math.random()*c.height*.5, w:6+Math.random()*7, h:8+Math.random()*10,
+    vx:-2+Math.random()*4, vy:2+Math.random()*4, r:Math.random()*6, vr:-.2+Math.random()*.4, c:cols[(Math.random()*cols.length)|0]}));
+  const t0 = performance.now();
+  (function frame(now){
+    x.clearRect(0,0,c.width,c.height);
+    P.forEach(p => { p.x += p.vx; p.y += p.vy; p.vy += .05; p.r += p.vr;
+      x.save(); x.translate(p.x,p.y); x.rotate(p.r); x.fillStyle = p.c; x.fillRect(-p.w/2,-p.h/2,p.w,p.h); x.restore(); });
+    if (now - t0 < 3200) requestAnimationFrame(frame); else x.clearRect(0,0,c.width,c.height);
+  })(t0);
+}
+
+// ===================== Helpers =====================
+const app = document.getElementById('app');
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function shuffle(a){ a = a.slice(); for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function speak(text, rate){ try { if (window.speakText) window.speakText(text, 'en-US', rate || 0.95); } catch(e){} }
+function stopSpeak(){ try { if (window.ttsStop) window.ttsStop(); } catch(e){} }
+function chunks(list){ const nLv = Math.max(1, Math.ceil(list.length/10)), size = Math.ceil(list.length/nLv); const out=[]; for (let i=0;i<list.length;i+=size) out.push(list.slice(i,i+size)); return out; }
+function starsStr(n, max){ let s=''; for (let i=0;i<(max||3);i++) s += i<n ? '★' : '<span class="off">★</span>'; return s; }
+
+// ===================== Civics bank → game items =====================
+const bankCache = {};
+async function loadCivics(test, st){
+  const key = test + '|' + (st || '');
+  if (bankCache[key]) return bankCache[key];
+  const url = '/api/questions?v=' + test + (st ? '&state=' + encodeURIComponent(st) : '');
+  const res = await fetch(url); if (!res.ok) throw new Error('bank ' + res.status);
+  const data = await res.json();
+  bankCache[key] = buildCivItems(data.questions || [], test);
+  return bankCache[key];
+}
+function segs(a){ return String(a).split(';').map(s => s.trim()).filter(Boolean); }
+function cleanAns(s){
+  s = String(s).replace(/\s*\((name either one|governor of [^)]*)\)/ig, '').trim();
+  if (/:\s*/.test(s) && /senators?/i.test(s)) s = s.split(':').slice(1).join(':').split(',')[0].trim();
+  s = s.replace(/^\(([^)]*)\)\s*/, '$1 ').replace(/\s+/g,' ').replace(/\.$/, '').trim();
+  return s;
+}
+function qType(q){
+  if (/how (many|long|old)|what age|how many years/i.test(q)) return 'num';
+  if (/^when\b|what month|in what year|what year/i.test(q)) return 'date';
+  if (/^who\b|name of the (president|vice president|speaker|chief justice)|senators? now|governor of your state|name one (of the )?(writer|american indian)/i.test(q)) return 'person';
+  if (/^where\b|ocean|river|capital|territor|borders|state that|name one state|what state/i.test(q)) return 'place';
+  return 'other';
+}
+// A person's name: 2-4 capitalized words, not a role like "The President".
+function isName(s){ const w = String(s).split(' '); return w.length >= 2 && w.length <= 4 && !/^(the|american|a|an)$/i.test(w[0]) && w.every(x => /^[A-Z][A-Za-z.'-]*$/.test(x) || /^(of|de|la|Jr\.?)$/.test(x)); }
+function buildCivItems(bank, test){
+  const usable = bank.filter(x => !/varies by the applicant|depends on your congressional district|look up your own/i.test(x.a));
+  const items = usable.map(x => {
+    const all = segs(x.a), correct = cleanAns(all[0]);
+    let type = qType(x.q);
+    if (type === 'person') type = isName(correct) ? 'name' : 'role';
+    else if (type === 'other' && /\bwars?\b/i.test(x.q)) type = 'war';
+    return { kind:'mc', world:'civ', id:'c'+test+'-'+x.n, n:x.n, test, q:x.q, a:x.a, all, correct, type, two:/\btwo\b|\bthree\b/i.test(x.q) };
+  }).filter(it => it.correct);
+  const pools = {};
+  items.forEach(it => { (pools[it.type] = pools[it.type] || []).push(it.correct); });
+  items.forEach(it => { it.pool = pools[it.type] || []; it.poolAll = items.map(o => o.correct); });
+  return items.sort((a,b) => a.n - b.n);
+}
+function civOptions(it){
+  const mine = new Set(it.all.map(s => cleanAns(s).toLowerCase()));
+  const pick = [], seen = new Set([it.correct.toLowerCase()]);
+  // Prefer wrong answers of a similar length, so the right one does not stand out.
+  const L = it.correct.length;
+  const take = list => {
+    const cand = shuffle(list).filter(s => { const k = s.toLowerCase(); return !seen.has(k) && !mine.has(k) && s.length <= 90; })
+      .sort((a,b) => Math.abs(a.length - L) - Math.abs(b.length - L)).slice(0, 8);
+    for (const s of shuffle(cand)) { const k = s.toLowerCase(); if (pick.length >= 3) break; if (seen.has(k)) continue; seen.add(k); pick.push(s); }
+  };
+  take(it.pool); if (pick.length < 3) take(it.poolAll);
+  return shuffle([{text:it.correct, ok:true}].concat(pick.map(s => ({text:s, ok:false}))));
+}
+function civCat(test, n){
+  const is128 = test === '128';
+  if (n <= (is128 ? 72 : 57)) return t('catGov');
+  if (n <= (is128 ? 116 : 87)) return t('catHist');
+  return t('catCiv');
+}
+function civImage(test, n){
+  const D = window.CIVICS_IMAGES; const keys = (D && D.map && D.map[test] && D.map[test][n]) || [];
+  return keys.map(k => ({src:'/img/civics/' + k + '.webp', label:(D.labels && D.labels[k]) ? D.labels[k][lang === 'es' ? 1 : 0] : ''}));
+}
+
+// ===================== Definitions & writing → game items =====================
+function defItems(){ return DEFS.map((d,i) => ({kind:'mc', world:'def', id:'d-'+i, d})); }
+function defOptions(it){
+  const d = it.d;
+  const others = shuffle(DEFS.filter(x => x !== d && !(d.group && x.group === d.group) && x.short.en.toLowerCase() !== d.short.en.toLowerCase())).slice(0,3);
+  return shuffle([{text:d.short.en, sub:d.short.es, ok:true}].concat(others.map(x => ({text:x.short.en, sub:x.short.es, ok:false}))));
+}
+function wriItems(){ return SENTENCES.map((s,i) => ({kind:'write', world:'wri', id:'w-'+i, s})); }
+
+// Writing grader (same rules as writing.html: small typos allowed, capitals checked)
+function normalize(s){ return String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[.,!?;:'"-]/g,'').replace(/\s+/g,' ').trim(); }
+function lev(a,b){ const m=a.length,n=b.length; const dp=Array.from({length:m+1},(_,i)=>[i].concat(Array(n).fill(0))); for(let j=0;j<=n;j++)dp[0][j]=j;
+  for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]); return dp[m][n]; }
+function wordsMatch(tw, cw){ if (tw === cw) return true; const L = cw.length, tol = L<=3 ? 0 : (L<=6 ? 1 : 2); return lev(tw,cw) <= tol; }
+function caseWords(s){ return String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[.,!?;:'"-]/g,'').replace(/\s+/g,' ').trim().split(' ').filter(Boolean); }
+function gradeSentence(typed, correct){
+  const tw = normalize(typed).split(' ').filter(Boolean), cw = normalize(correct).split(' ').filter(Boolean);
+  const badIdx = [];
+  if (tw.length !== cw.length) { cw.forEach((w,i) => { if (!tw[i] || !wordsMatch(tw[i], w)) badIdx.push(i); }); return {result:'wrong', badIdx, caseIdx:[]}; }
+  cw.forEach((w,i) => { if (!wordsMatch(tw[i], w)) badIdx.push(i); });
+  if (badIdx.length) return {result:'wrong', badIdx, caseIdx:[]};
+  const tc = caseWords(typed), cc = caseWords(correct), caseIdx = [];
+  if (tc.length === cc.length) cc.forEach((w,i) => { const a = tc[i].charAt(0), b = w.charAt(0); if (a !== b && a.toLowerCase() === b.toLowerCase()) caseIdx.push(i); });
+  return {result: caseIdx.length ? 'case' : 'ok', badIdx:[], caseIdx};
+}
+function markSentence(sentence, idxs, cls){
+  return sentence.split(/\s+/).map((w,i) => idxs.includes(i) ? '<span class="'+cls+'">'+esc(w)+'</span>' : esc(w)).join(' ');
+}
+
+// ===================== Worlds =====================
+const WORLDS = {
+  civ:{icon:'🏛️', cls:'civ', grad:'linear-gradient(140deg,#3b82f6,#1d4ed8)'},
+  def:{icon:'📖', cls:'def', grad:'linear-gradient(140deg,#a855f7,#7c3aed)'},
+  wri:{icon:'✍️', cls:'wri', grad:'linear-gradient(140deg,#f472b6,#db2777)'}
+};
+// Civics progress is kept apart with/without a state, because the state adds questions and shifts the levels.
+function progKey(w){ return w === 'civ' ? 'civ' + G.test + (G.state ? 's' : '') : w; }
+async function itemsFor(w){
+  if (w === 'civ') return loadCivics(G.test, G.state);
+  if (w === 'def') return defItems();
+  return wriItems();
+}
+function worldStars(w, nLevels){ let s = 0; for (let i=0;i<nLevels;i++) s += G.stars[progKey(w)+'-'+i] || 0; return s; }
+function totalStars(){ return Object.values(G.stars).reduce((a,b) => a + b, 0); }
+function nLevelsSync(w){
+  if (w === 'def') return chunks(DEFS).length;
+  if (w === 'wri') return chunks(SENTENCES).length;
+  const k = G.test + '|' + (G.state || ''); return bankCache[k] ? chunks(bankCache[k]).length : (G.test === '128' ? 13 : 10);
+}
+
+// ===================== Screens =====================
+let screen = 'home', curWorld = null, R = null, quitArmed = false;
+
+function paintTop(){
+  document.getElementById('topTitle').textContent = t('title');
+  document.getElementById('backBtn').textContent = t('back');
+  document.getElementById('pStreak').textContent = '🔥 ' + streakNow();
+  document.getElementById('pStreak').title = t('streakTip');
+  document.getElementById('pXp').textContent = '⭐ ' + G.xp;
+  document.getElementById('pXp').title = t('xpTip');
+  const sb = document.getElementById('soundBtn'); sb.textContent = G.sound ? '🔊' : '🔇'; sb.setAttribute('aria-label', G.sound ? t('soundOn') : t('soundOff'));
+  document.getElementById('langEs').classList.toggle('on', lang === 'es');
+  document.getElementById('langEn').classList.toggle('on', lang === 'en');
+  document.documentElement.lang = lang;
+}
+function render(){
+  paintTop();
+  if (screen === 'home') renderHome();
+  else if (screen === 'map') renderMap();
+  else if (screen === 'play') renderPlay();
+  else if (screen === 'result') renderResult();
+  else if (screen === 'loading') app.innerHTML = '<div class="loading">' + t('loading') + '</div>';
+}
+
+function renderHome(){
+  const L = lvlInfo(G.xp), init = (userName || '?').trim().charAt(0).toUpperCase() || '?';
+  const w = (id, title, desc) => {
+    const n = nLevelsSync(id), s = worldStars(id, n);
+    return '<button class="world ' + WORLDS[id].cls + '" type="button" onclick="openWorld(\'' + id + '\')"><span class="big" aria-hidden="true">' + WORLDS[id].icon + '</span>' +
+      '<h2>' + WORLDS[id].icon + ' ' + esc(title) + '</h2><p>' + esc(desc) + '</p><div class="meta"><span>' + t('levels')(n) + '</span><span>' + t('starsOf')(s, n*3) + '</span></div></button>';
+  };
+  app.innerHTML =
+    '<div class="hero"><h1>' + esc(t('title')) + '</h1><p>' + esc(t('heroSub')) + '</p></div>' +
+    '<div class="narrow"><div class="player"><div class="avatar">' + esc(init) + '<span class="lv">' + t('lvl') + ' ' + L.n + '</span></div>' +
+      '<div><div class="pname">' + esc(userName || t('player')) + '</div><div class="prank">' + esc(rankName(L.n)) + '</div>' +
+      '<div class="xpbar"><i style="width:' + Math.round(L.into / L.need * 100) + '%"></i></div><div class="xptxt">' + t('xpTo')(L.into, L.need) + '</div></div>' +
+      '<div class="stats"><div class="stat"><b>⭐ ' + totalStars() + '</b><span>' + t('statStars') + '</span></div><div class="stat"><b>🔥 ' + streakNow() + '</b><span>' + t('statStreak') + '</span></div><div class="stat"><b>' + G.xp + '</b><span>' + t('statXp') + '</span></div></div>' +
+    '</div></div>' +
+    '<div class="worlds">' + w('civ', t('wCiv'), t('wCivD')) + w('def', t('wDef'), t('wDefD')) + w('wri', t('wWri'), t('wWriD')) + '</div>' +
+    '<div class="how narrow"><b>' + esc(t('howTitle')) + '</b> ' + esc(t('how')) + '</div>';
+}
+
+async function openWorld(w){
+  SFX.tap(); curWorld = w;
+  if (w === 'civ') {
+    screen = 'loading'; render();
+    try { await loadCivics(G.test, G.state); }
+    catch(e){ app.innerHTML = '<div class="narrow err"><p>' + esc(t('loadErr')) + '</p><p style="margin-top:14px"><button class="btn" onclick="openWorld(\'civ\')">' + esc(t('tryAgain')) + '</button></p></div>'; return; }
+  }
+  screen = 'map'; render(); window.scrollTo({top:0});
+}
+async function setTest(v){ G.test = v; saveG(); await openWorld('civ'); }
+async function setState(v){ G.state = v; saveG(); await openWorld('civ'); }
+
+function renderMap(){
+  const w = curWorld;
+  const list = w === 'civ' ? bankCache[G.test + '|' + (G.state || '')] : (w === 'def' ? defItems() : wriItems());
+  const levels = chunks(list), pk = progKey(w);
+  const title = w === 'civ' ? t('wCiv') : w === 'def' ? t('wDef') : t('wWri');
+  const sMax = levels.length * 3, sGot = worldStars(w, levels.length);
+  let head = '<div class="maphead narrow"><div class="row1"><div class="wicon" style="background:' + WORLDS[w].grad + '">' + WORLDS[w].icon + '</div>' +
+    '<div><h2>' + esc(title) + '</h2><div class="sub">' + t('levels')(levels.length) + ' · ' + t('starsOf')(sGot, sMax) + '</div></div></div>';
+  if (w === 'civ') {
+    head += '<div class="opts-row"><div class="seg" role="group" aria-label="' + esc(t('test')) + '">' +
+      '<button type="button" class="' + (G.test === '100' ? 'on' : '') + '" onclick="setTest(\'100\')">' + esc(t('t100')) + '</button>' +
+      '<button type="button" class="' + (G.test === '128' ? 'on' : '') + '" onclick="setTest(\'128\')">' + esc(t('t128')) + '</button></div>' +
+      '<label for="stSel">' + esc(t('yourState')) + '</label><select id="stSel" onchange="setState(this.value)"><option value="">' + esc(t('stateNone')) + '</option>' +
+      STATE_NAMES.map(s => '<option' + (s === G.state ? ' selected' : '') + '>' + esc(s) + '</option>').join('') + '</select></div>' +
+      (G.state ? '' : '<div class="sub">' + esc(t('stateNote')) + '</div>');
+  }
+  head += '<div class="quick"><button class="btn gold block" type="button" onclick="startRound(\'' + w + '\', -1)">' + esc(t('quick')) + '</button></div></div>';
+
+  let firstOpen = -1, lastCat = '';
+  const nodes = levels.map((lv, i) => {
+    const st = G.stars[pk + '-' + i] || 0;
+    const open = i === 0 || (G.stars[pk + '-' + (i-1)] || 0) > 0;
+    if (open && !st && firstOpen < 0) firstOpen = i;
+    const cls = !open ? 'locked' : st ? 'done' : (firstOpen === i ? 'next' : '');
+    const off = Math.round(Math.sin(i * 1.1) * 70);
+    let cat = '';
+    if (w === 'civ') { const c = civCat(G.test, lv[0].n); if (c !== lastCat) { cat = '<div class="cat-tag">' + esc(c) + '</div>'; lastCat = c; } }
+    const label = w === 'civ' ? t('qRange')(lv[0].n, lv[lv.length-1].n) : '';
+    return cat + '<div class="node-wrap" style="transform:translateX(' + off + 'px)">' +
+      '<button class="node ' + cls + '" type="button" ' + (open ? 'onclick="startRound(\'' + w + '\',' + i + ')"' : 'title="' + esc(t('locked')) + '" aria-disabled="true" onclick="lockedTap()"') +
+      ' aria-label="' + esc(t('level') + ' ' + (i+1)) + '">' + (open ? (i+1) : '🔒') + '</button>' +
+      '<div class="nstars">' + (open ? starsStr(st) : '') + '</div>' + (label ? '<div class="nlabel">' + esc(label) + '</div>' : '') + '</div>';
+  }).join('');
+  app.innerHTML = '<div class="playtop narrow"><button class="xbtn" type="button" onclick="goHome()" aria-label="' + esc(t('toHome')) + '">←</button></div>' + head + '<div class="path">' + nodes + '</div>';
+}
+function lockedTap(){ SFX.bad(); }
+function goHome(){ stopSpeak(); screen = 'home'; render(); window.scrollTo({top:0}); }
+function goMap(){ stopSpeak(); if (curWorld) { openWorld(curWorld); } else goHome(); }
+
+// ===================== Round =====================
+async function startRound(w, levelIdx){
+  SFX.tap(); stopSpeak();
+  const list = await itemsFor(w);
+  const levels = chunks(list);
+  const items = levelIdx >= 0 ? levels[levelIdx] : shuffle(list).slice(0, 10);
+  R = { w, levelIdx, nLevels: levels.length, items, queue: shuffle(items), total: items.length, done: 0, firstOk: 0, missed: [], missedIds: new Set(),
+        hearts: 3, combo: 0, best: 0, xp: 0, phase: 'ask', cur: null, opts: null, chosen: null, fb: null, retries: new Set() };
+  nextQ();
+  screen = 'play'; render(); window.scrollTo({top:0});
+}
+function nextQ(){
+  R.cur = R.queue.shift(); R.phase = 'ask'; R.chosen = null; R.fb = null; R.typed = '';
+  if (!R.cur) return;
+  R.opts = R.cur.kind === 'mc' ? (R.cur.world === 'civ' ? civOptions(R.cur) : defOptions(R.cur)) : null;
+}
+function heartsHtml(){ let s=''; for (let i=0;i<3;i++) s += '<span class="' + (i < R.hearts ? '' : 'lost') + '">❤️</span>'; return s; }
+function renderPlay(){
+  const it = R.cur; if (!it) return;
+  const pct = Math.round(R.done / R.total * 100);
+  let html = '<div class="narrow"><div class="playtop"><button class="xbtn" type="button" onclick="quitRound()" aria-label="' + esc(t('toMap')) + '" id="quitBtn">✕</button>' +
+    '<div class="prog" role="progressbar" aria-valuemin="0" aria-valuemax="' + R.total + '" aria-valuenow="' + R.done + '"><i style="width:' + pct + '%"></i></div>' +
+    '<div class="hearts" aria-label="' + R.hearts + ' / 3">' + heartsHtml() + '</div></div>' +
+    (quitArmed ? '<div class="combo" style="background:#0f172a">' + esc(t('quitConfirm')) + '</div>' : '') +
+    (R.combo >= 3 ? '<div class="combo">' + t('combo')(R.combo) + '</div>' : '') +
+    '<div class="qcard" id="qcard">';
+  const again = R.retries.has(it.id) ? '<span class="again">↻ ' + esc(t('again')) + '</span>' : '';
+  if (it.kind === 'mc') {
+    if (it.world === 'civ') {
+      html += '<div class="qkind">🏛️ ' + esc(t('kCiv')) + ' · ' + esc(civCat(it.test, it.n)) + ' ' + again + '</div>' +
+        '<div class="qtext" lang="en">' + esc(it.q) + '</div>' +
+        '<button class="speak" type="button" onclick="speak(R.cur.q)">' + esc(t('listen')) + '</button>';
+    } else {
+      html += '<div class="qkind">📖 ' + esc(t('kDef')) + ' ' + again + '</div>' +
+        '<div class="qtext" lang="en">What does <span class="term">“' + esc(it.d.term) + '”</span> mean?</div>' +
+        '<div class="qsub">' + esc(t('defPick')) + '</div>' +
+        '<button class="speak" type="button" onclick="speak(\'What does \' + R.cur.d.term + \' mean?\')">' + esc(t('listen')) + '</button>';
+    }
+    html += '<div class="choices">' + R.opts.map((o,i) => {
+      let cls = '';
+      if (R.phase === 'fb') cls = o.ok ? 'right' : (i === R.chosen ? 'wrong' : 'dim');
+      return '<button class="choice ' + cls + '" type="button" ' + (R.phase === 'fb' ? 'disabled' : 'onclick="choose(' + i + ')"') + '><span class="k">' + (i+1) + '</span><span lang="en">' + esc(o.text) +
+        (o.sub && lang === 'es' ? '<small lang="es">' + esc(o.sub) + '</small>' : '') + '</span></button>';
+    }).join('') + '</div>';
+  } else {
+    const cls = R.phase === 'fb' ? (R.fb.kind === 'bad' ? 'bad' : 'ok') : '';
+    html += '<div class="qkind">✍️ ' + esc(t('kWri')) + ' ' + again + '</div><div class="qtext">' + esc(t('writeAsk')) + '</div>' +
+      '<button class="listen-big" type="button" onclick="speak(R.cur.s, 0.85)">' + esc(t('listenBig')) + '</button>' +
+      '<input class="write-in ' + cls + '" id="wIn" type="text" lang="en" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="' + esc(t('writeHere')) + '" value="' + esc(R.typed) + '"' + (R.phase === 'fb' ? ' disabled' : '') + '>' +
+      (R.phase === 'ask' ? '<div class="actions"><button class="btn green block" type="button" onclick="checkWrite()">' + esc(t('check')) + '</button></div>' : '');
+  }
+  if (R.phase === 'fb') html += feedbackHtml() + '<div class="actions"><button class="btn block ' + (R.fb.kind === 'bad' ? '' : 'green') + '" type="button" id="contBtn" onclick="cont()">' + esc(t('cont')) + '</button></div>';
+  html += '</div><div class="kbd-hint">' + esc(t('hintKeys')) + '</div></div>';
+  app.innerHTML = html;
+  if (it.kind === 'write' && R.phase === 'ask') {
+    const inp = document.getElementById('wIn');
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); checkWrite(); } });
+    inp.addEventListener('input', e => { R.typed = e.target.value; });
+    setTimeout(() => { try { inp.focus({preventScroll:true}); } catch(e){} }, 30);
+  }
+  if (R.phase === 'fb') { const b = document.getElementById('contBtn'); if (b) setTimeout(() => { try { b.focus({preventScroll:true}); } catch(e){} }, 30); }
+}
+
+function feedbackHtml(){
+  const it = R.cur, f = R.fb;
+  const head = f.kind === 'good' ? '<h3>✅ ' + esc(f.title) + ' <span class="xp">' + t('xpGain')(f.xp) + '</span></h3>'
+             : f.kind === 'mid' ? '<h3>🟡 ' + esc(t('caseTitle')) + ' <span class="xp">' + t('xpGain')(f.xp) + '</span></h3>'
+             : '<h3>❌ ' + esc(it.kind === 'write' ? t('writeWrong') : t('wrong')) + '</h3>';
+  let body = '';
+  if (it.kind === 'mc' && it.world === 'civ') {
+    const imgs = civImage(it.test, it.n);
+    body += '<div class="lbl">' + esc(t('accepted')) + '</div><ul lang="en">' + it.all.map(s => '<li>' + esc(s) + '</li>').join('') + '</ul>';
+    if (it.two) body += '<div>' + esc(t('twoNote')) + '</div>';
+    if (imgs.length) body += '<div class="imgrow">' + imgs.slice(0,2).map(im => '<img src="' + esc(im.src) + '" alt="' + esc(im.label) + '" loading="lazy" onerror="this.remove()">').join('') + '</div>';
+  } else if (it.kind === 'mc') {
+    const d = it.d;
+    body += '<div class="lbl">' + esc(t('sayIt')) + '</div><div class="say" lang="en">' + esc(d.short.en) + '</div>' +
+      '<div class="lbl">' + esc(t('officialDef')) + '</div><div lang="en">' + esc(d.official.en) + '</div>' +
+      (lang === 'es' && d.official.es ? '<div>' + esc(d.official.es) + '</div>' : '') +
+      (d.pron ? '<div><b>' + esc(t('pron')) + ':</b> ' + esc(d.pron) + '</div>' : '');
+  } else {
+    if (f.kind === 'bad') body += '<div class="sent" lang="en">' + markSentence(it.s, f.badIdx, 'w-bad') + '</div><div class="lbl">' + esc(t('yourAnswer')) + '</div><div lang="en">' + esc(R.typed) + '</div>';
+    else if (f.kind === 'mid') body += '<div class="sent" lang="en">' + markSentence(it.s, f.caseIdx, 'w-case') + '</div><div>' + esc(t('caseNote')) + '</div>';
+    else body += '<div class="sent" lang="en">' + esc(it.s) + '</div>';
+  }
+  if (f.kind === 'bad') body += '<div><b>' + esc(t('comesBack')) + '</b></div>';
+  return '<div class="fb ' + f.kind + '">' + head + body + '</div>';
+}
+
+function award(firstTry){
+  let xp = firstTry ? 10 : 5;
+  R.combo++; R.best = Math.max(R.best, R.combo);
+  if (R.combo >= 3) xp += 5;
+  R.xp += xp; return xp;
+}
+function miss(){
+  R.hearts--; R.combo = 0;
+  const it = R.cur;
+  if (!R.missedIds.has(it.id)) { R.missedIds.add(it.id); R.missed.push(it); }
+  R.retries.add(it.id); R.queue.push(it);
+}
+function choose(i){
+  if (R.phase !== 'ask') return;
+  const o = R.opts[i], it = R.cur; R.chosen = i;
+  const firstTry = !R.missedIds.has(it.id);
+  if (o.ok) {
+    const xp = award(firstTry); if (firstTry) R.firstOk++; R.done++;
+    const r = t('right'); R.fb = {kind:'good', xp, title:r[(Math.random()*r.length)|0]};
+    (R.combo >= 3 && R.combo % 3 === 0) ? SFX.combo() : SFX.ok();
+  } else { miss(); R.fb = {kind:'bad'}; SFX.bad(); }
+  R.phase = 'fb'; render();
+  if (!o.ok) { const q = document.getElementById('qcard'); if (q) q.classList.add('shake'); }
+  speak(it.world === 'civ' ? it.correct : it.d.short.en);
+}
+function checkWrite(){
+  if (R.phase !== 'ask') return;
+  const inp = document.getElementById('wIn'); R.typed = inp ? inp.value : R.typed;
+  if (!R.typed.trim()) { if (inp) inp.focus(); return; }
+  const it = R.cur, g = gradeSentence(R.typed, it.s), firstTry = !R.missedIds.has(it.id);
+  if (g.result === 'wrong') { miss(); R.fb = {kind:'bad', badIdx:g.badIdx}; SFX.bad(); }
+  else {
+    if (firstTry) R.firstOk++; R.done++;
+    if (g.result === 'case') { R.combo = 0; const xp = firstTry ? 5 : 3; R.xp += xp; R.fb = {kind:'mid', xp, caseIdx:g.caseIdx}; SFX.ok(); }
+    else { const xp = award(firstTry); const r = t('right'); R.fb = {kind:'good', xp, title:r[(Math.random()*r.length)|0]}; (R.combo >= 3 && R.combo % 3 === 0) ? SFX.combo() : SFX.ok(); }
+  }
+  R.phase = 'fb'; render();
+  if (g.result === 'wrong') { const q = document.getElementById('qcard'); if (q) q.classList.add('shake'); }
+}
+function cont(){
+  if (R.phase !== 'fb') return;
+  stopSpeak();
+  if (R.hearts <= 0) return finishRound(false);
+  nextQ();
+  if (!R.cur) return finishRound(true);
+  render();
+  if (R.cur.kind === 'write') speak(R.cur.s, 0.85);
+}
+function quitRound(){
+  if (!quitArmed) { quitArmed = true; render(); setTimeout(() => { if (quitArmed) { quitArmed = false; if (screen === 'play') render(); } }, 3500); return; }
+  quitArmed = false; R = null; goMap();
+}
+
+let lastResult = null;
+function finishRound(won){
+  const before = lvlInfo(G.xp).n;
+  let stars = 0;
+  if (won) { const acc = R.firstOk / R.total; stars = acc >= 0.9 ? 3 : acc >= 0.7 ? 2 : 1; }
+  const bonus = won ? 20 * stars : 0;
+  G.xp += R.xp + bonus;
+  if (won && R.levelIdx >= 0) { const k = progKey(R.w) + '-' + R.levelIdx; G.stars[k] = Math.max(G.stars[k] || 0, stars); }
+  touchStreak(); saveG();
+  lastResult = { won, stars, xp: R.xp + bonus, firstOk: R.firstOk, total: R.total, best: R.best, missed: R.missed.slice(), w: R.w, levelIdx: R.levelIdx, nLevels: R.nLevels, levelUp: lvlInfo(G.xp).n > before ? lvlInfo(G.xp).n : 0 };
+  saveSession(R.total, R.firstOk);
+  screen = 'result'; render(); window.scrollTo({top:0});
+  if (won) { SFX.win(); if (stars >= 2) confetti(); } else SFX.lose();
+}
+function missedLabel(it){
+  if (it.kind === 'write') return {q: it.s, a: ''};
+  if (it.world === 'civ') return {q: it.q, a: it.correct};
+  return {q: it.d.term, a: it.d.short.en};
+}
+function renderResult(){
+  const r = lastResult;
+  const title = r.won ? t('winTitle')[Math.max(0, r.stars - 1)] : t('loseTitle');
+  const stars = '<div class="bigstars" aria-label="' + r.stars + ' / 3">' + [0,1,2].map(i => '<span class="' + (i < r.stars ? 'on' : '') + '">★</span>').join('') + '</div>';
+  const hasNext = r.won && r.levelIdx >= 0 && r.levelIdx + 1 < r.nLevels;
+  let html = '<div class="narrow"><div class="result">' + (r.won ? stars : '<div class="bigstars">💔</div>') + '<h2>' + esc(title) + '</h2>' +
+    (r.won ? '' : '<p style="margin-top:8px;font-weight:700;color:var(--muted)">' + esc(t('loseSub')) + '</p>') +
+    (r.levelUp ? '<div class="levelup">' + t('levelUp')(r.levelUp) + '</div>' : '') +
+    '<div class="rgrid"><div><b>' + r.firstOk + '/' + r.total + '</b><span>' + esc(t('rFirst')) + '</span></div><div><b>🔥 ' + r.best + '</b><span>' + esc(t('rCombo')) + '</span></div><div><b>+' + r.xp + '</b><span>' + esc(t('rXp')) + '</span></div></div>' +
+    '<div class="rbtns">' +
+      (hasNext ? '<button class="btn gold block" type="button" onclick="startRound(lastResult.w, lastResult.levelIdx + 1)">' + esc(t('nextLevel')) + '</button>' : '') +
+      '<button class="btn ' + (hasNext ? 'ghost' : 'gold') + ' block" type="button" onclick="startRound(lastResult.w, lastResult.levelIdx)">' + esc(t('retry')) + '</button>' +
+      '<button class="btn ghost block" type="button" onclick="goMap()">' + esc(t('toMap')) + '</button></div>';
+  if (r.missed.length) html += '<div class="missed"><h4>' + esc(t('missedTitle')) + '</h4><ul>' + r.missed.slice(0,10).map(it => { const m = missedLabel(it); return '<li lang="en">' + esc(m.q) + (m.a ? '<small>' + esc(m.a) + '</small>' : '') + '</li>'; }).join('') + '</ul></div>';
+  html += '</div></div>';
+  app.innerHTML = html;
+}
+
+// ===================== Keyboard =====================
+document.addEventListener('keydown', e => {
+  if (screen !== 'play' || !R || !R.cur || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.target && e.target.id === 'wIn') return;
+  if (R.phase === 'ask' && R.cur.kind === 'mc' && /^[1-4]$/.test(e.key)) { const i = +e.key - 1; if (R.opts[i]) choose(i); }
+  else if (R.phase === 'fb' && e.key === 'Enter') { e.preventDefault(); cont(); }
+});
+
+// ===================== Settings =====================
+function setLang(l){ lang = l; try { localStorage.setItem('lang', l); } catch(e){} render(); }
+document.getElementById('langEs').onclick = () => setLang('es');
+document.getElementById('langEn').onclick = () => setLang('en');
+document.getElementById('soundBtn').onclick = () => { G.sound = !G.sound; try { localStorage.setItem('game.sound', G.sound ? '1' : '0'); } catch(e){} paintTop(); SFX.tap(); };
+
+// ===================== Stats (same table as the other practice pages) =====================
+async function saveSession(questions, correct){
+  try {
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (!user) return;
+    const score = questions > 0 ? Math.round(correct / questions * 100) : null;
+    await supabaseClient.from('practice_sessions').insert({ user_id: user.id, mode: 'game', questions, correct, score });
+  } catch(e){ console.log('saveSession skipped:', e); }
+}
+
+// ===================== Init =====================
+async function init(){
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (!session) { window.location.href = 'index.html'; return; }
+  uid = (session.user && session.user.id) || 'anon';
+  // Premium only (same check as live-interview.html): anyone else goes back to the Hub, where the upgrade is offered.
+  let isPremium = false;
+  try {
+    const { data: profile } = await supabaseClient.from('profiles').select('plan, plan_expires_at').eq('id', uid).single();
+    const notExpired = profile && (!profile.plan_expires_at || new Date(profile.plan_expires_at) > new Date());
+    isPremium = !!(profile && profile.plan === 'premium' && notExpired);
+  } catch(e){ isPremium = false; }
+  if (!isPremium) { window.location.href = 'dashboard.html'; return; }
+  const md = (session.user && session.user.user_metadata) || {};
+  userName = (md.full_name || md.name || '').split(' ')[0] || (session.user.email || '').split('@')[0];
+  G = loadG();
+  render();
+  document.getElementById('loadingOverlay').classList.add('hidden');
+}
+init();
+</script>
+</body>
+</html>
