@@ -160,6 +160,14 @@ a{color:inherit}
 .choice.wrong .k{background:var(--red);border-color:var(--red);color:#fff}
 .choice[disabled]{cursor:default}
 .choice.dim{opacity:.55}
+.choice.multi .k{border-radius:8px}
+.choice.sel{border-color:var(--blue);background:#eff6ff;box-shadow:0 4px 0 var(--blue)}
+.choice.sel .k{background:var(--blue);border-color:var(--blue);color:#fff}
+.choice.also{border-color:var(--green);border-style:dashed;background:#f0fdf4;box-shadow:0 4px 0 #bbf7d0}
+.choice.also .k{border-color:var(--green);color:var(--green-d)}
+.choice .tag{display:block;color:var(--green-d);font-weight:900;font-size:13px;margin-top:2px}
+.pickhint{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:14px;font-weight:900;font-size:15px;color:var(--blue-d)}
+.pickhint span:last-child{color:var(--muted);font-variant-numeric:tabular-nums}
 @media (prefers-reduced-motion:no-preference){.shake{animation:shake .4s}@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}}
 .write-in{width:100%;margin-top:18px;font:inherit;font-size:20px;font-weight:700;border:3px solid var(--line);border-radius:18px;padding:14px 16px;color:var(--ink);background:#fff}
 .write-in:focus{border-color:var(--blue);outline:none}
@@ -264,6 +272,8 @@ const T = {
     wrong:'Casi… esta es la respuesta', comesBack:'Esta pregunta volverá al final de la ronda.',
     accepted:'Respuestas aceptadas', sayIt:'Dila en voz alta', officialDef:'Definición oficial', pron:'Se pronuncia',
     twoNote:'En la entrevista tienes que decir dos.',
+    pickAtLeast:n=>'Elige al menos '+n+' respuestas correctas', picked:(a,n)=>a+' de '+n+' elegidas', alsoRight:'También era correcta',
+    multiWrong:'Elegiste una que no es correcta. Estas son las respuestas:', multiFew:n=>'Tienes que elegir al menos '+n+'.',
     caseTitle:'¡Bien escrita! Revisa las mayúsculas', caseNote:'En el examen real, el oficial revisa las mayúsculas del inicio y de los nombres propios.',
     writeWrong:'No es igual. La oración correcta es:', yourAnswer:'Tú escribiste:',
     combo:n=>'🔥 Racha x'+n, xpGain:n=>'+'+n+' XP',
@@ -274,7 +284,7 @@ const T = {
     missedTitle:'Para repasar', levelUp:n=>'⬆️ ¡Subiste al nivel '+n+'!',
     quitConfirm:'Toca otra vez para salir (perderás esta ronda)', loading:'Cargando…',
     loadErr:'No se pudieron cargar las preguntas. Revisa tu conexión e inténtalo de nuevo.', tryAgain:'Reintentar',
-    hintKeys:'Atajos: 1-4 para elegir · Enter para continuar',
+    hintKeys:'Atajos: números para elegir · Enter para continuar',
     streakTip:'Días seguidos jugando', xpTip:'Experiencia total', soundOn:'Sonido activado', soundOff:'Sonido apagado'
   },
   en: {
@@ -302,6 +312,8 @@ const T = {
     wrong:'Almost… this is the answer', comesBack:'This question will come back at the end of the round.',
     accepted:'Accepted answers', sayIt:'Say it out loud', officialDef:'Official definition', pron:'Say it like',
     twoNote:'In the interview you must say two.',
+    pickAtLeast:n=>'Pick at least '+n+' correct answers', picked:(a,n)=>a+' of '+n+' picked', alsoRight:'This one was also right',
+    multiWrong:'You picked one that is not correct. These are the answers:', multiFew:n=>'You must pick at least '+n+'.',
     caseTitle:'Well written! Check the capital letters', caseNote:'On the real test, the officer checks capitals at the start and on proper names.',
     writeWrong:'Not quite. The correct sentence is:', yourAnswer:'You wrote:',
     combo:n=>'🔥 Streak x'+n, xpGain:n=>'+'+n+' XP',
@@ -312,7 +324,7 @@ const T = {
     missedTitle:'To review', levelUp:n=>'⬆️ You reached level '+n+'!',
     quitConfirm:'Tap again to leave (you will lose this round)', loading:'Loading…',
     loadErr:'Could not load the questions. Check your connection and try again.', tryAgain:'Retry',
-    hintKeys:'Shortcuts: 1-4 to pick · Enter to continue',
+    hintKeys:'Shortcuts: numbers to pick · Enter to continue',
     streakTip:'Days in a row playing', xpTip:'Total experience', soundOn:'Sound on', soundOff:'Sound off'
   }
 };
@@ -455,14 +467,35 @@ function buildCivItems(bank, test){
     let type = qType(x.q);
     if (type === 'person') type = isName(correct) ? 'name' : 'role';
     else if (type === 'other' && /\bwars?\b/i.test(x.q)) type = 'war';
-    return { kind:'mc', world:'civ', id:'c'+test+'-'+x.n, n:x.n, test, q:x.q, a:x.a, all, correct, type, two:/\btwo\b|\bthree\b/i.test(x.q) };
+    // "Name two / What are three…": the student picks at least k correct answers.
+    let k = 1, correctSet = null;
+    const m = x.q.match(/\b(?:name|what are)\s+(two|three|five)\b/i);
+    if (m) {
+      k = {two:2, three:3, five:5}[m[1].toLowerCase()];
+      let parts = all.map(cleanAns);
+      if (parts.length === 1 && parts[0].split(',').length > k) parts = parts[0].split(',').map(p => p.trim());
+      correctSet = parts.filter(p => p && p.length <= 90 && !/etc\.?$/i.test(p));
+      if (correctSet.length < k) { k = 1; correctSet = null; }
+    }
+    return { kind:'mc', world:'civ', id:'c'+test+'-'+x.n, n:x.n, test, q:x.q, a:x.a, all, correct, type, k, multi: k > 1, correctSet, orig13: /13 original states/i.test(x.q),
+             two: k === 1 && /\b(name|what are)\s+(two|three)\b/i.test(x.q) };
   }).filter(it => it.correct);
   const pools = {};
   items.forEach(it => { (pools[it.type] = pools[it.type] || []).push(it.correct); });
   items.forEach(it => { it.pool = pools[it.type] || []; it.poolAll = items.map(o => o.correct); });
   return items.sort((a,b) => a.n - b.n);
 }
+const NOT_ORIGINAL_13 = ['Texas','California','Florida','Ohio','Vermont','Maine','Kentucky','Tennessee','Louisiana','Michigan','Illinois','Alabama'];
 function civOptions(it){
+  if (it.multi) {
+    const corr = shuffle(it.correctSet).slice(0, Math.min(it.correctSet.length, it.k + 1));
+    const nWrong = Math.max(2, 6 - corr.length);
+    const bad = new Set(it.correctSet.map(s => s.toLowerCase()));
+    const src = it.orig13 ? NOT_ORIGINAL_13 : it.pool.concat(it.poolAll);
+    const wrong = [];
+    for (const s of shuffle(src)) { const k = s.toLowerCase(); if (wrong.length >= nWrong) break; if (bad.has(k) || s.length > 90) continue; bad.add(k); wrong.push(s); }
+    return shuffle(corr.map(s => ({text:s, ok:true})).concat(wrong.map(s => ({text:s, ok:false}))));
+  }
   const mine = new Set(it.all.map(s => cleanAns(s).toLowerCase()));
   const pick = [], seen = new Set([it.correct.toLowerCase()]);
   // Prefer wrong answers of a similar length, so the right one does not stand out.
@@ -641,7 +674,7 @@ async function startRound(w, levelIdx){
   screen = 'play'; render(); window.scrollTo({top:0});
 }
 function nextQ(){
-  R.cur = R.queue.shift(); R.phase = 'ask'; R.chosen = null; R.fb = null; R.typed = '';
+  R.cur = R.queue.shift(); R.phase = 'ask'; R.chosen = null; R.fb = null; R.typed = ''; R.sel = new Set();
   if (!R.cur) return;
   R.opts = R.cur.kind === 'mc' ? (R.cur.world === 'civ' ? civOptions(R.cur) : defOptions(R.cur)) : null;
 }
@@ -667,12 +700,18 @@ function renderPlay(){
         '<div class="qsub">' + esc(t('defPick')) + '</div>' +
         '<button class="speak" type="button" onclick="speak(\'What does \' + R.cur.d.term + \' mean?\')">' + esc(t('listen')) + '</button>';
     }
-    html += '<div class="choices">' + R.opts.map((o,i) => {
-      let cls = '';
-      if (R.phase === 'fb') cls = o.ok ? 'right' : (i === R.chosen ? 'wrong' : 'dim');
-      return '<button class="choice ' + cls + '" type="button" ' + (R.phase === 'fb' ? 'disabled' : 'onclick="choose(' + i + ')"') + '><span class="k">' + (i+1) + '</span><span lang="en">' + esc(o.text) +
-        (o.sub && lang === 'es' ? '<small lang="es">' + esc(o.sub) + '</small>' : '') + '</span></button>';
+    const multi = !!it.multi;
+    if (multi) html += '<div class="pickhint"><span>☑️ ' + esc(t('pickAtLeast')(it.k)) + '</span><span>' + esc(t('picked')(R.sel.size, it.k)) + '</span></div>';
+    html += '<div class="choices"' + (multi ? ' role="group"' : '') + '>' + R.opts.map((o,i) => {
+      let cls = multi ? 'multi' : '', tag = '';
+      if (R.phase === 'fb') {
+        if (multi) { const sel = R.sel.has(i); cls += o.ok ? (sel ? ' right' : ' also') : (sel ? ' wrong' : ' dim'); if (o.ok && !sel) tag = '<span class="tag">' + esc(t('alsoRight')) + '</span>'; }
+        else cls += o.ok ? ' right' : (i === R.chosen ? ' wrong' : ' dim');
+      } else if (multi && R.sel.has(i)) cls += ' sel';
+      return '<button class="choice ' + cls + '" type="button" ' + (R.phase === 'fb' ? 'disabled' : 'onclick="choose(' + i + ')"') + (multi ? ' aria-pressed="' + R.sel.has(i) + '"' : '') + '><span class="k">' + (multi && R.phase === 'ask' && R.sel.has(i) ? '✓' : (i+1)) + '</span><span lang="en">' + esc(o.text) +
+        (o.sub && lang === 'es' ? '<small lang="es">' + esc(o.sub) + '</small>' : '') + tag + '</span></button>';
     }).join('') + '</div>';
+    if (multi && R.phase === 'ask') html += '<div class="actions"><button class="btn green block" type="button" onclick="checkMulti()"' + (R.sel.size < it.k ? ' disabled' : '') + '>' + esc(t('check')) + '</button></div>';
   } else {
     const cls = R.phase === 'fb' ? (R.fb.kind === 'bad' ? 'bad' : 'ok') : '';
     html += '<div class="qkind">✍️ ' + esc(t('kWri')) + ' ' + again + '</div><div class="qtext">' + esc(t('writeAsk')) + '</div>' +
@@ -696,7 +735,7 @@ function feedbackHtml(){
   const it = R.cur, f = R.fb;
   const head = f.kind === 'good' ? '<h3>✅ ' + esc(f.title) + ' <span class="xp">' + t('xpGain')(f.xp) + '</span></h3>'
              : f.kind === 'mid' ? '<h3>🟡 ' + esc(t('caseTitle')) + ' <span class="xp">' + t('xpGain')(f.xp) + '</span></h3>'
-             : '<h3>❌ ' + esc(it.kind === 'write' ? t('writeWrong') : t('wrong')) + '</h3>';
+             : '<h3>❌ ' + esc(it.kind === 'write' ? t('writeWrong') : (it.multi ? t('multiWrong') : t('wrong'))) + '</h3>';
   let body = '';
   if (it.kind === 'mc' && it.world === 'civ') {
     const imgs = civImage(it.test, it.n);
@@ -732,6 +771,7 @@ function miss(){
 }
 function choose(i){
   if (R.phase !== 'ask') return;
+  if (R.cur.multi) { if (R.sel.has(i)) R.sel.delete(i); else R.sel.add(i); SFX.tap(); render(); return; }
   const o = R.opts[i], it = R.cur; R.chosen = i;
   const firstTry = !R.missedIds.has(it.id);
   if (o.ok) {
@@ -742,6 +782,21 @@ function choose(i){
   R.phase = 'fb'; render();
   if (!o.ok) { const q = document.getElementById('qcard'); if (q) q.classList.add('shake'); }
   speak(it.world === 'civ' ? it.correct : it.d.short.en);
+}
+function checkMulti(){
+  if (R.phase !== 'ask' || !R.cur.multi) return;
+  const it = R.cur;
+  if (R.sel.size < it.k) return;
+  const allRight = [...R.sel].every(i => R.opts[i].ok);
+  const firstTry = !R.missedIds.has(it.id);
+  if (allRight) {
+    const xp = award(firstTry); if (firstTry) R.firstOk++; R.done++;
+    const r = t('right'); R.fb = {kind:'good', xp, title:r[(Math.random()*r.length)|0]};
+    (R.combo >= 3 && R.combo % 3 === 0) ? SFX.combo() : SFX.ok();
+  } else { miss(); R.fb = {kind:'bad'}; SFX.bad(); }
+  R.phase = 'fb'; render();
+  if (!allRight) { const q = document.getElementById('qcard'); if (q) q.classList.add('shake'); }
+  speak(it.correctSet.slice(0, it.k).join(', '));
 }
 function checkWrite(){
   if (R.phase !== 'ask') return;
@@ -812,7 +867,8 @@ function renderResult(){
 document.addEventListener('keydown', e => {
   if (screen !== 'play' || !R || !R.cur || e.metaKey || e.ctrlKey || e.altKey) return;
   if (e.target && e.target.id === 'wIn') return;
-  if (R.phase === 'ask' && R.cur.kind === 'mc' && /^[1-4]$/.test(e.key)) { const i = +e.key - 1; if (R.opts[i]) choose(i); }
+  if (R.phase === 'ask' && R.cur.kind === 'mc' && /^[1-9]$/.test(e.key)) { const i = +e.key - 1; if (R.opts[i]) choose(i); }
+  else if (R.phase === 'ask' && R.cur.multi && e.key === 'Enter') { e.preventDefault(); checkMulti(); }
   else if (R.phase === 'fb' && e.key === 'Enter') { e.preventDefault(); cont(); }
 });
 
