@@ -154,7 +154,8 @@ async function handler(req, res) {
         // One-time payment model: 30 days of access from the moment of purchase.
         const planMeta = s.metadata && s.metadata.plan;
         const plan = (planMeta === 'premium' || planMeta === 'upgrade') ? 'premium' : planMeta === 'topup' ? 'topup' : 'professional';
-        const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+        const DAY30 = 30 * 24 * 60 * 60 * 1000;
+        let expires = new Date(Date.now() + DAY30).toISOString();
         let fields = {
           stripe_customer_id: s.customer || null,
           subscription_status: 'paid'
@@ -165,9 +166,26 @@ async function handler(req, res) {
           const cur = (profile && typeof profile.live_credits === 'number') ? profile.live_credits : 0;
           fields.live_credits = cur + 5;
         } else {
+          // Renewing the SAME plan while it is still active: the 30 days are added to the
+          // current end date (paying early never loses days) and, for Premium, the 8 live
+          // interviews are added to the ones left. A different plan, or an expired one,
+          // starts 30 days from today with 8 interviews (same as before).
+          const profile = await getProfile(userId, 'plan,plan_expires_at,live_credits');
+          const samePlan = !!(profile && profile.plan === plan);
+          const curEnd = profile && profile.plan_expires_at ? new Date(profile.plan_expires_at).getTime() : 0;
+          const noExpiry = samePlan && !profile.plan_expires_at;   // e.g. an admin/test account with no end date
+          const active = samePlan && (noExpiry || curEnd > Date.now());
           fields.plan = plan;
-          fields.plan_expires_at = expires;
-          if (plan === 'premium') fields.live_credits = 8;
+          if (noExpiry) {
+            expires = 'no expiry (unchanged)';
+          } else {
+            expires = new Date((active ? curEnd : Date.now()) + DAY30).toISOString();
+            fields.plan_expires_at = expires;
+          }
+          if (plan === 'premium') {
+            const left = (active && typeof profile.live_credits === 'number') ? profile.live_credits : 0;
+            fields.live_credits = left + 8;
+          }
         }
         await updateProfile(userId, fields);
         await confirmUserEmail(userId);
