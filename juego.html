@@ -495,7 +495,7 @@ function qType(q){
   return 'other';
 }
 // A person's name: 2-4 capitalized words, not a role like "The President".
-function isName(s){ const w = String(s).split(' '); return w.length >= 2 && w.length <= 4 && !/^(the|american|a|an)$/i.test(w[0]) && w.every(x => /^[A-Z][A-Za-z.'-]*$/.test(x) || /^(of|de|la|Jr\.?)$/.test(x)); }
+function isName(s){ const w = String(s).split(' '); if (/\b(union|states|kingdom|territory|islands?|river|ocean)\b/i.test(s)) return false; return w.length >= 2 && w.length <= 4 && !/^(the|american|a|an)$/i.test(w[0]) && w.every(x => /^[A-Z][A-Za-z.'-]*$/.test(x) || /^(of|de|la|Jr\.?)$/.test(x)); }
 function buildCivItems(bank, test){
   const usable = bank.filter(x => !/varies by the applicant|depends on your congressional district|look up your own/i.test(x.a));
   const items = usable.map(x => {
@@ -513,35 +513,101 @@ function buildCivItems(bank, test){
       correctSet = parts.filter(p => p && p.length <= 90 && !/etc\.?$/i.test(p));
       if (correctSet.length < k) { k = 1; correctSet = null; }
     }
-    return { kind:'mc', world:'civ', id:'c'+test+'-'+x.n, n:x.n, test, q:x.q, a:x.a, all, correct, type, k, multi: k > 1, correctSet, orig13: /13 original states/i.test(x.q),
+    // One-segment answers that are really a list ("Cherokee, Navajo, Sioux…"): show ONE item as the right option.
+    const listItems = (!correctSet && all.length === 1 && all[0].split(',').length >= 3) ? all[0].split(',').map(p => cleanAns(p)).filter(p => p && !/^(and|etc)$/i.test(p)) : null;
+    return { kind:'mc', world:'civ', id:'c'+test+'-'+x.n, n:x.n, test, q:x.q, a:x.a, all, correct: listItems ? listItems[0] : correct, listItems, type, k, multi: k > 1, correctSet, orig13: /13 original states/i.test(x.q),
              two: k === 1 && /\b(name|what are)\s+(two|three)\b/i.test(x.q) };
   }).filter(it => it.correct);
   const pools = {};
-  items.forEach(it => { (pools[it.type] = pools[it.type] || []).push(it.correct); });
-  items.forEach(it => { it.pool = pools[it.type] || []; it.poolAll = items.map(o => o.correct); });
+  const usableWrong = it => !it.listItems && !it.multi && String(it.correct).split(',').length < 3;
+  items.forEach(it => { if (usableWrong(it)) (pools[it.type] = pools[it.type] || []).push(it.correct); });
+  items.forEach(it => { it.pool = pools[it.type] || []; it.poolAll = items.filter(usableWrong).map(o => o.correct); });
   return items.sort((a,b) => a.n - b.n);
 }
 const NOT_ORIGINAL_13 = ['Texas','California','Florida','Ohio','Vermont','Maine','Kentucky','Tennessee','Louisiana','Michigan','Illinois','Alabama'];
+// Wrong options for list questions: things that are clearly NOT in the official list.
+function specialWrong(it){
+  if (it.orig13) return NOT_ORIGINAL_13;
+  if (/tribe/i.test(it.q)) return ['Aztec','Inca','Maya','Vikings','Celts','Zulu'];
+  if (/borders canada/i.test(it.q)) return ['Texas','Florida','Georgia','Arizona','Nevada','Colorado','Oklahoma'];
+  if (/borders mexico/i.test(it.q)) return ['Florida','Nevada','Oklahoma','Louisiana','Utah','Colorado','Georgia'];
+  if (/capital of your state/i.test(it.q)) return ['Houston','Dallas','Los Angeles','Miami','Chicago','New York City','Seattle','Las Vegas'];
+  if (/main rival during the cold war/i.test(it.q)) return ['Canada','Mexico','Great Britain','France','Australia','Brazil'];
+  if (/who did the united states fight in world war ii/i.test(it.q)) return ['Great Britain, France, and Canada','Mexico, Canada, and Cuba','Spain, Portugal, and Brazil','Australia, India, and China'];
+  return null;
+}
+// ---- Wrong options must never be an accepted answer, even when written a bit differently ----
+// "The Civil War" = "Civil War", "(U.S.) Constitution" = "Constitution", "Freedom of religion" contains "Religion"…
+function normAns(s){
+  return String(s).toLowerCase().replace(/\([^)]*\)/g, ' ').replace(/u\.s\./g, 'us').replace(/[’'".,;:!?]/g, '')
+    .replace(/[\/-]/g, ' ').replace(/\b(the|a|an|of|from|in)\b/g, ' ').replace(/\s+/g, ' ').trim();
+}
+function acceptedForms(it){
+  if (it._acc) return it._acc;
+  const out = new Set();
+  const add = x => { const n = normAns(x); if (n) out.add(n); };
+  it.all.forEach(seg => {
+    add(seg); add(cleanAns(seg));
+    const afterColon = seg.includes(':') ? seg.split(':').slice(1).join(':') : seg;
+    afterColon.split(',').forEach(add);
+  });
+  return (it._acc = [...out]);
+}
+// Hand-checked: answers to OTHER questions that mean the same as an accepted answer here
+// (different words, same idea), so they must never be shown as a wrong option for that question.
+const NOT_AS_WRONG = {
+  '100': {
+    48: ['At age eighteen (18)', 'Vote in a federal election'], 49: ['Citizens eighteen (18) and older can vote'], 50: ['Citizens eighteen (18) and older can vote'],
+    51: ['You can practice any religion, or not practice a religion'], 54: ['At age eighteen (18)'],
+    57: ['Eighteen (18) and older', 'Citizens eighteen (18) and older can vote'], 58: ['You can practice any religion, or not practice a religion']
+  },
+  '128': {
+    3: ['The basic rights of Americans / of people living in the United States'],
+    31: ['Citizens eighteen (18) and older can vote'], 32: ['Citizens eighteen (18) and older can vote'], 33: ['Citizens eighteen (18) and older can vote'], 34: ['Citizens eighteen (18) and older can vote'], 8: ['The basic rights of Americans / of people living in the United States'],
+    10: ['The basic rights of Americans / of people living in the United States'], 37: ['So one part does not become too powerful'],
+    70: ['Everyone must follow the law'], 71: ['Everyone must follow the law'], 72: ['Everyone must follow the law'],
+    85: ['Writer of the Declaration of Independence'], 87: ['The Vice President (of the United States)'],
+    112: ['Fought for civil rights'], 113: ['Fought to end racial discrimination'],
+    127: ['A holiday to honor people in the (U.S.) military'], 128: ['A holiday to honor soldiers who died in military service']
+  }
+};
+function wraps(a, b){ return (' ' + a + ' ').includes(' ' + b + ' '); }
+function looksAccepted(it, cand){
+  const n = normAns(cand); if (!n) return true;
+  const block = (NOT_AS_WRONG[it.test] || {})[it.n];
+  if (block && block.some(b => normAns(b) === n)) return true;
+  return acceptedForms(it).some(acc => n === acc || (n.length >= 4 && acc.length >= 4 && (wraps(n, acc) || wraps(acc, n))));
+}
+// Every wrong option this question could ever show (same type first, then any other answer).
+function civCandidates(it){
+  if (it._cand) return it._cand;
+  const out = [], seen = new Set();
+  const special = specialWrong(it);
+  const src = special || it.pool.concat(it.poolAll);
+  for (const s of src) {
+    const n = normAns(s);
+    if (!n || seen.has(n) || s.length > 90 || looksAccepted(it, s)) continue;
+    seen.add(n); out.push({text:s, same: !!special || it.pool.includes(s)});
+  }
+  return (it._cand = out);
+}
 function civOptions(it){
+  const cands = civCandidates(it);
   if (it.multi) {
     const corr = shuffle(it.correctSet).slice(0, Math.min(it.correctSet.length, it.k + 1));
     const nWrong = Math.max(2, 6 - corr.length);
-    const bad = new Set(it.correctSet.map(s => s.toLowerCase()));
-    const src = it.orig13 ? NOT_ORIGINAL_13 : it.pool.concat(it.poolAll);
-    const wrong = [];
-    for (const s of shuffle(src)) { const k = s.toLowerCase(); if (wrong.length >= nWrong) break; if (bad.has(k) || s.length > 90) continue; bad.add(k); wrong.push(s); }
+    const wrong = shuffle(cands).slice(0, nWrong).map(c => c.text);
     return shuffle(corr.map(s => ({text:s, ok:true})).concat(wrong.map(s => ({text:s, ok:false}))));
   }
-  const mine = new Set(it.all.map(s => cleanAns(s).toLowerCase()));
-  const pick = [], seen = new Set([it.correct.toLowerCase()]);
-  // Prefer wrong answers of a similar length, so the right one does not stand out.
+  if (it.listItems) it.correct = it.listItems[Math.floor(Math.random() * it.listItems.length)];
+  // Prefer wrong answers of the same type and a similar length, so the right one does not stand out.
   const L = it.correct.length;
-  const take = list => {
-    const cand = shuffle(list).filter(s => { const k = s.toLowerCase(); return !seen.has(k) && !mine.has(k) && s.length <= 90; })
-      .sort((a,b) => Math.abs(a.length - L) - Math.abs(b.length - L)).slice(0, 8);
-    for (const s of shuffle(cand)) { const k = s.toLowerCase(); if (pick.length >= 3) break; if (seen.has(k)) continue; seen.add(k); pick.push(s); }
-  };
-  take(it.pool); if (pick.length < 3) take(it.poolAll);
+  const pickFrom = list => shuffle(list).sort((a,b) => Math.abs(a.text.length - L) - Math.abs(b.text.length - L)).slice(0, 8);
+  let pool = pickFrom(cands.filter(c => c.same));
+  if (pool.length < 3) pool = pool.concat(pickFrom(cands.filter(c => !c.same)));
+  const used = new Set(), pick = [];
+  for (const c of shuffle(pool.slice(0, Math.max(3, Math.min(pool.length, 8))))) { if (pick.length >= 3) break; const n = normAns(c.text); if (used.has(n)) continue; used.add(n); pick.push(c.text); }
+  for (const c of cands) { if (pick.length >= 3) break; const n = normAns(c.text); if (!used.has(n)) { used.add(n); pick.push(c.text); } }
   return shuffle([{text:it.correct, ok:true}].concat(pick.map(s => ({text:s, ok:false}))));
 }
 function civCat(test, n){
