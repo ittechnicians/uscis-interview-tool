@@ -922,7 +922,13 @@
         .course-strip{display:block;margin:-0.75rem 0 0.75rem;background:linear-gradient(90deg,#1e40af,#dc2626);color:#fff;text-align:center;font-weight:700;font-size:.95rem;padding:.55rem 1rem;text-decoration:none;line-height:1.35}
         .course-strip b{text-decoration:underline}
         .course-strip[hidden],.course-cta[hidden]{display:none}
-        @media (max-width: 968px){ body:has(.course-strip:not([hidden])) .hero{padding-top:10.75rem} }
+        .course-strip{overflow:hidden;white-space:nowrap;text-align:left;padding-left:0;padding-right:0}
+        .course-strip .marq{display:inline-block;padding-left:100%;animation:courseMarq 22s linear infinite}
+        .course-strip:hover .marq{animation-play-state:paused}
+        @keyframes courseMarq{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+        @media (max-width: 968px){ .course-strip .marq{animation-duration:14s} }
+        @media (prefers-reduced-motion: reduce){ .course-strip{white-space:normal;text-align:center} .course-strip .marq{animation:none;padding-left:0;display:inline} }
+        @media (max-width: 968px){ body:has(.course-strip:not([hidden])) .hero{padding-top:9.5rem} }
         .course-cta{max-width:1100px;margin:2.5rem auto 0;padding:1.5rem 1.75rem;border:2px solid #fde68a;background:#fffbeb;border-radius:1rem;display:flex;gap:1.25rem;align-items:center;justify-content:space-between;flex-wrap:wrap}
         .course-cta h3{font-size:1.25rem;font-weight:800;margin:0 0 .25rem;color:#0f172a}
         .course-cta p{color:#475569;margin:0}
@@ -931,7 +937,7 @@
 </head>
 <body>
 <nav class="nav">
-<a class="course-strip" id="courseStrip" href="/curso.html"><span data-en="🎙️ New: live course on Zoom, in Spanish · " data-es="🎙️ Nuevo: curso en vivo por Zoom · ">🎙️ Nuevo: curso en vivo por Zoom · </span><span id="courseStripSeats" data-en="Only 10 founder spots at $99" data-es="Solo 10 lugares de fundador a $99">Solo 10 lugares de fundador a $99</span> → <b data-en="See the course" data-es="Ver el curso">Ver el curso</b></a>
+<a class="course-strip" id="courseStrip" href="/curso.html"><span class="marq"><span data-en="🎙️ New: live course on Zoom, in Spanish · " data-es="🎙️ Nuevo: curso en vivo por Zoom · ">🎙️ Nuevo: curso en vivo por Zoom · </span><span id="courseStripSeats" data-en="Only 10 founder spots at $99" data-es="Solo 10 lugares de fundador a $99">Solo 10 lugares de fundador a $99</span> → <b data-en="See the course" data-es="Ver el curso">Ver el curso</b></span></a>
 <div class="nav-container">
 <a class="logo" href="#">
 <img alt="Immigration Interviews" class="logo-img" src="immigrationinterviews_logo.png"/>
