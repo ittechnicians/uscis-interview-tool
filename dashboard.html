@@ -128,6 +128,15 @@
             .nav-plan-badge { display: none !important; }
         }
             .brand-text { white-space: nowrap; line-height: 1.1; }
+        .course-banner{display:flex;gap:1.25rem;align-items:center;justify-content:space-between;flex-wrap:wrap;text-decoration:none;color:#fff;background:linear-gradient(120deg,#1e40af 0%,#1e3a8a 55%,#b91c1c 130%);border-radius:1rem;padding:1.4rem 1.6rem;margin:0 0 2rem;box-shadow:0 14px 32px rgba(30,64,175,.25);transition:transform .15s}
+        .course-banner:hover{transform:translateY(-2px)}
+        .course-banner[hidden]{display:none}
+        .course-banner .cb-main{display:flex;gap:1rem;align-items:center;flex:1;min-width:240px}
+        .course-banner .cb-ic{font-size:2rem;line-height:1}
+        .course-banner .cb-tag{font-size:.75rem;font-weight:800;letter-spacing:.08em;color:#fde68a;margin:0}
+        .course-banner h3{font-size:1.25rem;font-weight:800;margin:.15rem 0;color:#fff}
+        .course-banner p{margin:0;color:#dbeafe;font-size:.95rem}
+        .course-banner .cb-btn{background:#fff;color:#1e40af;font-weight:800;padding:.7rem 1.2rem;border-radius:.7rem;white-space:nowrap}
     </style>
 </head>
 <body>
@@ -171,6 +180,11 @@
             <h1 id="greeting">Welcome back, <span id="welcomeName">Student</span> 👋</h1>
             <p id="welcomeSub">Choose how you want to practice today.</p>
         </div>
+
+        <a class="course-banner" id="courseBanner" href="curso.html" hidden>
+            <div class="cb-main"><span class="cb-ic">🎙️</span><div><p class="cb-tag" id="cbTag">NUEVO · CURSO EN VIVO POR ZOOM</p><h3 id="cbTitle">Aprende a contestar tu entrevista en inglés, con maestro</h3><p id="cbSub">4 sábados de práctica hablando. Premium y 16 entrevistas en vivo incluidas.</p></div></div>
+            <span class="cb-btn" id="cbBtn">Ver el curso →</span>
+        </a>
 
         <div class="stats-grid">
             <div class="stat-card"><div class="icon">🎤</div><div class="value" id="statSessions">0</div><div class="label">Practice sessions</div></div>
@@ -575,5 +589,37 @@
             <button onclick="document.getElementById('premiumModal').style.display='none'" style="background:none;border:none;color:#64748b;font-size:0.9rem;cursor:pointer;font-weight:600;">Maybe later</button>
         </div>
     </div>
+<script>
+// Hub: live course card. Enrolled students see their first class; others see the offer while the group is open.
+(async function(){
+  try {
+    const r = await fetch('/api/course', {cache:'no-store'});
+    const i = r.ok ? await r.json() : null;
+    if (!i) return;
+    const card = document.getElementById('courseBanner');
+    let enrolled = false;
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session) {
+        const { data } = await supabaseClient.from('course_enrollments').select('id').eq('user_id', session.user.id).eq('cohort', i.cohort).limit(1);
+        enrolled = !!(data && data.length);
+      }
+    } catch (e) {}
+    const M = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    const d = (i.dates && i.dates[0]) ? i.dates[0].split('-').map(Number) : null;
+    const first = d ? d[2] + ' de ' + M[d[1]-1] : '';
+    if (enrolled) {
+      document.getElementById('cbTag').textContent = 'ESTÁS INSCRITO · CURSO EN VIVO';
+      document.getElementById('cbTitle').textContent = 'Tu primera clase es el sábado ' + first;
+      document.getElementById('cbSub').textContent = i.schedule + '. El enlace de Zoom te llega por correo antes de la clase.';
+      document.getElementById('cbBtn').textContent = 'Ver detalles →';
+      card.hidden = false;
+    } else if (i.open) {
+      if (i.countKnown) document.getElementById('cbSub').textContent = (i.founderLeft > 0 ? 'Quedan ' + i.founderLeft + ' lugares de fundador a $' + i.founderPrice : 'Quedan ' + i.seatsLeft + ' lugares') + '. Empieza el sábado ' + first + '. Premium y 16 entrevistas en vivo incluidas.';
+      card.hidden = false;
+    }
+  } catch (e) {}
+})();
+</script>
 </body>
 </html>

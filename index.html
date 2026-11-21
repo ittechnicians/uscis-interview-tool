@@ -855,10 +855,21 @@
             .logo { gap: 0.5rem; }
             .brand-text { display: inline-block; white-space: normal; width: min-content; font-size: 1.05rem; font-weight: 800; line-height: 1.15; }
         }
+
+        /* Live course promo (curso.html) */
+        .course-strip{display:block;margin:-0.75rem 0 0.75rem;background:linear-gradient(90deg,#1e40af,#dc2626);color:#fff;text-align:center;font-weight:700;font-size:.95rem;padding:.55rem 1rem;text-decoration:none;line-height:1.35}
+        .course-strip b{text-decoration:underline}
+        .course-strip[hidden],.course-cta[hidden]{display:none}
+        @media (max-width: 968px){ body:has(.course-strip:not([hidden])) .hero{padding-top:10.75rem} }
+        .course-cta{max-width:1100px;margin:2.5rem auto 0;padding:1.5rem 1.75rem;border:2px solid #fde68a;background:#fffbeb;border-radius:1rem;display:flex;gap:1.25rem;align-items:center;justify-content:space-between;flex-wrap:wrap}
+        .course-cta h3{font-size:1.25rem;font-weight:800;margin:0 0 .25rem;color:#0f172a}
+        .course-cta p{color:#475569;margin:0}
+        .course-cta a{background:#dc2626;color:#fff;font-weight:800;padding:.8rem 1.4rem;border-radius:.75rem;text-decoration:none;white-space:nowrap}
     </style>
 </head>
 <body>
 <nav class="nav">
+<a class="course-strip" id="courseStrip" href="/curso.html">🎙️ New: live course on Zoom, in Spanish · <span id="courseStripSeats">Only 10 founder spots at $99</span> → <b>See the course</b></a>
 <div class="nav-container">
 <a class="logo" href="#">
 <img alt="Immigration Interviews" class="logo-img" src="immigrationinterviews_logo.png"/>
@@ -1070,6 +1081,7 @@
 </div>
 </div>
 </div>
+<div class="course-cta" id="courseCta"><div><h3>Prefer a teacher to guide you?</h3><p>Live Zoom course in Spanish: 4 Saturdays of speaking practice, with Premium and 16 live interviews included.</p></div><a href="/curso.html">See the course →</a></div>
 </section>
 <section class="faq-section" id="faq">
 <div class="section-container">
@@ -1566,5 +1578,17 @@
         });
 
     </script>
+<script>
+// Live course promo: show current seats, hide everything when the group is closed or full.
+(function(){
+  fetch('/api/course', {cache:'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).then(function(i){
+    if (!i) return;
+    var strip = document.getElementById('courseStrip'), cta = document.getElementById('courseCta'), seats = document.getElementById('courseStripSeats');
+    if (!i.open) { if (strip) strip.hidden = true; if (cta) cta.hidden = true; return; }
+    var founderTxt = n => "Only " + n + " founder spots left at $" + i.founderPrice, regTxt = n => n + " spots left";
+    if (seats && i.countKnown) seats.textContent = i.founderLeft > 0 ? founderTxt(i.founderLeft) : regTxt(i.seatsLeft);
+  }).catch(function(){});
+})();
+</script>
 </body>
 </html>
