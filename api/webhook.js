@@ -114,6 +114,41 @@ async function confirmUserEmail(userId) {
   return true;
 }
 
+// Live Zoom course: save the enrollment (once per Stripe session) and give Premium until a week
+// after the last class (at least 30 days, never shortening a longer one) with the course's
+// live interviews added to any the student still has.
+async function activateCourse(userId, s) {
+  const { COURSE, SUPABASE_URL: SB, lastClassEnd } = require('./_course.js');
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const cohort = (s.metadata && s.metadata.cohort) || COURSE.cohort;
+  const ins = await fetch(SB + '/rest/v1/course_enrollments?on_conflict=stripe_session', {
+    method: 'POST',
+    headers: { apikey: key, Authorization: 'Bearer ' + key, 'Content-Type': 'application/json', Prefer: 'resolution=ignore-duplicates,return=representation' },
+    body: JSON.stringify({ user_id: userId, cohort, amount_cents: typeof s.amount_total === 'number' ? s.amount_total : null, stripe_session: s.id || null })
+  });
+  if (!ins.ok) console.error('course enrollment insert failed', ins.status, await ins.text().catch(() => ''));
+  const rows = ins.ok ? await ins.json().catch(() => []) : [];
+  if (ins.ok && Array.isArray(rows) && rows.length === 0) {
+    console.log('Course session already processed, skipping:', s.id);   // Stripe retried the same event
+    return;
+  }
+  const DAY = 24 * 60 * 60 * 1000;
+  const profile = await getProfile(userId, 'plan,plan_expires_at,live_credits');
+  const isPremium = !!(profile && profile.plan === 'premium');
+  const curEnd = profile && profile.plan_expires_at ? new Date(profile.plan_expires_at).getTime() : 0;
+  const noExpiry = isPremium && !profile.plan_expires_at;
+  const active = isPremium && (noExpiry || curEnd > Date.now());
+  const fields = { plan: 'premium', stripe_customer_id: s.customer || null, subscription_status: 'paid' };
+  if (!noExpiry) {
+    const end = Math.max(active ? curEnd : 0, Date.now() + 30 * DAY, lastClassEnd().getTime() + COURSE.premiumDaysAfterEnd * DAY);
+    fields.plan_expires_at = new Date(end).toISOString();
+  }
+  const left = (active && typeof profile.live_credits === 'number') ? profile.live_credits : 0;
+  fields.live_credits = left + COURSE.liveInterviews;
+  await updateProfile(userId, fields);
+  console.log('Course enrollment', cohort, 'for user', userId, 'premium until', fields.plan_expires_at || 'no expiry', 'credits', fields.live_credits);
+}
+
 async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -153,6 +188,11 @@ async function handler(req, res) {
       if (userId) {
         // One-time payment model: 30 days of access from the moment of purchase.
         const planMeta = s.metadata && s.metadata.plan;
+        if (planMeta === 'course') {
+          await activateCourse(userId, s);
+          await confirmUserEmail(userId);
+          return res.status(200).json({ received: true });
+        }
         const plan = (planMeta === 'premium' || planMeta === 'upgrade') ? 'premium' : planMeta === 'topup' ? 'topup' : 'professional';
         const DAY30 = 30 * 24 * 60 * 60 * 1000;
         let expires = new Date(Date.now() + DAY30).toISOString();
