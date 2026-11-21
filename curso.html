@@ -118,7 +118,7 @@ footer{padding:28px 0;color:var(--muted);font-size:14px;text-align:center}
 <body>
 <nav><div class="wrap">
   <a class="logo" href="/"><img src="/immigrationinterviews_logo.png" alt="">Immigration Interviews</a>
-  <a class="navbtn" id="navBtn" href="/dashboard.html">Entrar</a>
+  <a class="navbtn" id="navBtn" href="/dashboard.html" onclick="return navEnter()">Entrar</a>
 </div></nav>
 
 <header class="hero"><div class="wrap">
@@ -326,16 +326,23 @@ function enroll(){
   if (enrolled) return;
   if (INFO && !INFO.open) { $('wSched').value = 'sabado'; $('waitForm').scrollIntoView({behavior:'smooth', block:'center'}); $('wName').focus({preventScroll:true}); return; }
   if (session) { window.scrollTo({top:0, behavior:'smooth'}); goCheckout(session.user.id, session.user.email, $('buyMsg')); return; }
-  setMode('signup'); $('authModal').classList.add('on'); setTimeout(() => $('aName').focus(), 50);
+  intent = 'buy'; setMode('signup'); $('authModal').classList.add('on'); setTimeout(() => $('aName').focus(), 50);
+}
+let intent = 'buy';   // 'buy' = enroll and pay; 'login' = only sign in (button "Entrar")
+function navEnter(){
+  if (session) return true;                     // already signed in: go to the Hub
+  intent = 'login'; setMode('login'); $('authModal').classList.add('on'); setTimeout(() => $('aEmail').focus(), 50);
+  return false;
 }
 function closeAuth(){ $('authModal').classList.remove('on'); }
 function setMode(m){
   mode = m;
   const su = m === 'signup';
-  $('authTitle').textContent = su ? 'Crea tu cuenta para inscribirte' : 'Inicia sesión para inscribirte';
+  const only = intent === 'login';
+  $('authTitle').textContent = su ? (only ? 'Crea tu cuenta' : 'Crea tu cuenta para inscribirte') : (only ? 'Inicia sesión' : 'Inicia sesión para inscribirte');
   $('aName').style.display = su ? '' : 'none';
   $('aPass').setAttribute('autocomplete', su ? 'new-password' : 'current-password');
-  $('authBtn').textContent = su ? 'Crear cuenta y continuar' : 'Entrar y continuar';
+  $('authBtn').textContent = su ? (only ? 'Crear cuenta' : 'Crear cuenta y continuar') : (only ? 'Entrar' : 'Entrar y continuar');
   $('authSwitch').innerHTML = su ? '¿Ya tienes cuenta? <a onclick="setMode(\'login\')">Inicia sesión</a>' : '¿No tienes cuenta? <a onclick="setMode(\'signup\')">Créala aquí</a>';
   $('authMsg').className = 'msg';
 }
@@ -348,12 +355,14 @@ $('authForm').addEventListener('submit', async e => {
       const { data, error } = await sb.auth.signUp({ email, password: pass, options: { data: { full_name: name } } });
       if (error) throw error;
       if (!data || !data.user) throw new Error('No se pudo crear la cuenta.');
-      await goCheckout(data.user.id, email, msg);
+      if (intent === 'login') { show(msg, 'ok', 'Cuenta creada. Revisa tu correo si te pide confirmarla.'); await checkSession(); setTimeout(closeAuth, 1500); }
+      else await goCheckout(data.user.id, email, msg);
     } else {
       const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
       if (error) throw error;
       session = data.session;
-      await goCheckout(data.user.id, email, msg);
+      if (intent === 'login') { closeAuth(); await checkSession(); }
+      else await goCheckout(data.user.id, email, msg);
     }
   } catch(err) {
     show(msg, 'err', (err && err.message) || 'Algo salió mal. Inténtalo de nuevo.');
