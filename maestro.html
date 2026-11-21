@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Modo maestro · Camino a la Ciudadanía</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--blue:#1e40af;--blue2:#2563eb;--red:#dc2626;--ink:#0f172a;--soft:#475569;--line:#e2e8f0;--bg:#f1f5f9;--card:#fff;--gold:#f59e0b;--goldbg:#fffbeb;--green:#16a34a;--greenbg:#f0fdf4}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:Inter,system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+button{font-family:inherit;cursor:pointer}
+.hidden{display:none!important}
+
+/* login */
+#gate{min-height:100%;display:flex;align-items:center;justify-content:center;padding:24px}
+.gatebox{background:#fff;border:1px solid var(--line);border-radius:16px;padding:32px;max-width:400px;width:100%;box-shadow:0 10px 30px rgba(15,23,42,.08)}
+.gatebox h1{font-size:22px;margin:0 0 6px}
+.gatebox p{color:var(--soft);margin:0 0 18px;font-size:15px}
+.gatebox input{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font-size:16px;margin-bottom:10px;font-family:inherit}
+.gatebox button{width:100%;padding:12px;border:0;border-radius:10px;background:var(--blue);color:#fff;font-weight:700;font-size:16px}
+.msg{font-size:14px;margin-top:10px;min-height:20px}
+.msg.err{color:var(--red)}
+
+/* layout */
+#app{display:grid;grid-template-columns:280px 1fr;grid-template-rows:auto 1fr;height:100vh}
+#app.clean{grid-template-columns:0 1fr}
+#app.clean aside{display:none}
+header{grid-column:1/-1;display:flex;align-items:center;gap:12px;padding:10px 16px;background:#fff;border-bottom:1px solid var(--line);flex-wrap:wrap}
+header .brand{font-weight:800;color:var(--blue);font-size:16px;white-space:nowrap}
+header .brand span{color:var(--red)}
+header label{font-size:12px;font-weight:700;color:var(--soft);display:flex;align-items:center;gap:6px}
+header select,header input{font-family:inherit;font-size:14px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:#fff}
+header input{width:140px}
+.spacer{flex:1}
+.hbtn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 10px;font-size:13px;font-weight:600;color:var(--ink)}
+.hbtn:hover{border-color:var(--blue);color:var(--blue)}
+#saveState{font-size:12px;color:var(--soft);min-width:110px;text-align:right}
+
+aside{overflow:auto;background:#fff;border-right:1px solid var(--line);padding:12px 10px 40px}
+.day{margin-bottom:14px}
+.day h3{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--blue);margin:8px 8px 6px}
+.sec{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;text-align:left;border:0;background:transparent;padding:8px 10px;border-radius:8px;font-size:14px;color:var(--ink)}
+.sec:hover{background:var(--bg)}
+.sec.on{background:#dbeafe;color:var(--blue);font-weight:700}
+.sec small{font-size:12px;color:var(--soft);white-space:nowrap}
+.sec small.full{color:var(--green);font-weight:700}
+
+/* stage */
+main{overflow:auto;padding:22px 28px 90px;display:flex;flex-direction:column;gap:16px}
+.crumb{font-size:14px;color:var(--soft);font-weight:600}
+.crumb b{color:var(--blue)}
+.steps{display:flex;gap:8px;flex-wrap:wrap}
+.step{border:2px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font-weight:700;font-size:15px;color:var(--soft);display:flex;gap:8px;align-items:center}
+.step i{font-style:normal;width:24px;height:24px;border-radius:12px;background:var(--line);color:var(--ink);display:flex;align-items:center;justify-content:center;font-size:13px}
+.step.on{border-color:var(--blue);color:var(--blue);background:#eff6ff}
+.step.on i{background:var(--blue);color:#fff}
+.stepdesc{font-size:15px;color:var(--soft);margin-top:-6px}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:30px 34px;box-shadow:0 6px 24px rgba(15,23,42,.06)}
+.who{font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);margin-bottom:8px}
+.who.you{color:#b45309}
+.q{font-size:clamp(26px,3.1vw,52px);line-height:1.18;font-weight:800;margin:0}
+.es{font-size:clamp(18px,1.7vw,28px);color:var(--soft);margin-top:12px}
+.hiddenq{font-size:clamp(26px,3vw,48px);font-weight:800;color:#94a3b8;display:flex;align-items:center;gap:16px}
+.answers{display:flex;flex-direction:column;gap:12px;margin-top:6px}
+.ans{background:var(--goldbg);border-left:8px solid var(--gold);border-radius:14px;padding:16px 22px;display:flex;gap:14px;align-items:flex-start}
+.ans .txt{flex:1}
+.ans .en{font-size:clamp(22px,2.5vw,42px);font-weight:800;line-height:1.2}
+.ans .p{font-size:clamp(16px,1.5vw,24px);color:#92400e;margin-top:6px}
+.blank{display:inline-block;min-width:3.5em;border-bottom:4px solid var(--blue);color:var(--blue);padding:0 .15em}
+.fill{background:#dbeafe;border-radius:8px;padding:0 .2em;color:var(--blue)}
+.tip{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:12px;padding:12px 16px;font-size:clamp(15px,1.25vw,20px);color:var(--soft)}
+.tip b{color:var(--ink)}
+.defbox{background:var(--greenbg);border:1px solid #bbf7d0;border-radius:12px;padding:12px 16px;font-size:clamp(15px,1.25vw,20px)}
+.defbox b{color:var(--green)}
+
+.play{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.pbtn{border:0;border-radius:12px;padding:12px 18px;font-weight:800;font-size:16px;background:var(--blue);color:#fff;display:flex;gap:8px;align-items:center}
+.pbtn.alt{background:#e0e7ff;color:var(--blue)}
+.pbtn.gold{background:var(--gold);color:#111}
+.pbtn.ghost{background:#fff;border:2px solid var(--line);color:var(--ink)}
+.pbtn.sm{padding:8px 12px;font-size:14px;border-radius:10px}
+.pbtn:disabled{opacity:.4;cursor:default}
+.mini{border:0;background:#fff;border:2px solid #fde68a;border-radius:10px;padding:8px 10px;font-size:18px;line-height:1}
+
+.nav{position:fixed;bottom:0;right:0;left:280px;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 28px;background:rgba(255,255,255,.95);border-top:1px solid var(--line);backdrop-filter:blur(6px)}
+#app.clean .nav{left:0}
+.nav .count{font-weight:700;color:var(--soft)}
+
+/* civics */
+.block{display:flex;flex-direction:column;gap:14px}
+.cq{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px 24px;display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:start}
+.cq .num{font-weight:800;color:#fff;background:var(--blue);border-radius:12px;min-width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.cq .qq{font-size:clamp(20px,2vw,34px);font-weight:800;line-height:1.2}
+.cq .aa{margin-top:10px;font-size:clamp(18px,1.7vw,28px);color:var(--green);font-weight:700}
+.cq .aa ul{margin:6px 0 0;padding-left:1.2em}
+.cq .acts{display:flex;flex-direction:column;gap:8px}
+.cq .imgs{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+.cq .imgs img{height:120px;border-radius:10px;border:1px solid var(--line);object-fit:cover}
+.cq.trivia{border:2px solid var(--gold);background:var(--goldbg)}
+.banner{border-radius:16px;padding:16px 20px;font-weight:700;font-size:18px}
+.banner.gold{background:var(--goldbg);border:2px solid var(--gold)}
+.banner.blue{background:#eff6ff;border:2px solid #bfdbfe;color:var(--blue)}
+.bar{height:10px;background:var(--line);border-radius:10px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--green)}
+
+/* help */
+.help{position:fixed;inset:0;background:rgba(15,23,42,.5);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
+.help .box{background:#fff;border-radius:16px;padding:26px 30px;max-width:620px;width:100%;max-height:90vh;overflow:auto}
+.help h2{margin:0 0 10px}
+.help table{width:100%;border-collapse:collapse;font-size:15px}
+.help td{padding:6px 4px;border-bottom:1px solid var(--line)}
+.help kbd{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:2px 7px;font-family:inherit;font-weight:700}
+@media (max-width:900px){#app{grid-template-columns:1fr}aside{display:none}.nav{left:0}}
+</style>
+</head>
+<body>
+
+<div id="gate" class="hidden">
+  <form class="gatebox" id="gateForm">
+    <h1>Modo maestro</h1>
+    <p id="gateTxt">Inicia sesión con tu cuenta de maestro.</p>
+    <input id="gEmail" type="email" placeholder="Correo" required autocomplete="email">
+    <input id="gPass" type="password" placeholder="Contraseña" required autocomplete="current-password">
+    <button id="gBtn">Entrar</button>
+    <div class="msg" id="gMsg"></div>
+  </form>
+</div>
+
+<div id="app" class="hidden">
+  <header>
+    <div class="brand">Modo maestro · <span>Camino a la Ciudadanía</span></div>
+    <label>Grupo <input id="group" list="groupList" spellcheck="false"><datalist id="groupList"></datalist></label>
+    <label>Examen <select id="test"><option value="128">128 preguntas (2025)</option><option value="100">100 preguntas (2008)</option></select></label>
+    <label>Estado <select id="state"></select></label>
+    <div class="spacer"></div>
+    <div id="saveState"></div>
+    <button class="hbtn" id="cleanBtn" title="Ocultar el menú (H)">Pantalla limpia</button>
+    <button class="hbtn" id="helpBtn">Ayuda</button>
+  </header>
+  <aside id="side"></aside>
+  <main id="stage"></main>
+  <div class="nav" id="nav">
+    <button class="pbtn ghost" id="prevBtn">← Anterior</button>
+    <div class="count" id="count"></div>
+    <button class="pbtn" id="nextBtn">Siguiente →</button>
+  </div>
+</div>
+
+<div class="help hidden" id="help">
+  <div class="box">
+    <h2>Cómo usarlo en Zoom</h2>
+    <p style="color:var(--soft);margin-top:0">Comparte esta ventana y marca <b>"Compartir sonido"</b> para que los alumnos escuchen la voz del oficial. Con <b>Pantalla limpia</b> se esconde el menú.</p>
+    <table>
+      <tr><td><kbd>Espacio</kbd></td><td>Oír la pregunta del oficial</td></tr>
+      <tr><td><kbd>S</kbd></td><td>Oír la pregunta despacio</td></tr>
+      <tr><td><kbd>A</kbd></td><td>Oír la respuesta modelo (despacio)</td></tr>
+      <tr><td><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd></td><td>Cambiar de paso: Escuchas, Repites, Contestas, Como el día real</td></tr>
+      <tr><td><kbd>R</kbd></td><td>Mostrar u ocultar (en el paso 4, dictado y trivia)</td></tr>
+      <tr><td><kbd>→</kbd> <kbd>←</kbd></td><td>Siguiente / anterior</td></tr>
+      <tr><td><kbd>H</kbd></td><td>Pantalla limpia (esconder el menú)</td></tr>
+      <tr><td><kbd>F</kbd></td><td>Pantalla completa</td></tr>
+    </table>
+    <p style="color:var(--soft)">El avance se guarda solo, por grupo. Para empezar un grupo nuevo, escribe otro nombre en "Grupo" (por ejemplo <b>noche-2027-01</b>).</p>
+    <p style="text-align:right;margin-bottom:0"><button class="pbtn" onclick="toggleHelp(false)">Entendido</button></p>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/definitions.js"></script>
+<script src="/civics-images.js"></script>
+<script src="/maestro-data.js"></script>
+<script>
+const SUPABASE_URL = 'https://vugvnqapdxyewxyfaayl.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_vFFY4GL2f8PIGrArW05ncg_PVkcgV4M';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const $ = id => document.getElementById(id);
+const M = window.MAESTRO;
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+let session = null, token = null;
+let S = { group:'', test:'128', state:'Texas', sec:'saludo', idx:0, step:1, reveal:false };
+let P = { done:{}, civ:{}, last:{} };          // saved progress for the current group
+let SECTIONS = {};                              // id -> {title, day, kind, cards}
+let CIV = { '100': null, '128': null };          // civics banks by version
+let STATES = [];
+let trivia = null;                               // {items:[q...], i, reveal}
+let sim = null;                                  // simulacro: {items:[{part, card, kind}], i}
+
+// ===================================================== audio
+let manifest = null, curAudio = null, voices = [];
+fetch('/audio/manifest.json').then(r => r.ok ? r.json() : {}).then(m => manifest = m || {}).catch(() => manifest = {});
+function loadVoices(){ try { voices = speechSynthesis.getVoices() || []; } catch(e) {} }
+if ('speechSynthesis' in window) { loadVoices(); speechSynthesis.addEventListener('voiceschanged', loadVoices); }
+function bestVoice(){
+  const sc = v => { const n = (v.name||'').toLowerCase(); let s = 0;
+    if (/natural|neural|online/.test(n)) s += 100; if (/premium|enhanced/.test(n)) s += 80; if (/google/.test(n)) s += 40;
+    if (/aria|jenny|samantha|ava|allison|guy/.test(n)) s += 30; if (/en[-_]us/i.test(v.lang||'')) s += 10; return s; };
+  return voices.filter(v => /^en/i.test(v.lang||'')).sort((a,b) => sc(b) - sc(a))[0] || null;
+}
+function stopAudio(){ if (curAudio) { try { curAudio.pause(); } catch(e) {} curAudio = null; } try { speechSynthesis.cancel(); } catch(e) {} }
+function sayable(t){ return String(t||'').replace(/\[|\]/g,'').replace(/\([^)]*\)/g,'').replace(/\s+\/\s+/g,'. ').replace(/\s+/g,' ').trim(); }
+function speak(text, slow){
+  const t = sayable(text); if (!t) return;
+  stopAudio();
+  const file = manifest && manifest['en|' + t];
+  if (file) {
+    const a = new Audio('/audio/' + file); curAudio = a; a.playbackRate = slow ? 0.72 : 1;
+    a.play().catch(() => tts(t, slow)); return;
+  }
+  tts(t, slow);
+}
+function tts(t, slow){
+  if (!('speechSynthesis' in window)) return;
+  const u = new SpeechSynthesisUtterance(t); u.lang = 'en-US'; u.rate = slow ? 0.68 : 0.95;
+  const v = bestVoice(); if (v) u.voice = v; speechSynthesis.speak(u);
+}
+
+// ===================================================== content
+function defLookup(term){
+  const L = window.DEFINITIONS || []; const t = String(term||'').toLowerCase();
+  return L.find(d => d.term.toLowerCase() === t || (d.aliases||[]).some(a => a.toLowerCase() === t)) || null;
+}
+function buildSections(){
+  SECTIONS = {};
+  M.sections.forEach(s => SECTIONS[s.id] = s);
+  const defs = (window.DEFINITIONS || []).filter(d => d.interview);
+  SECTIONS.definiciones = { id:'definiciones', day:2, title:'Las definiciones', cards: defs.map((d,i) => ({
+    id:'df-' + d.term.toLowerCase().replace(/[^a-z0-9]+/g,'-'), q:'What does "' + d.term + '" mean?',
+    es:'¿Qué significa "' + d.term + '"?',
+    a:[{ en:d.short.en, m:d.short.es }], term:d, tip:d.tip && d.tip.es ? d.tip.es : '' })) };
+  SECTIONS.civica = { id:'civica', day:3, title:'Cívica en bloques de 3', kind:'civics', cards:[] };
+  SECTIONS.simulacro = { id:'simulacro', day:4, title:'Simulacro completo', kind:'sim', cards:[] };
+}
+async function loadCivics(){
+  const v = S.test;
+  try {
+    const r = await fetch('/api/questions?v=' + v + '&state=' + encodeURIComponent(S.state));
+    const d = await r.json(); CIV[v] = d.questions || [];
+    if (!STATES.length && d.states) { STATES = d.states; fillStates(); }
+  } catch(e) { CIV[v] = CIV[v] || []; }
+}
+function fillStates(){
+  $('state').innerHTML = STATES.map(s => '<option' + (s === S.state ? ' selected' : '') + '>' + esc(s) + '</option>').join('');
+}
+function civBlocks(){ const q = CIV[S.test] || []; const out = []; for (let i = 0; i < q.length; i += 3) out.push(q.slice(i, i + 3)); return out; }
+
+// ===================================================== progress (per group)
+let saveTimer = null;
+function lsKey(){ return 'maestro:' + S.group; }
+function setSave(t){ $('saveState').textContent = t; }
+async function loadProgress(){
+  P = { done:{}, civ:{}, last:{} };
+  try { const l = JSON.parse(localStorage.getItem(lsKey()) || 'null'); if (l) P = l; } catch(e) {}
+  setSave('Cargando avance…');
+  try {
+    const r = await fetch('/api/course?progress=' + encodeURIComponent(S.group), { headers:{ Authorization:'Bearer ' + token } });
+    const d = await r.json();
+    if (r.ok) { if (d.data && Object.keys(d.data).length) P = Object.assign({ done:{}, civ:{}, last:{} }, d.data); setSave('Avance guardado ✓'); }
+    else if (r.status === 403) { showGate('Esta página es solo para el maestro. Entra con la cuenta de maestro.'); return false; }
+    else setSave('⚠️ ' + (d.error || 'Sin conexión: se guarda en esta computadora'));
+  } catch(e) { setSave('⚠️ Sin conexión: se guarda en esta computadora'); }
+  P.done = P.done || {}; P.civ = P.civ || {}; P.last = P.last || {};
+  return true;
+}
+function saveProgress(){
+  P.last = { sec:S.sec, idx:S.idx, test:S.test, state:S.state };
+  try { localStorage.setItem(lsKey(), JSON.stringify(P)); localStorage.setItem('maestro:lastGroup', S.group); } catch(e) {}
+  clearTimeout(saveTimer); setSave('Guardando…');
+  saveTimer = setTimeout(async () => {
+    try {
+      const r = await fetch('/api/course', { method:'POST', headers:{ 'Content-Type':'application/json', Authorization:'Bearer ' + token },
+        body: JSON.stringify({ action:'progress', group:S.group, data:P }) });
+      setSave(r.ok ? 'Avance guardado ✓' : '⚠️ No se guardó en el servidor (sí en esta computadora)');
+    } catch(e) { setSave('⚠️ Sin conexión: se guarda en esta computadora'); }
+  }, 1200);
+}
+
+// ===================================================== sidebar
+function secProgress(id){
+  const s = SECTIONS[id];
+  if (id === 'civica') { const n = civBlocks().length; const k = Math.min(P.civ[S.test] || 0, n); return [k, n]; }
+  if (id === 'simulacro') return null;
+  return [s.cards.filter(c => P.done[c.id]).length, s.cards.length];
+}
+function renderSide(){
+  $('side').innerHTML = M.days.map(d => '<div class="day"><h3>Sábado ' + d.n + ' · ' + esc(d.title) + '</h3>' +
+    d.sections.map(id => { const s = SECTIONS[id]; if (!s) return ''; const p = secProgress(id);
+      return '<button class="sec' + (S.sec === id ? ' on' : '') + '" data-sec="' + id + '"><span>' + esc(s.title) + '</span>' +
+        (p ? '<small class="' + (p[1] && p[0] >= p[1] ? 'full' : '') + '">' + (p[1] && p[0] >= p[1] ? '✓ ' : '') + p[0] + '/' + p[1] + '</small>' : '') + '</button>';
+    }).join('') + '</div>').join('');
+  $('side').querySelectorAll('.sec').forEach(b => b.onclick = () => openSection(b.dataset.sec));
+}
+function openSection(id, idx){
+  stopAudio(); S.sec = id; S.idx = idx || 0; S.step = 1; S.reveal = false; trivia = null;
+  if (id === 'civica') S.idx = Math.min(P.civ[S.test] || 0, Math.max(civBlocks().length - 1, 0));
+  if (id === 'simulacro' && !sim) newSim();
+  renderSide(); render(); saveProgress();
+}
+
+// ===================================================== stage
+function fmtAnswer(en, mode){
+  // mode: 'show' (example values highlighted) | 'blank' (student's own data hidden)
+  return esc(en).replace(/\[([^\]]*)\]/g, (m, v) => mode === 'blank' ? '<span class="blank">&nbsp;</span>' : '<span class="fill">' + v + '</span>');
+}
+function stepsBar(){
+  return '<div class="steps">' + M.steps.map(s => '<button class="step' + (S.step === s.n ? ' on' : '') + '" data-step="' + s.n + '"><i>' + s.n + '</i>' + esc(s.t) + '</button>').join('') + '</div>' +
+    '<div class="stepdesc">' + esc(M.steps[S.step - 1].d) + '</div>';
+}
+function answersHtml(c, mode, withPron){
+  return '<div class="answers">' + c.a.map((a, i) => '<div class="ans"><div class="txt"><div class="en">' + fmtAnswer(a.en, mode) + '</div>' +
+    (withPron && a.p ? '<div class="p">Se pronuncia: ' + esc(a.p) + '</div>' : '') + (withPron && a.m ? '<div class="p">En español: ' + esc(a.m) + '</div>' : '') + '</div>' +
+    '<button class="mini" title="Oír despacio" data-say-ans="' + i + '">🐢</button></div>').join('') + '</div>';
+}
+function n400Card(c){
+  const rule = c.kind === 'rule';
+  let h = '';
+  if (!rule) h += stepsBar();
+  const hideQ = !rule && S.step === 4 && !S.reveal;
+  h += '<div class="card">';
+  if (rule) h += '<div class="who">La regla de oro</div><p class="q">' + esc(c.q) + '</p><div class="es">' + esc(c.es) + '</div>';
+  else if (hideQ) h += '<div class="who">El oficial pregunta</div><div class="hiddenq">🎙️ Escucha y contesta sin ayuda</div>';
+  else h += '<div class="who' + (c.student ? ' you' : '') + '">' + (c.student ? 'Tú dices' : 'El oficial pregunta') + '</div><p class="q">' + esc(c.q) + '</p>' +
+    ((S.step <= 2 || S.reveal || rule) && c.es ? '<div class="es">' + esc(c.es) + '</div>' : '');
+  h += '<div class="play">' +
+    '<button class="pbtn" data-act="q">▶ Oír</button><button class="pbtn alt" data-act="qs">🐢 Despacio</button>' +
+    (S.step >= 2 && !rule && c.a ? '<button class="pbtn gold" data-act="a">▶ Respuesta modelo</button>' : '') +
+    (S.step === 4 && !rule ? '<button class="pbtn ghost" data-act="reveal">' + (S.reveal ? 'Ocultar' : 'Mostrar') + ' (R)</button>' : '') + '</div></div>';
+  if (rule) h += answersHtml(c, 'show', true);
+  else if (S.step === 2) h += answersHtml(c, 'show', true);
+  else if (S.step === 3) h += answersHtml(c, 'blank', false);
+  else if (S.step === 4 && S.reveal) h += answersHtml(c, 'show', true);
+  if (c.term && (S.step <= 2 || S.reveal)) {
+    const d = c.term;
+    h += '<div class="defbox"><b>' + esc(d.term) + '</b>' + (d.pron ? ' · se pronuncia <b>' + esc(d.pron) + '</b>' : '') +
+      '<br>Definición oficial: ' + esc(d.official.en) + '<br><span style="color:var(--soft)">' + esc(d.official.es) + '</span></div>';
+  }
+  if (c.def && (S.step <= 2 || S.reveal)) {
+    const d = defLookup(c.def);
+    if (d) h += '<div class="defbox">📖 <b>' + esc(d.term) + '</b>' + (d.pron ? ' (' + esc(d.pron) + ')' : '') + ': ' + esc(d.short.es) + ' · <i>' + esc(d.short.en) + '</i></div>';
+  }
+  if (c.tip && S.step <= 3) h += '<div class="tip">💡 ' + esc(c.tip) + '</div>';
+  return h;
+}
+function readCard(c){
+  return '<div class="banner blue">Prueba de lectura: el alumno lee la oración en voz alta. Hay que leer bien 1 de hasta 3.</div>' +
+    '<div class="card"><div class="who">Lee en voz alta</div><p class="q">' + esc(c.q) + '</p>' +
+    '<div class="play"><button class="pbtn" data-act="q">▶ Modelo</button><button class="pbtn alt" data-act="qs">🐢 Despacio</button></div></div>' +
+    '<div class="tip">💡 Leer por grupos de palabras, no letra por letra. Las palabras de pregunta: Who (jú), What (uát), Where (uér), When (uén), Why (uái), How (jáu).</div>';
+}
+function writeCard(c){
+  return '<div class="banner blue">Prueba de escritura: el oficial dicta y el alumno escribe. Hay que escribir bien 1 de hasta 3.</div>' +
+    '<div class="card"><div class="who">Dictado</div>' + (S.reveal ? '<p class="q">' + esc(c.q) + '</p>' : '<div class="hiddenq">✍️ Escucha y escribe</div>') +
+    '<div class="play"><button class="pbtn" data-act="q">▶ Dictar</button><button class="pbtn alt" data-act="qs">🐢 Despacio</button>' +
+    '<button class="pbtn ghost" data-act="reveal">' + (S.reveal ? 'Ocultar' : 'Mostrar la oración') + ' (R)</button></div></div>' +
+    '<div class="tip">💡 Revisar: mayúscula al inicio y en nombres propios (Washington, Congress, July), números y punto final.</div>';
+}
+function civItem(q, i, opts){
+  const imgs = ((window.CIVICS_IMAGES && CIVICS_IMAGES.map && CIVICS_IMAGES.map[S.test] && CIVICS_IMAGES.map[S.test][q.n]) || []).slice(0, 3);
+  const hideQ = opts.hideQ && !opts.reveal;
+  const ans = String(q.a || '').split(/;\s*/).filter(Boolean);
+  return '<div class="cq' + (opts.trivia ? ' trivia' : '') + '"><div class="num">' + q.n + '</div><div>' +
+    (hideQ ? '<div class="qq" style="color:#94a3b8">🎙️ Escucha la pregunta</div>' : '<div class="qq">' + esc(q.q) + '</div>') +
+    (opts.reveal ? '<div class="aa">' + (ans.length > 1 ? '<ul>' + ans.map(a => '<li>' + esc(a) + '</li>').join('') + '</ul>' : esc(ans[0] || '')) + '</div>' +
+      (imgs.length ? '<div class="imgs">' + imgs.map(k => '<img src="/img/civics/' + esc(k) + '.webp" alt="" onerror="this.remove()">').join('') + '</div>' : '') : '') +
+    '</div><div class="acts"><button class="pbtn sm" data-civ="' + i + '" data-rate="n">▶</button><button class="pbtn sm alt" data-civ="' + i + '" data-rate="s">🐢</button>' +
+    '<button class="pbtn sm ghost" data-civrev="' + i + '">' + (opts.reveal ? 'Ocultar' : 'Respuesta') + '</button></div></div>';
+}
+let civRevealed = {};
+function civicsView(){
+  const blocks = civBlocks();
+  if (!blocks.length) return '<div class="card">Cargando preguntas de cívica…</div>';
+  const k = Math.min(S.idx, blocks.length - 1), done = Math.min(P.civ[S.test] || 0, blocks.length);
+  let h = '<div class="banner blue">Examen de ' + S.test + ' preguntas · ' + esc(S.state) + ' · Bloque ' + (k + 1) + ' de ' + blocks.length +
+    ' <div class="bar" style="margin-top:10px"><i style="width:' + Math.round(done / blocks.length * 100) + '%"></i></div>' +
+    '<div style="font-size:14px;font-weight:600;margin-top:6px">El grupo terminó ' + done + ' de ' + blocks.length + ' bloques</div></div>';
+  if (trivia) {
+    const q = trivia.items[trivia.i];
+    h += '<div class="banner gold">🎲 Trivia: pregunta ' + (trivia.i + 1) + ' de ' + trivia.items.length + ', de bloques anteriores. ¿Quién la sabe?</div>' +
+      '<div class="block">' + civItem(q, 't', { trivia:true, hideQ:true, reveal:trivia.reveal }) + '</div>' +
+      '<div class="play"><button class="pbtn ghost" data-act="trivEnd">Terminar trivia</button>' +
+      (trivia.i < trivia.items.length - 1 ? '<button class="pbtn gold" data-act="trivNext">Siguiente pregunta de trivia →</button>' : '<button class="pbtn gold" data-act="trivEnd">¡Listo! Volver al bloque</button>') + '</div>';
+    return h;
+  }
+  h += '<div class="block">' + blocks[k].map((q, i) => civItem(q, i, { reveal: !!civRevealed[k + ':' + i] })).join('') + '</div>' +
+    '<div class="play"><button class="pbtn alt" data-act="civAll">Mostrar las 3 respuestas</button>' +
+    '<button class="pbtn gold" data-act="trivia">🎲 Trivia (mezcla de bloques anteriores)</button>' +
+    '<button class="pbtn" data-act="civDone">✓ Bloque terminado</button></div>' +
+    '<div class="tip">💡 Primero el oficial pregunta, todos repiten la respuesta corta en inglés, y luego cada uno contesta solo. Después de cada bloque, una trivia rápida para no olvidar lo anterior.</div>';
+  return h;
+}
+function newSim(){
+  // Order seen in real interviews: greeting/oath → civics → reading/writing → N-400 → result.
+  const pick = (arr, n) => arr.slice().sort(() => Math.random() - 0.5).slice(0, n);
+  const card = id => { for (const s of Object.values(SECTIONS)) { const c = (s.cards||[]).find(x => x.id === id); if (c) return c; } return null; };
+  const items = [];
+  ['s1','s3','s4','s5','s6','n1'].forEach(id => items.push({ part:'Saludo y juramento', card:card(id) }));
+  const covered = civBlocks().slice(0, Math.max(P.civ[S.test] || 0, 1)).flat();
+  pick(covered.length >= 6 ? covered : (CIV[S.test] || []), 6).forEach(q => items.push({ part:'Cívica', civ:q }));
+  pick(SECTIONS.lectura.cards, 1).forEach(c => items.push({ part:'Lectura', card:c, kind:'read' }));
+  pick(SECTIONS.escritura.cards, 1).forEach(c => items.push({ part:'Escritura', card:c, kind:'write' }));
+  const n400 = ['nombre','datos','direccion','familia','trabajo','viajes','impuestos'].flatMap(id => SECTIONS[id].cards.filter(c => !c.student && c.id !== 'n2'));
+  pick(n400, 7).forEach(c => items.push({ part:'Tu N-400', card:c }));
+  pick(SECTIONS.haveyouever.cards.filter(c => c.kind !== 'rule'), 4).forEach(c => items.push({ part:'Have you ever…?', card:c }));
+  pick(SECTIONS.juramento.cards, 2).forEach(c => items.push({ part:'Juramento', card:c }));
+  ['e1','e4'].forEach(id => items.push({ part:'Resultado', card:card(id) }));
+  sim = { items:items.filter(x => x.card || x.civ), i:0 };
+}
+function simView(){
+  if (!sim) newSim();
+  const it = sim.items[sim.i];
+  let h = '<div class="banner blue">Simulacro: ' + esc(it.part) + ' · ' + (sim.i + 1) + ' de ' + sim.items.length +
+    ' <button class="pbtn sm ghost" style="float:right" data-act="newSim">Nuevo simulacro</button></div>';
+  if (it.civ) return h + '<div class="block">' + civItem(it.civ, 'sim', { hideQ:true, reveal:S.reveal }) + '</div>';
+  if (it.kind === 'read') return h + readCard(it.card);
+  if (it.kind === 'write') return h + writeCard(it.card);
+  const keep = S.step; S.step = 4; const out = n400Card(it.card).replace(/<div class="steps">[\s\S]*?<div class="stepdesc">[\s\S]*?<\/div>/, ''); S.step = keep;
+  return h + out;
+}
+function curList(){
+  if (S.sec === 'civica') return civBlocks();
+  if (S.sec === 'simulacro') return sim ? sim.items : [];
+  return SECTIONS[S.sec].cards;
+}
+function curCard(){ return S.sec === 'simulacro' ? (sim && sim.items[S.idx] && (sim.items[S.idx].card || sim.items[S.idx].civ)) : curList()[S.idx]; }
+function render(){
+  const sec = SECTIONS[S.sec]; const day = M.days.find(d => d.sections.includes(S.sec));
+  let h = '<div class="crumb">Sábado ' + (day ? day.n : '') + ' · <b>' + esc(sec.title) + '</b></div>';
+  if (S.sec === 'civica') h += civicsView();
+  else if (S.sec === 'simulacro') { sim.i = S.idx; h += simView(); }
+  else { const c = sec.cards[S.idx]; h += sec.kind === 'read' ? readCard(c) : sec.kind === 'write' ? writeCard(c) : n400Card(c); }
+  $('stage').innerHTML = h;
+  const list = curList();
+  $('count').textContent = S.sec === 'civica' ? 'Bloque ' + (S.idx + 1) + ' de ' + list.length : (S.idx + 1) + ' de ' + list.length;
+  $('prevBtn').disabled = S.idx === 0 && !trivia;
+  $('nextBtn').textContent = S.idx >= list.length - 1 ? 'Terminar sección ✓' : (S.sec === 'civica' ? 'Siguiente bloque →' : 'Siguiente →');
+  wire();
+}
+function wire(){
+  $('stage').querySelectorAll('[data-step]').forEach(b => b.onclick = () => setStep(+b.dataset.step));
+  $('stage').querySelectorAll('[data-act]').forEach(b => b.onclick = () => act(b.dataset.act));
+  $('stage').querySelectorAll('[data-say-ans]').forEach(b => b.onclick = () => { const c = curCard(); speak(c.a[+b.dataset.sayAns].en, true); });
+  $('stage').querySelectorAll('[data-civ]').forEach(b => b.onclick = () => { const q = civByKey(b.dataset.civ); if (q) speak(q.q, b.dataset.rate === 's'); });
+  $('stage').querySelectorAll('[data-civrev]').forEach(b => b.onclick = () => {
+    const key = b.dataset.civrev;
+    if (key === 't') trivia.reveal = !trivia.reveal; else if (key === 'sim') S.reveal = !S.reveal; else civRevealed[S.idx + ':' + key] = !civRevealed[S.idx + ':' + key];
+    render();
+  });
+}
+function civByKey(k){ if (k === 't') return trivia.items[trivia.i]; if (k === 'sim') return sim.items[S.idx].civ; return civBlocks()[S.idx][+k]; }
+function setStep(n){ S.step = n; S.reveal = false; render(); if (n === 1 || n === 4) setTimeout(() => act('q'), 150); }
+function act(a){
+  const c = curCard();
+  if (a === 'q' || a === 'qs') {
+    if (S.sec === 'civica') { const b = trivia ? [trivia.items[trivia.i]] : civBlocks()[S.idx]; if (b && b[0]) speak(b[0].q, a === 'qs'); return; }
+    if (c && c.q) speak(c.kind === 'rule' ? '' : c.q, a === 'qs'); return;
+  }
+  if (a === 'a' && c && c.a) { speak(c.a[0].en, true); return; }
+  if (a === 'reveal') { S.reveal = !S.reveal; render(); return; }
+  if (a === 'civAll') { [0,1,2].forEach(i => civRevealed[S.idx + ':' + i] = true); render(); return; }
+  if (a === 'civDone') { P.civ[S.test] = Math.max(P.civ[S.test] || 0, S.idx + 1); saveProgress(); renderSide(); next(); return; }
+  if (a === 'trivia') { startTrivia(); return; }
+  if (a === 'trivNext') { trivia.i++; trivia.reveal = false; render(); setTimeout(() => speak(trivia.items[trivia.i].q), 150); return; }
+  if (a === 'trivEnd') { trivia = null; render(); return; }
+  if (a === 'newSim') { newSim(); S.idx = 0; S.reveal = false; render(); return; }
+}
+function startTrivia(){
+  const blocks = civBlocks(); const pool = blocks.slice(0, S.idx).flat();
+  const src = pool.length >= 3 ? pool : blocks.slice(0, S.idx + 1).flat();
+  trivia = { items: src.slice().sort(() => Math.random() - 0.5).slice(0, 3), i:0, reveal:false };
+  render(); setTimeout(() => speak(trivia.items[0].q), 150);
+}
+function next(){
+  stopAudio();
+  const list = curList();
+  if (S.sec !== 'civica' && S.sec !== 'simulacro') { const c = list[S.idx]; if (c) P.done[c.id] = true; }
+  if (S.idx < list.length - 1) { S.idx++; S.reveal = false; trivia = null; if (S.sec !== 'simulacro') S.step = 1; }
+  else { // go to the next section of the same day, or the first of the next day
+    const order = M.days.flatMap(d => d.sections); const j = order.indexOf(S.sec);
+    saveProgress(); renderSide();
+    if (j >= 0 && j < order.length - 1) { openSection(order[j + 1]); return; }
+  }
+  saveProgress(); renderSide(); render();
+  if (S.step === 1 && S.sec !== 'civica' && S.sec !== 'simulacro' && !SECTIONS[S.sec].kind) setTimeout(() => act('q'), 200);
+}
+function prev(){
+  stopAudio();
+  if (trivia) { trivia = null; render(); return; }
+  if (S.idx > 0) { S.idx--; S.reveal = false; if (S.sec !== 'simulacro') S.step = 1; render(); saveProgress(); }
+}
+
+// ===================================================== keys & header
+document.addEventListener('keydown', e => {
+  if ($('app').classList.contains('hidden')) return;
+  if (/input|select|textarea/i.test(e.target.tagName)) return;
+  const k = e.key.toLowerCase();
+  if (k === ' ') { e.preventDefault(); act('q'); }
+  else if (k === 's') act('qs');
+  else if (k === 'a') act('a');
+  else if (k === 'r') { if (trivia) { trivia.reveal = !trivia.reveal; render(); } else if (S.sec === 'civica') act('civAll'); else act('reveal'); }
+  else if (k === 'arrowright') next();
+  else if (k === 'arrowleft') prev();
+  else if (['1','2','3','4'].includes(k) && S.sec !== 'civica' && S.sec !== 'simulacro' && !SECTIONS[S.sec].kind) setStep(+k);
+  else if (k === 'h') toggleClean();
+  else if (k === 'f') { if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {}); else document.exitFullscreen(); }
+  else if (k === '?') toggleHelp(true);
+  else if (k === 'escape') toggleHelp(false);
+});
+function toggleClean(){ $('app').classList.toggle('clean'); }
+function toggleHelp(on){ $('help').classList.toggle('hidden', !on); }
+$('cleanBtn').onclick = toggleClean;
+$('helpBtn').onclick = () => toggleHelp(true);
+$('nextBtn').onclick = next;
+$('prevBtn').onclick = prev;
+$('test').onchange = async () => { S.test = $('test').value; civRevealed = {}; trivia = null; await loadCivics(); if (S.sec === 'civica') S.idx = Math.min(P.civ[S.test] || 0, Math.max(civBlocks().length - 1, 0)); renderSide(); render(); saveProgress(); };
+$('state').onchange = async () => { S.state = $('state').value; await loadCivics(); render(); saveProgress(); };
+$('group').onchange = async () => {
+  const g = $('group').value.toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 40); if (!g) { $('group').value = S.group; return; }
+  $('group').value = g; S.group = g; sim = null; civRevealed = {};
+  if (await loadProgress()) await applyLast();
+};
+
+async function applyLast(){
+  const L = P.last || {};
+  if (L.test) { S.test = L.test; $('test').value = L.test; }
+  if (L.state) { S.state = L.state; }
+  await loadCivics(); fillStates();
+  const sec = L.sec && SECTIONS[L.sec] ? L.sec : 'saludo';
+  S.sec = sec; S.idx = 0; S.step = 1; S.reveal = false; trivia = null;
+  if (sec === 'civica') S.idx = Math.min(P.civ[S.test] || 0, Math.max(civBlocks().length - 1, 0));
+  else if (sec === 'simulacro') { newSim(); }
+  else S.idx = Math.min(L.idx || 0, SECTIONS[sec].cards.length - 1);
+  renderSide(); render();
+}
+
+// ===================================================== login & start
+function showGate(msg){ $('app').classList.add('hidden'); $('gate').classList.remove('hidden'); if (msg) $('gateTxt').textContent = msg; }
+$('gateForm').addEventListener('submit', async e => {
+  e.preventDefault(); $('gMsg').className = 'msg'; $('gMsg').textContent = 'Entrando…';
+  const { data, error } = await sb.auth.signInWithPassword({ email:$('gEmail').value.trim(), password:$('gPass').value });
+  if (error) { $('gMsg').className = 'msg err'; $('gMsg').textContent = error.message; return; }
+  session = data.session; token = session.access_token; start();
+});
+async function start(){
+  buildSections();
+  let course = null; try { const r = await fetch('/api/course', { cache:'no-store' }); course = await r.json(); } catch(e) {}
+  const def = (course && course.cohort) || 'sab-2026-12';
+  let last = null; try { last = localStorage.getItem('maestro:lastGroup'); } catch(e) {}
+  S.group = last || def; $('group').value = S.group;
+  $('groupList').innerHTML = [def, 'noche-2027-01'].map(g => '<option value="' + g + '">').join('');
+  $('gate').classList.add('hidden'); $('app').classList.remove('hidden');
+  if (!(await loadProgress())) return;
+  await applyLast();
+}
+(async () => {
+  try { const { data } = await sb.auth.getSession(); session = data.session; } catch(e) {}
+  if (!session) { showGate(); return; }
+  token = session.access_token; start();
+})();
+sb.auth.onAuthStateChange((ev, s) => { if (s) { session = s; token = s.access_token; } });
+</script>
+</body>
+</html>
