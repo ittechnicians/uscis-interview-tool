@@ -78,6 +78,10 @@ main{overflow:auto;padding:22px 28px 90px;display:flex;flex-direction:column;gap
 .w i{font-style:normal;font-size:clamp(15px,1.35vw,22px);color:#92400e;font-weight:600;margin-top:2px}
 .w.sep b,.w.sep i{color:#cbd5e1}
 .ask{font-size:clamp(14px,1.2vw,18px);font-weight:800;color:var(--blue);margin-bottom:4px}
+.nat{margin-top:12px;padding-top:10px;border-top:2px dashed #fcd34d}
+.nat .lbl{font-size:clamp(13px,1.1vw,16px);font-weight:800;color:#15803d;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.nat .wl .w b{font-size:clamp(18px,1.9vw,32px);color:#166534}
+.nat .row{display:flex;gap:12px;align-items:center;margin-top:6px}
 .ans.act{background:#eff6ff;border-left-color:var(--blue)}
 .ans.act .en{font-size:clamp(20px,2vw,34px)}
 .blank{display:inline-block;min-width:3.5em;border-bottom:4px solid var(--blue);color:var(--blue);padding:0 .15em}
@@ -332,9 +336,25 @@ function answersHtml(c, mode, withPron){
     const words = withPron && a.p ? wordsHtml(a, mode) : null;
     return '<div class="ans"><div class="txt">' + (a.ask ? '<div class="ask">' + esc(a.ask) + '</div>' : '') +
       (words || '<div class="en">' + fmtAnswer(a.en, mode) + '</div>' + (withPron && a.p ? '<div class="p">Se pronuncia: ' + esc(a.p) + '</div>' : '')) +
-      (withPron && a.m ? '<div class="p">En español: ' + esc(a.m) + '</div>' : '') + '</div>' +
+      (withPron && a.m ? '<div class="p">En español: ' + esc(a.m) + '</div>' : '') + (withPron && !c.term ? natHtml(a, i) : '') + '</div>' +
       '<button class="mini" title="Oír despacio" data-say-ans="' + i + '">🐢</button></div>';
   }).join('') + '</div>';
+}
+// Everyday ("natural") ways to say the same answer: from the list in maestro-data.js, plus simple contractions.
+function naturalFor(a){
+  if (!a || !a.en) return [];
+  const list = (M.natural && M.natural[a.en]) ? M.natural[a.en].filter(n => !n.same) : null;
+  if (list) return list;
+  if (/\bI am [a-z\[]/i.test(a.en) && /ái am /i.test(a.p || '')) return [{ en:a.en.replace(/\bI am (?=[a-z\[])/i, "I'm "), p:a.p.replace(/ái am /i, 'áim ') }];
+  const m = a.en.match(/\bI have (lived|worked|taken|been)\b/);
+  if (m && /ái jav /i.test(a.p || '')) return [{ en:a.en.replace('I have ' + m[1], "I've " + m[1]), p:a.p.replace(/ái jav /i, 'áiv ') }];
+  return [];
+}
+function natHtml(a, i){
+  const nat = naturalFor(a); if (!nat.length) return '';
+  return '<div class="nat"><div class="lbl">💬 Como lo dice la gente (también está bien)</div>' +
+    nat.map((n, j) => '<div class="row"><div style="flex:1">' + (wordsHtml(n, 'show') || '<div class="en">' + fmtAnswer(n.en, 'show') + '</div><div class="p">Se pronuncia: ' + esc(n.p) + '</div>') + '</div>' +
+      '<button class="mini" title="Oír despacio" data-say-nat="' + i + ':' + j + '">🐢</button></div>').join('') + '</div>';
 }
 function firstSpoken(c){ return (c.a || []).find(a => a.en && sayable(a.en)); }
 function n400Card(c){
@@ -469,6 +489,7 @@ function render(){
 function wire(){
   $('stage').querySelectorAll('[data-step]').forEach(b => b.onclick = () => setStep(+b.dataset.step));
   $('stage').querySelectorAll('[data-act]').forEach(b => b.onclick = () => act(b.dataset.act));
+  $('stage').querySelectorAll('[data-say-nat]').forEach(b => b.onclick = () => { const c = curCard(); const [i, j] = b.dataset.sayNat.split(':').map(Number); const n = naturalFor(c.a[i])[j]; if (n) speak(n.en, true); });
   $('stage').querySelectorAll('[data-say-ans]').forEach(b => b.onclick = () => { const c = curCard(); speak(c.a[+b.dataset.sayAns].en, true); });
   $('stage').querySelectorAll('[data-civ]').forEach(b => b.onclick = () => { const q = civByKey(b.dataset.civ); if (q) speak(q.q, b.dataset.rate === 's'); });
   $('stage').querySelectorAll('[data-civans]').forEach(b => b.onclick = () => {

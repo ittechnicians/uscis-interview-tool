@@ -220,6 +220,25 @@ window.MAESTRO = {
         a: [{ en: 'Thank you. You too.', p: 'THENK iú. iú TÚ' }] }
     ]}
   ],
+  // "Forma natural": how most people answer in everyday English. Both forms are correct in the interview;
+  // the long form is easier to say clearly for beginners. Key = the exact model answer above.
+  // (Simple patterns like "I am married." → "I'm married." are added automatically by maestro.html.)
+  natural: {
+    'No, I have not.': [{ en: "No, I haven't.", p: 'nóu, ái JÁ-vent' }, { en: 'No, never.', p: 'nóu, NÉ-ver' }],
+    'No, I do not.': [{ en: "No, I don't.", p: 'nóu, ái DÓUNT' }],
+    'Yes, I am. / No, I am not.': [{ en: "Yes, I am. / No, I'm not.", p: 'iés, ái AM / nóu, áim NAT' }],
+    'Yes, I do. / No, I do not.': [{ en: "Yes, I do. / No, I don't.", p: 'iés, ái DÚ / nóu, ái DÓUNT' }],
+    'Yes, I did. / No, I did not.': [{ en: "Yes, I did. / No, I didn't.", p: 'iés, ái DID / nóu, ái DÍ-dent' }],
+    'No, he is not. / No, she is not.': [{ en: "No, he isn't. / No, she isn't.", p: 'nóu, jí Í-sent / nóu, shí Í-sent' }],
+    "Good morning. I'm fine, thank you. And you?": [{ en: "Good morning! I'm good, thanks. How are you?", p: 'gud MÓR-ning! áim GUD, thenks. jáu ar IÚ?' }],
+    'Yes. Here you are.': [{ en: 'Sure. Here you go.', p: 'SHUR. JÍR iú GÓU' }],
+    'Yes. I am here for my citizenship interview.': [{ en: "Yes, I'm here for my citizenship interview.", p: 'iés, áim JÍR for mái SÍ-ti-zen-ship ÍN-ter-viu' }],
+    'No. I am a woman.': [{ en: "No, I'm a woman.", p: 'nóu, áim a UÚ-man' }],
+    'No. All my trips were less than six months.': [{ en: 'No, they were all under six months.', p: 'nóu, déi uer OL ÁN-der SIKS manths' }],
+    'Thank you very much.': [{ en: 'Thank you so much!', p: 'THENK iú sóu MACH!' }],
+    'Thank you. You too.': [{ en: 'Thanks, you too!', p: 'THENKS, iú TÚ!' }],
+    'Yes, I do.': [{ en: 'Yes, I do.', p: 'iés, ái DÚ', same: true }]
+  },
   // The 4 Saturdays as sold on curso.html. "civics" and "definiciones" are filled at runtime.
   days: [
     { n: 1, title: 'Tu N-400, parte 1', sections: ['saludo', 'nombre', 'datos', 'direccion', 'familia', 'trabajo'] },
