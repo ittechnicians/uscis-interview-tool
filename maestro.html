@@ -436,7 +436,7 @@ function civicsView(){
     '<div style="font-size:14px;font-weight:600;margin-top:6px">El grupo terminó ' + done + ' de ' + blocks.length + ' bloques</div></div>';
   if (trivia) {
     const q = trivia.items[trivia.i];
-    h += '<div class="banner gold">🎲 Trivia: pregunta ' + (trivia.i + 1) + ' de ' + trivia.items.length + ', de bloques anteriores. ¿Quién la sabe?</div>' +
+    h += '<div class="banner gold">🎲 Trivia: pregunta ' + (trivia.i + 1) + ' de ' + trivia.items.length + ' de este bloque. ¿Quién la sabe?</div>' +
       '<div class="block">' + civItem(q, 't', { trivia:true, hideQ:true, reveal:trivia.reveal }) + '</div>' +
       '<div class="play"><button class="pbtn ghost" data-act="trivEnd">Terminar trivia</button>' +
       (trivia.i < trivia.items.length - 1 ? '<button class="pbtn gold" data-act="trivNext">Siguiente pregunta de trivia →</button>' : '<button class="pbtn gold" data-act="trivEnd">¡Listo! Volver al bloque</button>') + '</div>';
@@ -444,9 +444,9 @@ function civicsView(){
   }
   h += '<div class="block">' + blocks[k].map((q, i) => civItem(q, i, { reveal: !!civRevealed[k + ':' + i] })).join('') + '</div>' +
     '<div class="play"><button class="pbtn alt" data-act="civAll">Mostrar las 3 respuestas</button>' +
-    '<button class="pbtn gold" data-act="trivia">🎲 Trivia (mezcla de bloques anteriores)</button>' +
+    '<button class="pbtn gold" data-act="trivia">🎲 Trivia de este bloque</button>' +
     '<button class="pbtn" data-act="civDone">✓ Bloque terminado</button></div>' +
-    '<div class="tip">💡 Primero el oficial pregunta, todos repiten la respuesta corta en inglés, y luego cada uno contesta solo. Después de cada bloque, una trivia rápida para no olvidar lo anterior.</div>';
+    '<div class="tip">💡 Primero el oficial pregunta, todos repiten la respuesta corta en inglés, y luego cada uno contesta solo. Al final del bloque, la trivia pregunta las mismas 3 en otro orden y sin mostrar la pregunta.</div>';
   return h;
 }
 function newSim(){
@@ -536,15 +536,17 @@ function act(a){
   if (a === 'civAll') { [0,1,2].forEach(i => civRevealed[S.idx + ':' + i] = true); render(); return; }
   if (a === 'civDone') { P.civ[S.test] = Math.max(P.civ[S.test] || 0, S.idx + 1); saveProgress(); renderSide(); next(); return; }
   if (a === 'trivia') { startTrivia(); return; }
-  if (a === 'trivNext') { trivia.i++; trivia.reveal = false; render(); setTimeout(() => speak(trivia.items[trivia.i].q), 150); return; }
+  if (a === 'trivNext') { trivia.i++; trivia.reveal = false; render(); setTimeout(() => { if (trivia) speak(trivia.items[trivia.i].q); }, 150); return; }
   if (a === 'trivEnd') { trivia = null; render(); return; }
   if (a === 'newSim') { newSim(); S.idx = 0; S.reveal = false; render(); return; }
 }
 function startTrivia(){
-  const blocks = civBlocks(); const pool = blocks.slice(0, S.idx).flat();
-  const src = pool.length >= 3 ? pool : blocks.slice(0, S.idx + 1).flat();
-  trivia = { items: src.slice().sort(() => Math.random() - 0.5).slice(0, 3), i:0, reveal:false };
-  render(); setTimeout(() => speak(trivia.items[0].q), 150);
+  // Trivia uses only the 3 questions of the block just studied, in a different order.
+  const src = civBlocks()[S.idx] || [];
+  let items = src.slice();
+  for (let k = 0; k < 10 && items.length > 1 && items.every((q, i) => q === src[i]); k++) items = src.slice().sort(() => Math.random() - 0.5);
+  trivia = { items, i:0, reveal:false };
+  render(); setTimeout(() => { if (trivia) speak(trivia.items[0].q); }, 150);
 }
 function next(){
   stopAudio();
