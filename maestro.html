@@ -358,7 +358,10 @@ function n400Card(c){
   if (c.term && (S.step <= 2 || S.reveal)) {
     const d = c.term;
     h += '<div class="defbox"><b>' + esc(d.term) + '</b>' + (d.pron ? ' · se pronuncia <b>' + esc(d.pron) + '</b>' : '') +
-      '<br>Definición oficial: ' + esc(d.official.en) + '<br><span style="color:var(--soft)">' + esc(d.official.es) + '</span></div>';
+      '<br>Definición oficial: ' + esc(d.official.en) + '<br><span style="color:var(--soft)">' + esc(d.official.es) + '</span>' +
+      '<div style="margin-top:10px;padding-top:10px;border-top:1px solid #bbf7d0;display:flex;gap:12px;align-items:center;flex-wrap:wrap">' +
+      '<span><b>Respuesta corta:</b> <span style="font-weight:800;font-size:1.15em">' + esc(d.short.en) + '</span> <span style="color:var(--soft)">· ' + esc(d.short.es) + '</span></span>' +
+      '<button class="mini" title="Oír la respuesta corta" data-act="short">🔊</button><button class="mini" title="Despacio" data-act="shortSlow">🐢</button></div></div>';
   }
   if (c.def && (S.step <= 2 || S.reveal)) {
     const d = defLookup(c.def);
@@ -487,6 +490,7 @@ function act(a){
     if (S.sec === 'civica') { const b = trivia ? [trivia.items[trivia.i]] : civBlocks()[S.idx]; if (b && b[0]) speak(b[0].q, a === 'qs'); return; }
     if (c && c.q) speak(c.kind === 'rule' ? '' : c.q, a === 'qs'); return;
   }
+  if ((a === 'short' || a === 'shortSlow') && c && c.term) { speak(c.term.short.en, a === 'shortSlow'); return; }
   if (a === 'a' && c && c.a) { const f = firstSpoken(c); if (f) speak(f.en, true); return; }
   if (a === 'reveal') {
     S.reveal = !S.reveal; render();
