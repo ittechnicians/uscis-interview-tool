@@ -246,6 +246,7 @@ function buildSections(){
     id:'df-' + d.term.toLowerCase().replace(/[^a-z0-9]+/g,'-'), q:'What does "' + d.term + '" mean?',
     es:'¿Qué significa "' + d.term + '"?',
     a:[{ en:d.short.en, m:d.short.es }], term:d, tip:d.tip && d.tip.es ? d.tip.es : '' })) };
+  SECTIONS.cambio = { id:'cambio', day:2, title:'Cambio rápido: ¿No o Sí?', cards:[] };
   SECTIONS.civica = { id:'civica', day:3, title:'Cívica en bloques de 3', kind:'civics', cards:[] };
   SECTIONS.simulacro = { id:'simulacro', day:4, title:'Simulacro completo', kind:'sim', cards:[] };
 }
@@ -297,7 +298,7 @@ function saveProgress(){
 function secProgress(id){
   const s = SECTIONS[id];
   if (id === 'civica') { const n = civBlocks().length; const k = Math.min(P.civ[S.test] || 0, n); return [k, n]; }
-  if (id === 'simulacro') return null;
+  if (id === 'simulacro' || id === 'cambio') return null;
   return [s.cards.filter(c => P.done[c.id]).length, s.cards.length];
 }
 function renderSide(){
@@ -308,8 +309,16 @@ function renderSide(){
     }).join('') + '</div>').join('');
   $('side').querySelectorAll('.sec').forEach(b => b.onclick = () => openSection(b.dataset.sec));
 }
+// "Cambio rápido": "Have you ever…?" (No) and "Are you willing…?" (Yes) mixed at random, like the day of the interview.
+function buildCambio(){
+  const shuffle = a => a.slice().sort(() => Math.random() - 0.5);
+  const no = shuffle(SECTIONS.haveyouever.cards.concat(SECTIONS.haveyouever2.cards).filter(c => c.kind !== 'rule' && c.id !== 'h12' && c.id !== 'c1')).slice(0, 8);
+  const yes = shuffle(SECTIONS.juramento.cards.filter(c => c.kind !== 'rule')).slice(0, 5);
+  SECTIONS.cambio.cards = shuffle(no.concat(yes)).map(c => Object.assign({}, c, { id:'cx-' + c.id }));
+}
 function openSection(id, idx){
-  stopAudio(); S.sec = id; S.idx = idx || 0; S.step = 1; S.reveal = false; trivia = null;
+  stopAudio(); S.sec = id; S.idx = idx || 0; S.step = id === 'cambio' ? 4 : 1; S.reveal = false; trivia = null;
+  if (id === 'cambio') buildCambio();
   if (id === 'civica') S.idx = Math.min(P.civ[S.test] || 0, Math.max(civBlocks().length - 1, 0));
   if (id === 'simulacro' && !sim) newSim();
   renderSide(); render(); saveProgress();
@@ -364,9 +373,9 @@ function n400Card(c){
   if (!rule) h += stepsBar();
   const hideQ = !rule && S.step === 4 && !S.reveal;
   h += '<div class="card">';
-  if (rule) h += '<div class="who">La regla de oro</div><p class="q">' + esc(c.q) + '</p><div class="es">' + esc(c.es) + '</div>';
+  if (rule) h += '<div class="who">' + esc(c.title || 'La regla de oro') + '</div><p class="q">' + esc(c.q) + '</p><div class="es">' + esc(c.es) + '</div>';
   else if (hideQ) h += '<div class="who">El oficial pregunta</div><div class="hiddenq">🎙️ Escucha y contesta sin ayuda</div>';
-  else h += '<div class="who' + (c.student ? ' you' : '') + '">' + (c.student ? 'Tú dices' : 'El oficial pregunta') + '</div><p class="q">' + esc(c.q) + '</p>' +
+  else h += '<div class="who' + (c.student ? ' you' : '') + '">' + (c.student ? 'Tú dices' : 'El oficial pregunta') + (c.group ? ' · ' + esc(c.group) : '') + '</div><p class="q">' + esc(c.q) + '</p>' +
     ((S.step <= 2 || S.reveal || rule) && c.es ? '<div class="es">' + esc(c.es) + '</div>' : '');
   h += '<div class="play">' +
     (rule ? '<span style="color:var(--soft);font-size:16px">Toca 🐢 en cada respuesta para oírla.</span>' : '<button class="pbtn" data-act="q">▶ Oír</button><button class="pbtn alt" data-act="qs">🐢 Despacio</button>') +
@@ -541,19 +550,20 @@ function next(){
   stopAudio();
   const list = curList();
   if (S.sec !== 'civica' && S.sec !== 'simulacro') { const c = list[S.idx]; if (c) P.done[c.id] = true; }
-  if (S.idx < list.length - 1) { S.idx++; S.reveal = false; trivia = null; if (S.sec !== 'simulacro') S.step = 1; }
+  if (S.idx < list.length - 1) { S.idx++; S.reveal = false; trivia = null; if (S.sec !== 'simulacro') S.step = S.sec === 'cambio' ? 4 : 1; }
   else { // go to the next section of the same day, or the first of the next day
     const order = M.days.flatMap(d => d.sections); const j = order.indexOf(S.sec);
     saveProgress(); renderSide();
     if (j >= 0 && j < order.length - 1) { openSection(order[j + 1]); return; }
   }
   saveProgress(); renderSide(); render();
-  if (S.step === 1 && S.sec !== 'civica' && S.sec !== 'simulacro' && !SECTIONS[S.sec].kind) setTimeout(() => act('q'), 200);
+  if (S.sec === 'cambio') setTimeout(() => act('q'), 200);
+  else if (S.step === 1 && S.sec !== 'civica' && S.sec !== 'simulacro' && !SECTIONS[S.sec].kind) setTimeout(() => act('q'), 200);
 }
 function prev(){
   stopAudio();
   if (trivia) { trivia = null; render(); return; }
-  if (S.idx > 0) { S.idx--; S.reveal = false; if (S.sec !== 'simulacro') S.step = 1; render(); saveProgress(); }
+  if (S.idx > 0) { S.idx--; S.reveal = false; if (S.sec !== 'simulacro') S.step = S.sec === 'cambio' ? 4 : 1; render(); saveProgress(); }
 }
 
 // ===================================================== keys & header
@@ -596,6 +606,7 @@ async function applyLast(){
   S.sec = sec; S.idx = 0; S.step = 1; S.reveal = false; trivia = null;
   if (sec === 'civica') S.idx = Math.min(P.civ[S.test] || 0, Math.max(civBlocks().length - 1, 0));
   else if (sec === 'simulacro') { newSim(); }
+  else if (sec === 'cambio') { buildCambio(); S.step = 4; }
   else S.idx = Math.min(L.idx || 0, SECTIONS[sec].cards.length - 1);
   renderSide(); render();
 }
