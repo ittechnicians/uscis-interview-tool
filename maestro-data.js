@@ -17,7 +17,7 @@ window.MAESTRO = {
         a: [{ act: 'Levantas la mano DERECHA. No hace falta decir nada.' }],
         tip: 'Right = derecha. Levantar la mano equivocada pasa mucho por los nervios.' },
       { id: 's4', q: 'Do you swear that everything you say today will be the truth, the whole truth, and nothing but the truth?', es: '¿Jura decir la verdad, toda la verdad y nada más que la verdad?',
-        a: [{ en: 'Yes, I do.', p: 'iés, ái DÚ' }],
+        a: [{ en: 'Yes, I do.', p: 'iés, ái DÚ', n: [{ en: 'I do.', p: 'ái DÚ' }] }],
         tip: '"Do you…?" se contesta con "Yes, I do." Si usa "affirm" en vez de "swear", es igual.' },
       { id: 's5', q: 'You may sit down.', es: 'Puede sentarse.',
         a: [{ en: 'Thank you.', p: 'THENK iú' }] },
@@ -72,7 +72,7 @@ window.MAESTRO = {
         a: [{ en: 'My phone number is [832-555-0147].', p: 'mái FÓUN nam-ber is …' }],
         tip: 'El cero se dice "zero" u "oh".' },
       { id: 'a5', q: 'Have you lived in this state for at least three months?', es: '¿Ha vivido en este estado por lo menos 3 meses?',
-        a: [{ en: 'Yes, I have.', p: 'iés, ái JAV' }] }
+        a: [{ en: 'Yes, I have.', p: 'iés, ái JAV', n: [{ en: 'Yes, for [five] years.', p: 'iés, for … iírs' }] }] }
     ]},
     { id: 'familia', day: 1, title: 'Tu familia', cards: [
       { id: 'f1', q: 'What is your marital status?', es: '¿Cuál es su estado civil?',
@@ -82,13 +82,13 @@ window.MAESTRO = {
         a: [{ en: "My husband's name is [José López].", p: 'mái JÁS-bands néim is …' },
             { en: "My wife's name is [Ana López].", p: 'mái UÁIFS néim is …' }] },
       { id: 'f3', q: 'Is your spouse a U.S. citizen?', es: '¿Su esposo(a) es ciudadano(a) de EE. UU.?',
-        a: [{ en: 'Yes, he is. / Yes, she is.', p: 'iés, jí IS / iés, shí IS' },
+        a: [{ en: 'Yes, he is. / Yes, she is.', p: 'iés, jí IS / iés, shí IS', n: [{ en: "Yes, he's a citizen. / Yes, she's a citizen.", p: 'iés, jís a SÍ-ti-zen / iés, shís a SÍ-ti-zen' }] },
             { en: 'No, he is not. / No, she is not.', p: 'nóu, jí is NAT / nóu, shí is NAT' }],
         tip: '"Is he…?" se contesta "he is". Is ↔ is.' },
       { id: 'f4', q: 'How many times have you been married?', es: '¿Cuántas veces se ha casado?',
         a: [{ en: 'One time.', p: 'UÁN táim' }, { en: 'Two times.', p: 'TÚ táims' }] },
       { id: 'f5', q: 'Do you have any children?', es: '¿Tiene hijos?',
-        a: [{ en: 'Yes, I have [two] children.', p: 'iés, ái jav … CHÍL-dren' }, { en: 'No, I do not.', p: 'nóu, ái du NAT' }],
+        a: [{ en: 'Yes, I have [two] children.', p: 'iés, ái jav … CHÍL-dren', n: [{ en: 'Yes, I have [two] kids.', p: 'iés, ái jav … KIDS' }] }, { en: 'No, I do not.', p: 'nóu, ái du NAT' }],
         tip: 'Se cuentan todos: también hijos mayores, fallecidos, adoptados o hijastros, como en el N-400.' },
       { id: 'f6', q: 'Where do your children live?', es: '¿Dónde viven sus hijos?',
         a: [{ en: 'They live with me.', p: 'déi LIV uíth mí' }, { en: 'They live in [Mexico].', p: 'déi liv in …' }] }
@@ -103,14 +103,14 @@ window.MAESTRO = {
         a: [{ en: 'I have worked there for [four] years.', p: 'ái jav UÉRKT der for … iírs' }],
         tip: 'worked: la -ed suena como t.' },
       { id: 't4', q: 'Are you working right now?', es: '¿Está trabajando actualmente?',
-        a: [{ en: 'Yes, I am.', p: 'iés, ái AM' }, { en: 'No, I am retired.', p: 'nóu, ái am ri-TÁIERD' },
+        a: [{ en: 'Yes, I am.', p: 'iés, ái AM', n: [{ en: "Yes, I'm working.", p: 'iés, áim UÉR-king' }] }, { en: 'No, I am retired.', p: 'nóu, ái am ri-TÁIERD' },
             { en: 'No, I take care of my home and my children.', p: 'nóu, ái téik KÉR ov mái JÓUM end mái CHÍL-dren' }] }
     ]},
 
     // ---------------------------------------------------------------- SÁBADO 2
     { id: 'viajes', day: 2, title: 'Tus viajes', cards: [
       { id: 'v1', q: 'Have you traveled outside the United States in the last five years?', es: '¿Ha viajado fuera de EE. UU. en los últimos 5 años?',
-        a: [{ en: 'Yes, I have.', p: 'iés, ái JAV' }, { en: 'No, I have not.', p: 'nóu, ái jav NAT' }] },
+        a: [{ en: 'Yes, I have.', p: 'iés, ái JAV', n: [{ en: "Yes, I've traveled [two] times.", p: 'iés, áiv TRÁ-veld … TÁIMS' }] }, { en: 'No, I have not.', p: 'nóu, ái jav NAT' }] },
       { id: 'v2', q: 'How many trips have you taken?', es: '¿Cuántos viajes ha hecho?',
         a: [{ en: 'I have taken [two] trips.', p: 'ái jav TÉI-ken … TRIPS' }] },
       { id: 'v3', q: 'Where did you go?', es: '¿A dónde fue?',
@@ -123,7 +123,7 @@ window.MAESTRO = {
     ]},
     { id: 'impuestos', day: 2, title: 'Impuestos', cards: [
       { id: 'i1', q: 'Do you file your taxes every year?', es: '¿Presenta sus impuestos cada año?',
-        a: [{ en: 'Yes, I do.', p: 'iés, ái DÚ' }],
+        a: [{ en: 'Yes, I do.', p: 'iés, ái DÚ', n: [{ en: 'Yes, every year.', p: 'iés, É-vri IÍR' }] }],
         tip: 'Llevar las transcripciones de impuestos (tax transcripts) si las piden en la carta.' },
       { id: 'i2', q: 'Do you owe any federal, state, or local taxes?', es: '¿Debe impuestos federales, estatales o locales?',
         a: [{ en: 'No, I do not.', p: 'nóu, ái du NAT' }],
@@ -162,22 +162,22 @@ window.MAESTRO = {
       { id: 'h11', q: 'Have you ever been ordered removed or deported from the United States?', es: '¿Alguna vez le ordenaron salir o lo deportaron de EE. UU.?',
         a: [{ en: 'No, I have not.', p: 'nóu, ái jav NAT' }] },
       { id: 'h12', q: 'Did you register for the Selective Service?', es: '¿Se registró en el Servicio Selectivo?',
-        a: [{ en: 'Yes, I did.', p: 'iés, ái DID' }, { en: 'No. I am a woman.', p: 'nóu. ái am a UÚ-man' }],
+        a: [{ en: 'Yes, I did.', p: 'iés, ái DID', n: [{ en: 'Yes, I registered.', p: 'iés, ái RÉ-yis-terd' }] }, { en: 'No. I am a woman.', p: 'nóu. ái am a UÚ-man' }],
         tip: 'Solo aplica a hombres que vivieron en EE. UU. entre los 18 y los 26 años.' }
     ]},
     { id: 'juramento', day: 2, title: 'Constitución y juramento', cards: [
       { id: 'j1', q: 'Do you support the Constitution and form of government of the United States?', es: '¿Apoya la Constitución y la forma de gobierno de EE. UU.?',
-        a: [{ en: 'Yes, I do.', p: 'iés, ái DÚ' }] },
+        a: [{ en: 'Yes, I do.', p: 'iés, ái DÚ', n: [{ en: 'Yes, absolutely.', p: 'iés, ab-so-LÚT-li' }] }] },
       { id: 'j2', q: 'Do you understand the full Oath of Allegiance to the United States?', es: '¿Entiende el Juramento de Lealtad completo?',
-        a: [{ en: 'Yes, I do.', p: 'iés, ái DÚ' }], def: 'oath' },
+        a: [{ en: 'Yes, I do.', p: 'iés, ái DÚ', n: [{ en: 'Yes, I understand it.', p: 'iés, ái an-der-STÉND it' }] }], def: 'oath' },
       { id: 'j3', q: 'Are you willing to take the full Oath of Allegiance?', es: '¿Está dispuesto(a) a hacer el Juramento de Lealtad completo?',
-        a: [{ en: 'Yes, I am.', p: 'iés, ái AM' }], def: 'allegiance' },
+        a: [{ en: 'Yes, I am.', p: 'iés, ái AM', n: [{ en: "Yes, I'm willing.", p: 'iés, áim UÍ-ling' }] }], def: 'allegiance' },
       { id: 'j4', q: 'If the law requires it, are you willing to bear arms on behalf of the United States?', es: 'Si la ley lo pide, ¿está dispuesto(a) a portar armas por EE. UU.?',
-        a: [{ en: 'Yes, I am.', p: 'iés, ái AM' }], def: 'bear arms' },
+        a: [{ en: 'Yes, I am.', p: 'iés, ái AM', n: [{ en: "Yes, I'm willing.", p: 'iés, áim UÍ-ling' }] }], def: 'bear arms' },
       { id: 'j5', q: 'If the law requires it, are you willing to perform noncombatant services in the U.S. armed forces?', es: 'Si la ley lo pide, ¿está dispuesto(a) a hacer servicios sin combatir en las fuerzas armadas?',
-        a: [{ en: 'Yes, I am.', p: 'iés, ái AM' }] },
+        a: [{ en: 'Yes, I am.', p: 'iés, ái AM', n: [{ en: "Yes, I'm willing.", p: 'iés, áim UÍ-ling' }] }] },
       { id: 'j6', q: 'If the law requires it, are you willing to perform work of national importance under civilian direction?', es: 'Si la ley lo pide, ¿está dispuesto(a) a hacer trabajo de importancia nacional bajo dirección civil?',
-        a: [{ en: 'Yes, I am.', p: 'iés, ái AM' }] }
+        a: [{ en: 'Yes, I am.', p: 'iés, ái AM', n: [{ en: "Yes, I'm willing.", p: 'iés, áim UÍ-ling' }] }] }
     ]},
     // Sábado 2 also has the definitions (built from definitions.js at runtime: section id "definiciones").
 

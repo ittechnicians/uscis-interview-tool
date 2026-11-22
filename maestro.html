@@ -343,6 +343,7 @@ function answersHtml(c, mode, withPron){
 // Everyday ("natural") ways to say the same answer: from the list in maestro-data.js, plus simple contractions.
 function naturalFor(a){
   if (!a || !a.en) return [];
+  if (a.n) return a.n;
   const list = (M.natural && M.natural[a.en]) ? M.natural[a.en].filter(n => !n.same) : null;
   if (list) return list;
   if (/\bI am [a-z\[]/i.test(a.en) && /ái am /i.test(a.p || '')) return [{ en:a.en.replace(/\bI am (?=[a-z\[])/i, "I'm "), p:a.p.replace(/ái am /i, 'áim ') }];
