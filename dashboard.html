@@ -40,6 +40,9 @@
         .dropdown-divider { height: 1px; background: #e2e8f0; margin: 0.85rem 0; }
         .btn-logout { background: white; color: #475569; border: 1px solid #e2e8f0; padding: 0.55rem 1rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s; width: 100%; }
         .btn-logout:hover { border-color: #dc2626; color: #dc2626; }
+        .btn-teacher { display: block; box-sizing: border-box; text-align: center; text-decoration: none; background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; padding: 0.55rem 1rem; border-radius: 0.5rem; font-weight: 700; font-size: 0.875rem; width: 100%; margin-bottom: 0.5rem; }
+        .btn-teacher:hover { background: #1e40af; color: #fff; }
+        .btn-teacher[hidden] { display: none; }
         .btn-upgrade { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; padding: 0.55rem 1.1rem; border-radius: 0.5rem; font-weight: 700; font-size: 0.875rem; cursor: pointer; transition: all 0.2s; white-space: nowrap; width: 100%; margin-bottom: 0.6rem; }
         .btn-upgrade:hover { filter: brightness(1.05); box-shadow: 0 4px 12px rgba(217,119,6,0.35); }
         .notice { display: none; margin: 0 0 1.5rem; padding: 1rem 1.25rem; border-radius: 0.75rem; font-weight: 600; }
@@ -166,6 +169,7 @@
                             <span class="plan-badge free plan-badge-el" id="planBadge" style="display:none;"></span>
                         </div>
                         <div class="dropdown-divider"></div>
+                        <a class="btn-teacher" id="btnTeacher" href="maestro.html" hidden>🎓 Modo maestro</a>
                         <button class="btn-upgrade" id="btnUpgrade" onclick="startCheckout()">⭐ Upgrade to Professional</button>
                         <button class="btn-logout" onclick="handleLogout()">Log out</button>
                     </div>
@@ -589,6 +593,17 @@
             <button onclick="document.getElementById('premiumModal').style.display='none'" style="background:none;border:none;color:#64748b;font-size:0.9rem;cursor:pointer;font-weight:600;">Maybe later</button>
         </div>
     </div>
+<script>
+// Teacher accounts see a "Modo maestro" link in the account menu. The page itself checks again on the server.
+(async function(){
+  const TEACHERS = ['oscaralvarezdosa@gmail.com'];
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    const email = session && session.user && (session.user.email || '').toLowerCase();
+    if (email && TEACHERS.includes(email)) document.getElementById('btnTeacher').hidden = false;
+  } catch (e) {}
+})();
+</script>
 <script>
 // Hub: live course card. Enrolled students see their first class; others see the offer while the group is open.
 (async function(){
