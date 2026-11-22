@@ -385,7 +385,7 @@ function n400Card(c){
   else if (S.step === 2) h += answersHtml(c, 'show', true);
   else if (S.step === 3) h += answersHtml(c, 'blank', false);
   else if (S.step === 4 && S.reveal) h += answersHtml(c, 'show', true);
-  if (c.term && (S.step <= 2 || S.reveal)) {
+  if (c.term && (S.step === 2 || S.reveal)) {   // the definition is the answer: hidden in step 1 (listen), shown from step 2
     const d = c.term;
     h += '<div class="defbox"><b>' + esc(d.term) + '</b>' + (d.pron ? ' · se pronuncia <b>' + esc(d.pron) + '</b>' : '') +
       '<br>Definición oficial: ' + esc(d.official.en) + '<br><span style="color:var(--soft)">' + esc(d.official.es) + '</span>' +

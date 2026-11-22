@@ -163,8 +163,8 @@ window.MAESTRO = {
         a: [{ en: 'No, I have not.', p: 'nóu, ái jav NAT' }],
         tip: 'Es distinto a ser deportado: pregunta si alguna vez tuvo un caso en corte de inmigración, aunque lo haya ganado.' },
       { id: 'h12', q: 'Did you register for the Selective Service?', es: '¿Se registró en el Servicio Selectivo?',
-        a: [{ en: 'Yes, I did.', p: 'iés, ái DID', n: [{ en: 'Yes, I registered.', p: 'iés, ái RÉ-yis-terd' }] }, { en: 'No. I am a woman.', p: 'nóu. ái am a UÚ-man' }],
-        tip: 'Solo aplica a hombres que vivieron en EE. UU. entre los 18 y los 26 años.' }
+        a: [{ en: 'Yes, I did.', p: 'iés, ái DID', n: [{ en: 'Yes, I registered.', p: 'iés, ái RÉ-yis-terd' }] }, { en: 'No, I did not.', p: 'nóu, ái did NAT', n: [{ en: "No, I didn't.", p: 'nóu, ái DÍ-dent' }] }, { en: 'No. I am a woman.', p: 'nóu. ái am a UÚ-man' }],
+        tip: 'Solo aplica a hombres que vivieron en EE. UU. entre los 18 y los 26 años. Si es hombre y no se registró, se dice la verdad y se explica por qué; conviene llevar la carta del Selective Service (Status Information Letter) y consultar con un abogado.' }
     ]},
     { id: 'haveyouever2', day: 2, title: '"Have you ever…?" (el resto del formulario)', cards: [
       { id: 'g1', group: 'Violencia y grupos', q: 'Have you ever been a member of, or helped, a group that used a weapon or explosive to hurt people or damage property?', es: '¿Alguna vez fue miembro o ayudó a un grupo que usó armas o explosivos para herir personas o dañar propiedad?', a: [{ en: 'No, I have not.', p: 'nóu, ái jav NAT' }] },
