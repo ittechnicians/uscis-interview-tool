@@ -85,7 +85,7 @@ a{color:inherit}
 .stat b{display:block;font-family:var(--display);font-size:22px;font-variant-numeric:tabular-nums}
 .stat span{font-size:12.5px;color:var(--muted);font-weight:800}
 
-.worlds{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px}
+.worlds{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:22px}
 @media (max-width:820px){.worlds{grid-template-columns:1fr}}
 .world{border-radius:26px;padding:20px;color:#fff;text-align:left;position:relative;overflow:hidden;
   box-shadow:0 7px 0 rgba(0,0,0,.25);transition:transform .12s;display:flex;flex-direction:column;gap:6px;min-height:190px}
@@ -94,6 +94,7 @@ a{color:inherit}
 .world.civ{background:linear-gradient(140deg,#3b82f6,#1d4ed8)}
 .world.def{background:linear-gradient(140deg,#a855f7,#7c3aed)}
 .world.wri{background:linear-gradient(140deg,#f472b6,#db2777)}
+.world.rev{background:linear-gradient(140deg,#14b8a6,#0f766e)}
 .world .big{position:absolute;right:-10px;bottom:-24px;font-size:120px;opacity:.22;line-height:1}
 .world h2{font-family:var(--display);font-weight:700;font-size:26px;line-height:1.1}
 .world p{opacity:.92;font-weight:700;font-size:15px;max-width:30ch}
@@ -273,6 +274,7 @@ const T = {
     ranks:['Aspirante','Estudiante','Preparado','Experto','Casi ciudadano','Listo para la entrevista'],
     wCiv:'Cívica', wCivD:'Las preguntas oficiales de cívica de USCIS.',
     wDef:'Definiciones', wDefD:'Las palabras del N-400 que el oficial te puede pedir explicar.',
+    wRev:'Adivina la palabra', wRevD:'Al revés: lees la definición y eliges la palabra del N-400.',
     wWri:'Escritura', wWriD:'Escucha la oración y escríbela como en el examen.',
     levels:n=>n+' niveles', starsOf:(a,b)=>'⭐ '+a+' / '+b,
     howTitle:'Cómo se juega:',
@@ -283,7 +285,7 @@ const T = {
     level:'Nivel', qRange:(a,b)=>'Preguntas '+a+'–'+b, locked:'Gana 1 estrella en el nivel anterior para abrir este.',
     catGov:'Gobierno', catHist:'Historia', catCiv:'Cívica integrada',
     kCiv:'Cívica', kDef:'Definición del N-400', kWri:'Escritura',
-    again:'Otra vez', defAsk:'¿Qué significa', defPick:'Elige la respuesta corta correcta',
+    again:'Otra vez', defAsk:'¿Qué significa', defPick:'Elige la respuesta corta correcta', kRev:'Adivina la palabra', revPick:'¿Qué palabra del N-400 significa esto?', theWord:'La palabra',
     listen:'🔊 Escuchar', listenBig:'🔊 Escuchar la oración', writeHere:'Escribe aquí en inglés…',
     writeAsk:'Escucha y escribe la oración en inglés', check:'Comprobar', cont:'Continuar',
     right:['¡Correcto!','¡Muy bien!','¡Excelente!','¡Así se hace!','¡Perfecto!'],
@@ -322,6 +324,7 @@ const T = {
     ranks:['Applicant','Student','Prepared','Expert','Almost a citizen','Interview ready'],
     wCiv:'Civics', wCivD:'The official USCIS civics questions.',
     wDef:'Definitions', wDefD:'The N-400 words the officer may ask you to explain.',
+    wRev:'Guess the word', wRevD:'The other way around: read the definition and pick the N-400 word.',
     wWri:'Writing', wWriD:'Listen to the sentence and write it like on the test.',
     levels:n=>n+' levels', starsOf:(a,b)=>'⭐ '+a+' / '+b,
     howTitle:'How to play:',
@@ -332,7 +335,7 @@ const T = {
     level:'Level', qRange:(a,b)=>'Questions '+a+'–'+b, locked:'Earn 1 star in the previous level to open this one.',
     catGov:'Government', catHist:'History', catCiv:'Integrated civics',
     kCiv:'Civics', kDef:'N-400 definition', kWri:'Writing',
-    again:'Again', defAsk:'What does', defPick:'Pick the correct short answer',
+    again:'Again', defAsk:'What does', defPick:'Pick the correct short answer', kRev:'Guess the word', revPick:'Which N-400 word means this?', theWord:'The word',
     listen:'🔊 Listen', listenBig:'🔊 Listen to the sentence', writeHere:'Type here in English…',
     writeAsk:'Listen and write the sentence in English', check:'Check', cont:'Continue',
     right:['Correct!','Great job!','Excellent!','Way to go!','Perfect!'],
@@ -628,6 +631,15 @@ function defOptions(it){
   const others = shuffle(DEFS.filter(x => x !== d && !(d.group && x.group === d.group) && x.short.en.toLowerCase() !== d.short.en.toLowerCase())).slice(0,3);
   return shuffle([{text:d.short.en, sub:d.short.es, ok:true}].concat(others.map(x => ({text:x.short.en, sub:x.short.es, ok:false}))));
 }
+// "Guess the word": the short definition is the question and the student picks the term.
+// Distractors: up to 2 words from the same theme (look alike) + others from the rest; never a word with the same meaning.
+function revItems(){ return DEFS.map((d,i) => ({kind:'mc', world:'rev', id:'r-'+i, d})); }
+function revOptions(it){
+  const d = it.d, same = x => x.short.en.toLowerCase() === d.short.en.toLowerCase() || x.term.toLowerCase() === d.term.toLowerCase();
+  const near = shuffle(DEFS.filter(x => x !== d && d.group && x.group === d.group && !same(x))).slice(0, 2);
+  const far = shuffle(DEFS.filter(x => x !== d && !near.includes(x) && !same(x) && !(d.group && x.group === d.group))).slice(0, 3 - near.length);
+  return shuffle([{text:d.term, ok:true}].concat(near.concat(far).map(x => ({text:x.term, ok:false}))));
+}
 function wriItems(){ return SENTENCES.map((s,i) => ({kind:'write', world:'wri', id:'w-'+i, s})); }
 
 // Writing grader (same rules as writing.html: small typos allowed, capitals checked)
@@ -654,13 +666,15 @@ function markSentence(sentence, idxs, cls){
 const WORLDS = {
   civ:{icon:'🏛️', cls:'civ', grad:'linear-gradient(140deg,#3b82f6,#1d4ed8)'},
   def:{icon:'📖', cls:'def', grad:'linear-gradient(140deg,#a855f7,#7c3aed)'},
-  wri:{icon:'✍️', cls:'wri', grad:'linear-gradient(140deg,#f472b6,#db2777)'}
+  wri:{icon:'✍️', cls:'wri', grad:'linear-gradient(140deg,#f472b6,#db2777)'},
+  rev:{icon:'🔎', cls:'rev', grad:'linear-gradient(140deg,#14b8a6,#0f766e)'}
 };
 // Civics progress is kept apart with/without a state, because the state adds questions and shifts the levels.
 function progKey(w){ return w === 'civ' ? 'civ' + G.test + (G.state ? 's' : '') : w; }
 async function itemsFor(w){
   if (w === 'civ') return loadCivics(G.test, G.state);
   if (w === 'def') return defItems();
+  if (w === 'rev') return revItems();
   return wriItems();
 }
 function worldStars(w, nLevels){ let s = 0; for (let i=0;i<nLevels;i++) s += G.stars[progKey(w)+'-'+i] || 0; return s; }
@@ -669,7 +683,7 @@ function totalStars(){ return Object.values(G.stars).reduce((a,b) => a + b, 0); 
 // A world is mastered when every level has 2+ stars.
 function worldMastered(w){ const n = nLevelsSync(w); for (let i=0;i<n;i++) if ((G.stars[progKey(w)+'-'+i] || 0) < 2) return false; return true; }
 function masteredWorlds(){ return ['civ','def','wri'].filter(worldMastered); }
-function worldName(w){ return w === 'civ' ? t('wCiv') : w === 'def' ? t('wDef') : t('wWri'); }
+function worldName(w){ return w === 'civ' ? t('wCiv') : w === 'def' ? t('wDef') : w === 'rev' ? t('wRev') : t('wWri'); }
 function nudge(){
   if (liveCredits === null) return null;
   const m = masteredWorlds();
@@ -687,7 +701,7 @@ function nudgeHtml(isNew){
     '<a class="btn gold" href="' + (n.live ? 'live-interview.html' : 'dashboard.html') + '">' + esc(n.live ? t('nudgeBtn') : t('nudgeHub')) + '</a></div>';
 }
 function nLevelsSync(w){
-  if (w === 'def') return chunks(DEFS).length;
+  if (w === 'def' || w === 'rev') return chunks(DEFS).length;
   if (w === 'wri') return chunks(SENTENCES).length;
   const k = G.test + '|' + (G.state || ''); return bankCache[k] ? chunks(bankCache[k]).length : (G.test === '128' ? 13 : 10);
 }
@@ -735,7 +749,7 @@ function renderHome(){
       '<div class="xpbar"><i style="width:' + Math.round(L.into / L.need * 100) + '%"></i></div><div class="xptxt">' + t('xpTo')(L.into, L.need) + '</div></div>' +
       '<div class="stats"><div class="stat"><b>⭐ ' + totalStars() + '</b><span>' + t('statStars') + '</span></div><div class="stat"><b>🔥 ' + streakNow() + '</b><span>' + t('statStreak') + '</span></div><div class="stat"><b>' + G.xp + '</b><span>' + t('statXp') + '</span></div></div>' +
     '</div>' + nudgeHtml(false) + '</div>' +
-    '<div class="worlds">' + w('civ', t('wCiv'), t('wCivD')) + w('def', t('wDef'), t('wDefD')) + w('wri', t('wWri'), t('wWriD')) + '</div>' +
+    '<div class="worlds">' + w('civ', t('wCiv'), t('wCivD')) + w('def', t('wDef'), t('wDefD')) + w('rev', t('wRev'), t('wRevD')) + w('wri', t('wWri'), t('wWriD')) + '</div>' +
     '<div class="how narrow"><b>' + esc(t('howTitle')) + '</b> ' + esc(t('how')) + '</div>' +
     '<div class="resetzone narrow" id="resetZone">' + (resetOpen
       ? '<div class="resetbox" role="alertdialog" aria-labelledby="rsT"><h3 id="rsT">' + esc(t('resetTitle')) + '</h3><p>' + esc(t('resetLose')) + '</p><p class="keep">✅ ' + esc(t('resetKeep')) + '</p>' +
@@ -757,9 +771,9 @@ async function setState(v){ G.state = v; saveG(); await openWorld('civ'); }
 
 function renderMap(){
   const w = curWorld;
-  const list = w === 'civ' ? bankCache[G.test + '|' + (G.state || '')] : (w === 'def' ? defItems() : wriItems());
+  const list = w === 'civ' ? bankCache[G.test + '|' + (G.state || '')] : (w === 'def' ? defItems() : w === 'rev' ? revItems() : wriItems());
   const levels = chunks(list), pk = progKey(w);
-  const title = w === 'civ' ? t('wCiv') : w === 'def' ? t('wDef') : t('wWri');
+  const title = worldName(w);
   const sMax = levels.length * 3, sGot = worldStars(w, levels.length);
   let head = '<div class="maphead narrow"><div class="row1"><div class="wicon" style="background:' + WORLDS[w].grad + '">' + WORLDS[w].icon + '</div>' +
     '<div><h2>' + esc(title) + '</h2><div class="sub">' + t('levels')(levels.length) + ' · ' + t('starsOf')(sGot, sMax) + '</div></div></div>';
@@ -808,7 +822,7 @@ async function startRound(w, levelIdx){
 function nextQ(){
   R.cur = R.queue.shift(); R.phase = 'ask'; R.chosen = null; R.fb = null; R.typed = ''; R.sel = new Set();
   if (!R.cur) return;
-  R.opts = R.cur.kind === 'mc' ? (R.cur.world === 'civ' ? civOptions(R.cur) : defOptions(R.cur)) : null;
+  R.opts = R.cur.kind === 'mc' ? (R.cur.world === 'civ' ? civOptions(R.cur) : R.cur.world === 'rev' ? revOptions(R.cur) : defOptions(R.cur)) : null;
 }
 function heartsHtml(){ let s=''; for (let i=0;i<3;i++) s += '<span class="' + (i < R.hearts ? '' : 'lost') + '">❤️</span>'; return s; }
 function renderPlay(){
@@ -826,6 +840,11 @@ function renderPlay(){
       html += '<div class="qkind">🏛️ ' + esc(t('kCiv')) + ' · ' + esc(civCat(it.test, it.n)) + ' ' + again + '</div>' +
         '<div class="qtext" lang="en">' + esc(it.q) + '</div>' +
         '<button class="speak" type="button" onclick="speak(R.cur.q)">' + esc(t('listen')) + '</button>';
+    } else if (it.world === 'rev') {
+      html += '<div class="qkind">🔎 ' + esc(t('kRev')) + ' ' + again + '</div>' +
+        '<div class="qtext" lang="en">“' + esc(it.d.short.en) + '”</div>' +
+        '<div class="qsub">' + esc(t('revPick')) + '</div>' +
+        '<button class="speak" type="button" onclick="speak(R.cur.d.short.en)">' + esc(t('listen')) + '</button>';
     } else {
       html += '<div class="qkind">📖 ' + esc(t('kDef')) + ' ' + again + '</div>' +
         '<div class="qtext" lang="en">What does <span class="term">“' + esc(it.d.term) + '”</span> mean?</div>' +
@@ -874,6 +893,12 @@ function feedbackHtml(){
     body += '<div class="lbl">' + esc(t('accepted')) + '</div><ul lang="en">' + it.all.map(s => '<li>' + esc(s) + '</li>').join('') + '</ul>';
     if (it.two) body += '<div>' + esc(t('twoNote')) + '</div>';
     if (imgs.length) body += '<div class="imgrow">' + imgs.slice(0,2).map(im => '<img src="' + esc(im.src) + '" alt="' + esc(im.label) + '" loading="lazy" onerror="this.remove()">').join('') + '</div>';
+  } else if (it.kind === 'mc' && it.world === 'rev') {
+    const d = it.d;
+    body += '<div class="lbl">' + esc(t('theWord')) + '</div><div class="say" lang="en">' + esc(d.term) + '</div>' +
+      (d.pron ? '<div><b>' + esc(t('pron')) + ':</b> ' + esc(d.pron) + '</div>' : '') +
+      '<div class="lbl">' + esc(t('officialDef')) + '</div><div lang="en">' + esc(d.official.en) + '</div>' +
+      (lang === 'es' && d.official.es ? '<div>' + esc(d.official.es) + '</div>' : '');
   } else if (it.kind === 'mc') {
     const d = it.d;
     body += '<div class="lbl">' + esc(t('sayIt')) + '</div><div class="say" lang="en">' + esc(d.short.en) + '</div>' +
@@ -913,7 +938,7 @@ function choose(i){
   } else { miss(); R.fb = {kind:'bad'}; SFX.bad(); }
   R.phase = 'fb'; render();
   if (!o.ok) { const q = document.getElementById('qcard'); if (q) q.classList.add('shake'); }
-  speak(it.world === 'civ' ? it.correct : it.d.short.en);
+  speak(it.world === 'civ' ? it.correct : it.world === 'rev' ? it.d.term : it.d.short.en);
 }
 function checkMulti(){
   if (R.phase !== 'ask' || !R.cur.multi) return;
@@ -978,6 +1003,7 @@ function finishRound(won){
 function missedLabel(it){
   if (it.kind === 'write') return {q: it.s, a: ''};
   if (it.world === 'civ') return {q: it.q, a: it.correct};
+  if (it.world === 'rev') return {q: it.d.short.en, a: it.d.term};
   return {q: it.d.term, a: it.d.short.en};
 }
 function renderResult(){
