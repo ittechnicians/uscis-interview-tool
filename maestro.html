@@ -107,7 +107,7 @@ main{overflow:auto;padding:22px 28px 90px;display:flex;flex-direction:column;gap
 .cq .qq{font-size:clamp(20px,2vw,34px);font-weight:800;line-height:1.2}
 .cq .aa{margin-top:10px;font-size:clamp(18px,1.7vw,28px);color:var(--green);font-weight:700}
 .cq .aa ul{margin:6px 0 0;padding-left:1.2em}
-.cq .acts{display:flex;flex-direction:column;gap:8px}
+.cq .acts{display:flex;flex-direction:column;gap:8px;min-width:150px}
 .cq .imgs{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
 .cq .imgs img{height:120px;border-radius:10px;border:1px solid var(--line);object-fit:cover}
 .cq.trivia{border:2px solid var(--gold);background:var(--goldbg)}
@@ -167,7 +167,7 @@ main{overflow:auto;padding:22px 28px 90px;display:flex;flex-direction:column;gap
     <table>
       <tr><td><kbd>Espacio</kbd></td><td>Oír la pregunta del oficial</td></tr>
       <tr><td><kbd>S</kbd></td><td>Oír la pregunta despacio</td></tr>
-      <tr><td><kbd>A</kbd></td><td>Oír la respuesta modelo (despacio)</td></tr>
+      <tr><td><kbd>A</kbd></td><td>Oír la respuesta modelo (despacio). En cívica, el botón 🔊 Respuesta la muestra y la dice.</td></tr>
       <tr><td><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd></td><td>Cambiar de paso: Escuchas, Repites, Contestas, Como el día real</td></tr>
       <tr><td><kbd>R</kbd></td><td>Mostrar u ocultar (en el paso 4, dictado y trivia)</td></tr>
       <tr><td><kbd>→</kbd> <kbd>←</kbd></td><td>Siguiente / anterior</td></tr>
@@ -214,9 +214,9 @@ function bestVoice(){
 function stopAudio(){ if (curAudio) { try { curAudio.pause(); } catch(e) {} curAudio = null; } try { speechSynthesis.cancel(); } catch(e) {} }
 function sayable(t){ return String(t||'').replace(/\[([A-Z])(-[A-Z])+\]/g, m => m.slice(1, -1).split('-').join(', ')).replace(/\[|\]/g,'').replace(/\([^)]*\)/g,'').replace(/\s+\/\s+/g,'. ').replace(/\s+/g,' ').trim(); }
 function speak(text, slow){
-  const t = sayable(text); if (!t) return;
+  const raw = String(text || '').trim(), t = sayable(text); if (!t) return;
   stopAudio();
-  const file = manifest && manifest['en|' + t];
+  const file = manifest && (manifest['en|' + raw] || manifest['en|' + t]);
   if (file) {
     const a = new Audio('/audio/' + file); curAudio = a; a.playbackRate = slow ? 0.72 : 1;
     a.play().catch(() => tts(t, slow)); return;
@@ -388,8 +388,10 @@ function civItem(q, i, opts){
     (hideQ ? '<div class="qq" style="color:#94a3b8">🎙️ Escucha la pregunta</div>' : '<div class="qq">' + esc(q.q) + '</div>') +
     (opts.reveal ? '<div class="aa">' + (ans.length > 1 ? '<ul>' + ans.map(a => '<li>' + esc(a) + '</li>').join('') + '</ul>' : esc(ans[0] || '')) + '</div>' +
       (imgs.length ? '<div class="imgs">' + imgs.map(k => '<img src="/img/civics/' + esc(k) + '.webp" alt="" onerror="this.remove()">').join('') + '</div>' : '') : '') +
-    '</div><div class="acts"><button class="pbtn sm" data-civ="' + i + '" data-rate="n">▶</button><button class="pbtn sm alt" data-civ="' + i + '" data-rate="s">🐢</button>' +
-    '<button class="pbtn sm ghost" data-civrev="' + i + '">' + (opts.reveal ? 'Ocultar' : 'Respuesta') + '</button></div></div>';
+    '</div><div class="acts"><button class="pbtn sm" data-civ="' + i + '" data-rate="n" title="Oír la pregunta">▶ Pregunta</button><button class="pbtn sm alt" data-civ="' + i + '" data-rate="s" title="Pregunta despacio">🐢 Pregunta</button>' +
+    '<button class="pbtn sm gold" data-civans="' + i + '" data-rate="n" title="Mostrar y oír la respuesta">🔊 Respuesta</button>' +
+    (opts.reveal ? '<button class="pbtn sm alt" data-civans="' + i + '" data-rate="s" title="Respuesta despacio">🐢 Respuesta</button>' : '') +
+    '<button class="pbtn sm ghost" data-civrev="' + i + '">' + (opts.reveal ? 'Ocultar' : 'Mostrar') + '</button></div></div>';
 }
 let civRevealed = {};
 function civicsView(){
@@ -466,6 +468,11 @@ function wire(){
   $('stage').querySelectorAll('[data-act]').forEach(b => b.onclick = () => act(b.dataset.act));
   $('stage').querySelectorAll('[data-say-ans]').forEach(b => b.onclick = () => { const c = curCard(); speak(c.a[+b.dataset.sayAns].en, true); });
   $('stage').querySelectorAll('[data-civ]').forEach(b => b.onclick = () => { const q = civByKey(b.dataset.civ); if (q) speak(q.q, b.dataset.rate === 's'); });
+  $('stage').querySelectorAll('[data-civans]').forEach(b => b.onclick = () => {
+    const key = b.dataset.civans, q = civByKey(key); if (!q) return;
+    if (key === 't') trivia.reveal = true; else if (key === 'sim') S.reveal = true; else civRevealed[S.idx + ':' + key] = true;
+    render(); speak(q.a, b.dataset.rate === 's');
+  });
   $('stage').querySelectorAll('[data-civrev]').forEach(b => b.onclick = () => {
     const key = b.dataset.civrev;
     if (key === 't') trivia.reveal = !trivia.reveal; else if (key === 'sim') S.reveal = !S.reveal; else civRevealed[S.idx + ':' + key] = !civRevealed[S.idx + ':' + key];
@@ -473,7 +480,7 @@ function wire(){
   });
 }
 function civByKey(k){ if (k === 't') return trivia.items[trivia.i]; if (k === 'sim') return sim.items[S.idx].civ; return civBlocks()[S.idx][+k]; }
-function setStep(n){ S.step = n; S.reveal = false; render(); if (n === 1 || n === 4) setTimeout(() => act('q'), 150); }
+function setStep(n){ S.step = n; S.reveal = false; render(); if (n === 1 || n === 4) setTimeout(() => act('q'), 150); if (n === 2) setTimeout(() => act('a'), 150); }
 function act(a){
   const c = curCard();
   if (a === 'q' || a === 'qs') {
@@ -481,7 +488,16 @@ function act(a){
     if (c && c.q) speak(c.kind === 'rule' ? '' : c.q, a === 'qs'); return;
   }
   if (a === 'a' && c && c.a) { const f = firstSpoken(c); if (f) speak(f.en, true); return; }
-  if (a === 'reveal') { S.reveal = !S.reveal; render(); return; }
+  if (a === 'reveal') {
+    S.reveal = !S.reveal; render();
+    if (S.reveal) {
+      const it = S.sec === 'simulacro' && sim ? sim.items[S.idx] : null;
+      if (it && it.civ) speak(it.civ.a);
+      else if (SECTIONS[S.sec].kind === 'write' || (it && it.kind === 'write')) speak(c.q, true);
+      else if (c && c.a) act('a');
+    }
+    return;
+  }
   if (a === 'civAll') { [0,1,2].forEach(i => civRevealed[S.idx + ':' + i] = true); render(); return; }
   if (a === 'civDone') { P.civ[S.test] = Math.max(P.civ[S.test] || 0, S.idx + 1); saveProgress(); renderSide(); next(); return; }
   if (a === 'trivia') { startTrivia(); return; }
@@ -522,7 +538,7 @@ document.addEventListener('keydown', e => {
   if (k === ' ') { e.preventDefault(); act('q'); }
   else if (k === 's') act('qs');
   else if (k === 'a') act('a');
-  else if (k === 'r') { if (trivia) { trivia.reveal = !trivia.reveal; render(); } else if (S.sec === 'civica') act('civAll'); else act('reveal'); }
+  else if (k === 'r') { if (trivia) { trivia.reveal = !trivia.reveal; render(); if (trivia.reveal) speak(trivia.items[trivia.i].a); } else if (S.sec === 'civica') act('civAll'); else act('reveal'); }
   else if (k === 'arrowright') next();
   else if (k === 'arrowleft') prev();
   else if (['1','2','3','4'].includes(k) && S.sec !== 'civica' && S.sec !== 'simulacro' && !SECTIONS[S.sec].kind) setStep(+k);
