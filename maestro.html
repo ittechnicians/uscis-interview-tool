@@ -82,6 +82,11 @@ main{overflow:auto;padding:22px 28px 90px;display:flex;flex-direction:column;gap
 .nat .lbl{font-size:clamp(13px,1.1vw,16px);font-weight:800;color:#15803d;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px;display:flex;align-items:center;gap:8px}
 .nat .wl .w b{font-size:clamp(18px,1.9vw,32px);color:#166534}
 .nat .row{display:flex;gap:12px;align-items:center;margin-top:6px}
+.alts{background:#f0f9ff;border:1px solid #bae6fd;border-radius:14px;padding:12px 18px}
+.alts .lbl{font-size:clamp(13px,1.1vw,16px);font-weight:800;color:#0369a1;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px}
+.alts .alt{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:clamp(18px,1.7vw,28px);font-weight:700}
+.alts .alt span{flex:1}
+.asked{margin-top:10px;font-size:clamp(16px,1.4vw,22px);color:#0369a1;font-weight:700}
 .ans.act{background:#eff6ff;border-left-color:var(--blue)}
 .ans.act .en{font-size:clamp(20px,2vw,34px)}
 .blank{display:inline-block;min-width:3.5em;border-bottom:4px solid var(--blue);color:var(--blue);padding:0 .15em}
@@ -317,7 +322,7 @@ function buildCambio(){
   SECTIONS.cambio.cards = shuffle(no.concat(yes)).map(c => Object.assign({}, c, { id:'cx-' + c.id }));
 }
 function openSection(id, idx){
-  stopAudio(); S.sec = id; S.idx = idx || 0; S.step = id === 'cambio' ? 4 : 1; S.reveal = false; trivia = null;
+  stopAudio(); S.askFor = null; S.sec = id; S.idx = idx || 0; S.step = id === 'cambio' ? 4 : 1; S.reveal = false; trivia = null;
   if (id === 'cambio') buildCambio();
   if (id === 'civica') S.idx = Math.min(P.civ[S.test] || 0, Math.max(civBlocks().length - 1, 0));
   if (id === 'simulacro' && !sim) newSim();
@@ -366,6 +371,19 @@ function natHtml(a, i){
     nat.map((n, j) => '<div class="row"><div style="flex:1">' + (wordsHtml(n, 'show') || '<div class="en">' + fmtAnswer(n.en, 'show') + '</div><div class="p">Se pronuncia: ' + esc(n.p) + '</div>') + '</div>' +
       '<button class="mini" title="Oír despacio" data-say-nat="' + i + ':' + j + '">🐢</button></div>').join('') + '</div>';
 }
+function askText(c){
+  if (!c || !c.q || c.kind === 'rule') return c ? c.q : '';
+  if (S.step === 4 || S.sec === 'simulacro') {
+    if (S.askFor !== c.id) { const all = [c.q].concat(c.v || []); S.askFor = c.id; S.askText = all[Math.floor(Math.random() * all.length)]; }
+    return S.askText;
+  }
+  return c.q;
+}
+function altsHtml(c){
+  if (!c.v || !c.v.length) return '';
+  return '<div class="alts"><div class="lbl">🔁 El oficial también puede preguntar así</div>' +
+    c.v.map((t, i) => '<div class="alt"><span lang="en">' + esc(t) + '</span><button class="mini" title="Oír" data-say-alt="' + i + '">▶</button><button class="mini" title="Despacio" data-say-alt-slow="' + i + '">🐢</button></div>').join('') + '</div>';
+}
 function firstSpoken(c){ return (c.a || []).find(a => a.en && sayable(a.en)); }
 function n400Card(c){
   const rule = c.kind === 'rule';
@@ -381,6 +399,9 @@ function n400Card(c){
     (rule ? '<span style="color:var(--soft);font-size:16px">Toca 🐢 en cada respuesta para oírla.</span>' : '<button class="pbtn" data-act="q">▶ Oír</button><button class="pbtn alt" data-act="qs">🐢 Despacio</button>') +
     (S.step >= 2 && !rule && firstSpoken(c) ? '<button class="pbtn gold" data-act="a">▶ Respuesta modelo</button>' : '') +
     (S.step === 4 && !rule ? '<button class="pbtn ghost" data-act="reveal">' + (S.reveal ? 'Ocultar' : 'Mostrar') + ' (R)</button>' : '') + '</div></div>';
+  if (!rule && (S.step <= 2 || S.reveal)) h += altsHtml(c);
+  if (!rule && S.step === 4 && S.reveal && S.askFor === c.id && S.askText && S.askText !== c.q)
+    h = h.replace('<div class="play">', '<div class="asked">🎙️ Esta vez el oficial lo preguntó así: “' + esc(S.askText) + '”</div><div class="play">');
   if (rule) h += answersHtml(c, 'show', true);
   else if (S.step === 2) h += answersHtml(c, 'show', true);
   else if (S.step === 3) h += answersHtml(c, 'blank', false);
@@ -499,6 +520,8 @@ function render(){
 function wire(){
   $('stage').querySelectorAll('[data-step]').forEach(b => b.onclick = () => setStep(+b.dataset.step));
   $('stage').querySelectorAll('[data-act]').forEach(b => b.onclick = () => act(b.dataset.act));
+  $('stage').querySelectorAll('[data-say-alt]').forEach(b => b.onclick = () => { const c = curCard(); speak(c.v[+b.dataset.sayAlt]); });
+  $('stage').querySelectorAll('[data-say-alt-slow]').forEach(b => b.onclick = () => { const c = curCard(); speak(c.v[+b.dataset.sayAltSlow], true); });
   $('stage').querySelectorAll('[data-say-nat]').forEach(b => b.onclick = () => { const c = curCard(); const [i, j] = b.dataset.sayNat.split(':').map(Number); const n = naturalFor(c.a[i])[j]; if (n) speak(n.en, true); });
   $('stage').querySelectorAll('[data-say-ans]').forEach(b => b.onclick = () => { const c = curCard(); speak(c.a[+b.dataset.sayAns].en, true); });
   $('stage').querySelectorAll('[data-civ]').forEach(b => b.onclick = () => { const q = civByKey(b.dataset.civ); if (q) speak(q.q, b.dataset.rate === 's'); });
@@ -514,12 +537,12 @@ function wire(){
   });
 }
 function civByKey(k){ if (k === 't') return trivia.items[trivia.i]; if (k === 'sim') return sim.items[S.idx].civ; return civBlocks()[S.idx][+k]; }
-function setStep(n){ S.step = n; S.reveal = false; render(); if (n === 1 || n === 4) setTimeout(() => act('q'), 150); if (n === 2) setTimeout(() => act('a'), 150); }
+function setStep(n){ S.step = n; S.reveal = false; S.askFor = null; render(); if (n === 1 || n === 4) setTimeout(() => act('q'), 150); if (n === 2) setTimeout(() => act('a'), 150); }
 function act(a){
   const c = curCard();
   if (a === 'q' || a === 'qs') {
     if (S.sec === 'civica') { const b = trivia ? [trivia.items[trivia.i]] : civBlocks()[S.idx]; if (b && b[0]) speak(b[0].q, a === 'qs'); return; }
-    if (c && c.q) speak(c.kind === 'rule' ? '' : c.q, a === 'qs'); return;
+    if (c && c.q) speak(c.kind === 'rule' ? '' : askText(c), a === 'qs'); return;
   }
   if ((a === 'short' || a === 'shortSlow') && c && c.term) { speak(c.term.short.en, a === 'shortSlow'); return; }
   if (a === 'a' && c && c.a) { const f = firstSpoken(c); if (f) speak(f.en, true); return; }
@@ -549,7 +572,7 @@ function startTrivia(){
   render(); setTimeout(() => { if (trivia) speak(trivia.items[0].q); }, 150);
 }
 function next(){
-  stopAudio();
+  stopAudio(); S.askFor = null;
   const list = curList();
   if (S.sec !== 'civica' && S.sec !== 'simulacro') { const c = list[S.idx]; if (c) P.done[c.id] = true; }
   if (S.idx < list.length - 1) { S.idx++; S.reveal = false; trivia = null; if (S.sec !== 'simulacro') S.step = S.sec === 'cambio' ? 4 : 1; }
@@ -563,7 +586,7 @@ function next(){
   else if (S.step === 1 && S.sec !== 'civica' && S.sec !== 'simulacro' && !SECTIONS[S.sec].kind) setTimeout(() => act('q'), 200);
 }
 function prev(){
-  stopAudio();
+  stopAudio(); S.askFor = null;
   if (trivia) { trivia = null; render(); return; }
   if (S.idx > 0) { S.idx--; S.reveal = false; if (S.sec !== 'simulacro') S.step = S.sec === 'cambio' ? 4 : 1; render(); saveProgress(); }
 }
