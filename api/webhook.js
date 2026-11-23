@@ -114,9 +114,9 @@ async function confirmUserEmail(userId) {
   return true;
 }
 
-// Live Zoom course: save the enrollment (once per Stripe session) and give Premium until a week
-// after the last class (at least 30 days, never shortening a longer one) with the course's
-// live interviews added to any the student still has.
+// Live Zoom course: save the enrollment (once per Stripe session) and give 90 days of Premium,
+// added to any Premium days the student still has (never less than a week after the last class),
+// with the course's live interviews added to any the student still has.
 async function activateCourse(userId, s) {
   const { COURSE, SUPABASE_URL: SB, lastClassEnd } = require('./_course.js');
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -140,7 +140,8 @@ async function activateCourse(userId, s) {
   const active = isPremium && (noExpiry || curEnd > Date.now());
   const fields = { plan: 'premium', stripe_customer_id: s.customer || null, subscription_status: 'paid' };
   if (!noExpiry) {
-    const end = Math.max(active ? curEnd : 0, Date.now() + 30 * DAY, lastClassEnd().getTime() + COURSE.premiumDaysAfterEnd * DAY);
+    const start = active ? Math.max(curEnd, Date.now()) : Date.now();
+    const end = Math.max(start + (COURSE.accessDays || 90) * DAY, lastClassEnd().getTime() + COURSE.premiumDaysAfterEnd * DAY);
     fields.plan_expires_at = new Date(end).toISOString();
   }
   const left = (active && typeof profile.live_credits === 'number') ? profile.live_credits : 0;

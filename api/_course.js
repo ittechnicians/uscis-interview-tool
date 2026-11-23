@@ -18,7 +18,8 @@ const COURSE = {
   founderPrice: 99,
   regularPrice: 147,
   liveInterviews: 16,                          // live interviews included (replaces Premium's 8)
-  premiumDaysAfterEnd: 7,                      // Premium lasts until 7 days after the last class (at least 30 days)
+  accessDays: 90,                              // Premium days from the enrollment (added to any active Premium)
+  premiumDaysAfterEnd: 7,                      // ...and never less than 7 days after the last class
   nightGroup: 'Una noche entre semana, de 7:30 a 9:00 p. m. (hora del centro)'
 };
 
