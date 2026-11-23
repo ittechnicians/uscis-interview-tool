@@ -238,8 +238,8 @@ window.MAESTRO = {
       { id: 'r15', q: 'What is one right in the Bill of Rights?' }
     ]},
     { id: 'escritura', day: 4, title: 'Prueba de escritura (dictado)', kind: 'write', cards: [
-      'The president lives in the White House.', 'The White House is in Washington, D.C.', 'George Washington was the first president.',
-      'Abraham Lincoln was president during the Civil War.', 'Citizens can vote for president.', 'Citizens have the right to vote.',
+      'The President lives in the White House.', 'The White House is in Washington, D.C.', 'George Washington was the first President.',
+      'Abraham Lincoln was President during the Civil War.', 'Citizens can vote for President.', 'Citizens have the right to vote.',
       'Congress makes federal laws.', 'There are 100 U.S. Senators.', 'New York City was the first capital.',
       'Washington is the capital of the United States.', 'The Bill of Rights protects our rights.', 'We have freedom of speech.',
       'We pay taxes every year.', 'Independence Day is on July 4th.', 'Thanksgiving is in November.', 'Labor Day is in September.',
