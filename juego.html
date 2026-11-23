@@ -377,20 +377,54 @@ const STATE_NAMES = ['Alabama','Alaska','Arizona','Arkansas','California','Color
 
 // Keep in sync with SENTENCES in writing.html (these have pre-recorded audio in /audio/manifest.json)
 const SENTENCES = [
-  'The President lives in the White House.','The White House is in Washington, D.C.','George Washington was the first President.',
-  'Abraham Lincoln was President during the Civil War.','Citizens can vote for President.','Citizens have the right to vote.',
-  'The President signs bills.','The President vetoes bills.','The President is the commander in chief.','Congress makes federal laws.',
-  'Congress meets in Washington.','There are 100 U.S. Senators.','Senators meet in Congress.','New York City was the first capital.',
-  'Washington is the capital of the United States.','The Constitution is the supreme law of the land.','The Bill of Rights protects our rights.',
-  'Freedom of speech is an important right.','We have freedom of speech.','We pay taxes every year.','April is the month to file taxes.',
-  'The Supreme Court is the highest court in the United States.','Independence Day is on July 4th.','We celebrate Independence Day in July.',
-  'Thanksgiving is in November.','Labor Day is in September.','Memorial Day is in May.',"Presidents' Day is in February.",
-  'Columbus Day is in October.','New York has the Statue of Liberty.','California has the most people.','Alaska is the largest state.',
-  'The American flag has 50 stars.','The American flag is red, white, and blue.','The United States has 50 states.',
-  'Canada is north of the United States.','Mexico is south of the United States.','The Civil War was between the North and the South.',
-  'Adams was the second President of the United States.','American Indians lived in America first.','Citizens can come to the United States.',
-  'The President lives in the White House in Washington, D.C.','Citizens have the right to vote for the President.',
-  'Congress makes the federal laws for the United States.'
+    'Citizens can vote.',
+    'We pay taxes.',
+    'Congress meets in Washington, D.C.',
+    'Alaska is the largest state.',
+    'California has the most people.',
+    'Delaware was the first state.',
+    'Washington was the first President.',
+    'Adams was the second President.',
+    'The President lives in the White House.',
+    'The White House is in Washington, D.C.',
+    'New York City was the first capital.',
+    'The flag is red, white, and blue.',
+    'The United States has fifty states.',
+    'Canada is north of the United States.',
+    'Mexico is south of the United States.',
+    'American Indians lived here first.',
+    'Citizens have freedom of speech.',
+    'Citizens have the right to vote.',
+    'People want to be free.',
+    'Washington is on the dollar bill.',
+    'We elect the President in November.',
+    'Citizens elect Congress.',
+    'Independence Day is in July.',
+    'Labor Day is in September.',
+    'Columbus Day is in October.',
+    'Thanksgiving is in November.',
+    'Memorial Day is in May.',
+    'Flag Day is in June.',
+    'Presidents\' Day is in February.',
+    'Washington is the Father of Our Country.',
+    'Lincoln was the President of the United States during the Civil War.',
+    'The President lives in the White House in Washington, D.C.',
+    'Washington, D.C. is the capital of the United States.',
+    'Citizens can vote for the President in November.',
+    'New York City was the first capital of the United States.',
+    'Washington was the first President and the Father of Our Country.',
+    'The flag of the United States is red, white, and blue.',
+    'The United States has fifty states and one hundred Senators.',
+    'Alaska is the largest state and California has the most people.',
+    'Canada is north of the United States and Mexico is south.',
+    'People come to the United States to have freedom of speech.',
+    'Citizens of the United States have the right to vote.',
+    'Adams was the second President of the United States.',
+    'American Indians lived in the United States first.',
+    'Independence Day is in July and Thanksgiving is in November.',
+    'Congress meets in Washington, D.C. and we elect Senators in November.',
+    'We pay taxes and citizens can vote for Congress.',
+    'People come here to be free and to vote.'
 ];
 const DEFS = (Array.isArray(window.DEFINITIONS) ? window.DEFINITIONS : []).filter(d => d.quiz !== false && d.short && d.short.en);
 
@@ -643,11 +677,11 @@ function revOptions(it){
 function wriItems(){ return SENTENCES.map((s,i) => ({kind:'write', world:'wri', id:'w-'+i, s})); }
 
 // Writing grader (same rules as writing.html: small typos allowed, capitals checked)
-function normalize(s){ return String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[.,!?;:'"-]/g,'').replace(/\s+/g,' ').trim(); }
+function normalize(s){ return String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\b50\b/g,'fifty').replace(/\b100\b/g,'one hundred').toLowerCase().replace(/[.,!?;:'"-]/g,'').replace(/\s+/g,' ').trim(); }
 function lev(a,b){ const m=a.length,n=b.length; const dp=Array.from({length:m+1},(_,i)=>[i].concat(Array(n).fill(0))); for(let j=0;j<=n;j++)dp[0][j]=j;
   for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]); return dp[m][n]; }
 function wordsMatch(tw, cw){ if (tw === cw) return true; const L = cw.length, tol = L<=3 ? 0 : (L<=6 ? 1 : 2); return lev(tw,cw) <= tol; }
-function caseWords(s){ return String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[.,!?;:'"-]/g,'').replace(/\s+/g,' ').trim().split(' ').filter(Boolean); }
+function caseWords(s){ return String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\b50\b/g,'fifty').replace(/\b100\b/g,'one hundred').replace(/[.,!?;:'"-]/g,'').replace(/\s+/g,' ').trim().split(' ').filter(Boolean); }
 function gradeSentence(typed, correct){
   const tw = normalize(typed).split(' ').filter(Boolean), cw = normalize(correct).split(' ').filter(Boolean);
   const badIdx = [];
