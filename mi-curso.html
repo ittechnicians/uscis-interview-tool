@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Mi curso · Camino a la Ciudadanía</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--blue:#1e40af;--blue2:#2563eb;--red:#dc2626;--ink:#0f172a;--soft:#475569;--line:#e2e8f0;--bg:#f1f5f9;--card:#fff;--gold:#f59e0b;--goldbg:#fffbeb;--green:#16a34a;--greenbg:#f0fdf4}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:Inter,system-ui,sans-serif;color:var(--ink);background:var(--bg);min-height:100vh}
+button{font-family:inherit;cursor:pointer}
+.hidden{display:none!important}
+.top{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;padding:10px 14px}
+.top a.back{text-decoration:none;color:var(--blue);font-weight:700;font-size:14px;white-space:nowrap}
+.top .ttl{font-weight:800;color:var(--blue);flex:1;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl span{color:var(--red)}
+.top .pct{font-size:13px;font-weight:800;color:var(--green);white-space:nowrap}
+#save{font-size:11px;color:var(--soft);white-space:nowrap}
+.wrap{max-width:860px;margin:0 auto;padding:16px 16px 110px}
+h1{font-size:24px;margin:6px 0 4px}
+.sub{color:var(--soft);margin:0 0 16px;font-size:15px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 4px 18px rgba(15,23,42,.05)}
+.btn{border:0;border-radius:12px;padding:12px 16px;font-weight:800;font-size:16px;background:var(--blue);color:#fff;display:inline-flex;gap:8px;align-items:center;justify-content:center}
+.btn.alt{background:#e0e7ff;color:var(--blue)}
+.btn.gold{background:var(--gold);color:#111}
+.btn.green{background:var(--green)}
+.btn.ghost{background:#fff;border:2px solid var(--line);color:var(--ink)}
+.btn.block{width:100%}
+.btn.sm{padding:8px 12px;font-size:14px;border-radius:10px}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.mini{border:2px solid #fde68a;background:#fff;border-radius:10px;padding:7px 9px;font-size:16px;line-height:1}
+
+/* home */
+.cont{display:flex;gap:12px;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#1e40af,#2563eb);color:#fff;border-radius:18px;padding:16px 18px;margin-bottom:16px}
+.cont b{display:block;font-size:17px}
+.cont small{opacity:.9}
+.cont .btn{background:#fff;color:var(--blue)}
+.week{margin-bottom:14px}
+.week h2{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--blue);margin:14px 4px 8px}
+.sec{width:100%;display:flex;align-items:center;gap:12px;text-align:left;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px;font-size:15px;color:var(--ink)}
+.sec .nm{flex:1;font-weight:700}
+.sec .bar{width:70px;height:8px;background:var(--line);border-radius:8px;overflow:hidden}
+.sec .bar i{display:block;height:100%;background:var(--green)}
+.sec small{font-size:12px;color:var(--soft);min-width:42px;text-align:right}
+.sec.full small{color:var(--green);font-weight:800}
+.setup{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px;color:var(--soft);margin:4px 0 14px}
+.setup select{font-family:inherit;font-size:14px;padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:#fff}
+
+/* study */
+.crumb{font-size:13px;color:var(--soft);font-weight:700;margin-bottom:10px}
+.crumb b{color:var(--blue)}
+.steps{display:flex;gap:6px;margin-bottom:6px}
+.steps span{flex:1;height:6px;border-radius:6px;background:var(--line)}
+.steps span.on{background:var(--blue)}
+.stepname{font-size:13px;font-weight:800;color:var(--blue);text-transform:uppercase;letter-spacing:.05em}
+.stepdesc{font-size:14px;color:var(--soft);margin:2px 0 12px}
+.who{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);margin-bottom:6px}
+.q{font-size:clamp(22px,5.5vw,34px);line-height:1.2;font-weight:800;margin:0}
+.es{font-size:clamp(16px,4vw,20px);color:var(--soft);margin-top:8px}
+.hq{font-size:22px;font-weight:800;color:#94a3b8}
+.play{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.answers{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.ans{background:var(--goldbg);border-left:6px solid var(--gold);border-radius:12px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start}
+.ans .txt{flex:1;min-width:0}
+.ans.act{background:#eff6ff;border-left-color:var(--blue);font-weight:700}
+.ask{font-size:13px;font-weight:800;color:var(--blue);margin-bottom:4px}
+.wl{display:flex;flex-wrap:wrap;gap:2px 12px}
+.w{display:flex;flex-direction:column;align-items:center}
+.w b{font-size:clamp(20px,5vw,30px);font-weight:800;line-height:1.15}
+.w i{font-style:normal;font-size:clamp(13px,3.4vw,17px);color:#92400e;font-weight:600}
+.en{font-size:clamp(20px,5vw,30px);font-weight:800}
+.p{font-size:15px;color:#92400e;margin-top:4px}
+.fill{background:#dbeafe;border-radius:6px;padding:0 .2em;color:var(--blue)}
+.blank{display:inline-block;min-width:3em;border-bottom:3px solid var(--blue)}
+.nat{margin-top:10px;padding-top:8px;border-top:2px dashed #fcd34d}
+.nat .lbl,.alts .lbl{font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px}
+.nat .lbl{color:#15803d}
+.nat .w b{color:#166534;font-size:clamp(17px,4.4vw,24px)}
+.alts{background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:10px 14px;margin-top:12px}
+.alts .lbl{color:#0369a1}
+.alt{display:flex;align-items:center;gap:8px;padding:4px 0;font-weight:700;font-size:17px}
+.alt span{flex:1}
+.tip{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:12px;padding:10px 14px;font-size:15px;color:var(--soft);margin-top:12px}
+.defbox{background:var(--greenbg);border:1px solid #bbf7d0;border-radius:12px;padding:10px 14px;font-size:15px;margin-top:12px}
+.defbox b{color:var(--green)}
+.asked{margin-top:8px;font-weight:700;color:#0369a1;font-size:15px}
+.self{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.do{background:#eff6ff;border:2px solid #bfdbfe;border-radius:12px;padding:10px 14px;font-weight:700;color:var(--blue);margin-top:12px;font-size:15px}
+.bottom{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.97);border-top:1px solid var(--line);padding:10px 14px;display:flex;gap:10px;align-items:center;justify-content:center;z-index:15}
+.bottom .in{max-width:860px;width:100%;display:flex;gap:10px;align-items:center}
+.bottom .cnt{font-size:13px;font-weight:700;color:var(--soft);white-space:nowrap}
+.bottom .btn{flex:1}
+.bottom #bPrev{flex:0 0 64px}
+
+/* civics */
+.cq{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px}
+.cq .hd{display:flex;gap:10px;align-items:flex-start}
+.cq .num{background:var(--blue);color:#fff;font-weight:800;border-radius:10px;min-width:38px;height:38px;display:flex;align-items:center;justify-content:center}
+.cq .qq{font-size:19px;font-weight:800;line-height:1.25;flex:1}
+.cq .aa{color:var(--green);font-weight:700;font-size:17px;margin-top:8px}
+.cq .aa ul{margin:4px 0 0;padding-left:1.2em}
+.cq .imgs img{height:90px;border-radius:8px;border:1px solid var(--line);margin:8px 8px 0 0}
+.cq.trivia{border:2px solid var(--gold);background:var(--goldbg)}
+.banner{border-radius:14px;padding:12px 14px;font-weight:700;margin-bottom:12px;font-size:15px}
+.banner.blue{background:#eff6ff;border:1px solid #bfdbfe;color:var(--blue)}
+.banner.gold{background:var(--goldbg);border:2px solid var(--gold)}
+.banner.green{background:var(--greenbg);border:2px solid #86efac;color:#166534}
+
+/* writing */
+textarea{width:100%;font-family:inherit;font-size:20px;padding:12px;border:2px solid var(--line);border-radius:12px;margin-top:12px;resize:vertical;min-height:80px}
+.fb{border-radius:12px;padding:12px 14px;margin-top:12px;font-weight:600}
+.fb.ok{background:var(--greenbg);border:1px solid #86efac;color:#166534}
+.fb.mid{background:var(--goldbg);border:1px solid #fcd34d;color:#92400e}
+.fb.bad{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
+
+/* locked / loading */
+.center{min-height:70vh;display:flex;align-items:center;justify-content:center;text-align:center}
+.center .card{max-width:460px}
+</style>
+</head>
+<body>
+<div class="top">
+  <a class="back" href="dashboard.html">← Hub</a>
+  <div class="ttl">Mi curso · <span>Camino a la Ciudadanía</span></div>
+  <div id="save"></div>
+  <div class="pct" id="pct"></div>
+</div>
+<div class="wrap" id="app"><div class="center"><p>Cargando tu curso…</p></div></div>
+<div class="bottom hidden" id="bottom"><div class="in">
+  <button class="btn ghost" id="bPrev" aria-label="Anterior">←</button>
+  <div class="cnt" id="bCnt"></div>
+  <button class="btn" id="bNext">Siguiente paso →</button>
+</div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/definitions.js"></script>
+<script src="/civics-images.js"></script>
+<script src="/maestro-data.js"></script>
+<script>
+const SUPABASE_URL = 'https://vugvnqapdxyewxyfaayl.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_vFFY4GL2f8PIGrArW05ncg_PVkcgV4M';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const TEACHERS = ['oscaralvarezdosa@gmail.com'];
+const $ = id => document.getElementById(id);
+const M = window.MAESTRO;
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const STEP_TXT = [
+  ['Escuchas', 'Oye la pregunta del oficial y lee qué significa. Toca ▶ las veces que quieras.'],
+  ['Repites', 'Repite la respuesta en voz alta, despacio, 3 veces. Fíjate en la pronunciación.'],
+  ['Contestas', 'Contesta en voz alta con TUS datos, usando la respuesta modelo.'],
+  ['Como el día real', 'El oficial pregunta (a veces con otras palabras). Contesta sin mirar y luego revisa.']
+];
+
+let user = null, SECTIONS = {}, CIV = {}, STATES = [];
+let P = { done:{}, civ:{}, last:null, test:'128', state:'Texas', sim:{} };
+let V = { screen:'home', sec:null, idx:0, step:1, reveal:false, askFor:null, askText:'', trivia:null, typed:'', fb:null, sim:null };
+
+// ===================================================== voice (same recordings as the platform)
+let manifest = null, curAudio = null, voices = [];
+fetch('/audio/manifest.json').then(r => r.ok ? r.json() : {}).then(m => manifest = m || {}).catch(() => manifest = {});
+function loadVoices(){ try { voices = speechSynthesis.getVoices() || []; } catch(e) {} }
+if ('speechSynthesis' in window) { loadVoices(); try { speechSynthesis.addEventListener('voiceschanged', loadVoices); } catch(e) {} }
+function bestVoice(){
+  const sc = v => { const n = (v.name||'').toLowerCase(); let s = 0;
+    if (/natural|neural|online/.test(n)) s += 100; if (/premium|enhanced/.test(n)) s += 80; if (/google/.test(n)) s += 40;
+    if (/aria|jenny|samantha|ava|allison|guy/.test(n)) s += 30; if (/en[-_]us/i.test(v.lang||'')) s += 10; return s; };
+  return voices.filter(v => /^en/i.test(v.lang||'')).sort((a,b) => sc(b) - sc(a))[0] || null;
+}
+function stopAudio(){ if (curAudio) { try { curAudio.pause(); } catch(e) {} curAudio = null; } try { speechSynthesis.cancel(); } catch(e) {} }
+function sayable(t){ return String(t||'').replace(/\[([A-Z])(-[A-Z])+\]/g, m => m.slice(1, -1).split('-').join(', ')).replace(/\[|\]/g,'').replace(/\([^)]*\)/g,'').replace(/\s+\/\s+/g,'. ').replace(/\s+/g,' ').trim(); }
+function speak(text, slow){
+  const raw = String(text || '').trim(), t = sayable(text); if (!t) return;
+  stopAudio();
+  const file = manifest && (manifest['en|' + raw] || manifest['en|' + t]);
+  if (file) { const a = new Audio('/audio/' + file); curAudio = a; a.playbackRate = slow ? 0.72 : 1; a.play().catch(() => tts(t, slow)); return; }
+  tts(t, slow);
+}
+function tts(t, slow){
+  if (!('speechSynthesis' in window)) return;
+  const u = new SpeechSynthesisUtterance(t); u.lang = 'en-US'; u.rate = slow ? 0.68 : 0.95;
+  const v = bestVoice(); if (v) u.voice = v; speechSynthesis.speak(u);
+}
+
+// ===================================================== content
+function defLookup(term){
+  const L = window.DEFINITIONS || []; const t = String(term||'').toLowerCase();
+  return L.find(d => d.term.toLowerCase() === t || (d.aliases||[]).some(a => a.toLowerCase() === t)) || null;
+}
+function buildSections(){
+  SECTIONS = {};
+  M.sections.forEach(s => SECTIONS[s.id] = s);
+  const defs = (window.DEFINITIONS || []).filter(d => d.interview);
+  SECTIONS.definiciones = { id:'definiciones', title:'Las definiciones', cards: defs.map(d => ({
+    id:'df-' + d.term.toLowerCase().replace(/[^a-z0-9]+/g,'-'), q:'What does "' + d.term + '" mean?', es:'¿Qué significa "' + d.term + '"?',
+    a:[{ en:d.short.en, m:d.short.es }], term:d, tip:d.tip && d.tip.es ? d.tip.es : '' })) };
+  SECTIONS.civica = { id:'civica', title:'Cívica en bloques de 3', kind:'civics', cards:[] };
+  SECTIONS.simulacro = { id:'simulacro', title:'Simulacro completo', kind:'sim', cards:[] };
+  SECTIONS.cambio = { id:'cambio', title:'Cambio rápido: ¿No o Sí?', kind:'mix', cards:[] };
+}
+async function loadCivics(){
+  const v = P.test;
+  try {
+    const r = await fetch('/api/questions?v=' + v + '&state=' + encodeURIComponent(P.state || ''));
+    const d = await r.json(); CIV[v] = d.questions || [];
+    if (d.states) STATES = d.states;
+  } catch(e) { CIV[v] = CIV[v] || []; }
+}
+function civBlocks(){ const q = CIV[P.test] || []; const out = []; for (let i = 0; i < q.length; i += 3) out.push(q.slice(i, i + 3)); return out; }
+const shuffle = a => a.slice().sort(() => Math.random() - 0.5);
+
+// ===================================================== progress: this phone + the student's account
+let saveTimer = null;
+function lsKey(){ return 'micurso:' + (user ? user.id : 'anon'); }
+function setSave(t){ $('save').textContent = t; }
+async function loadProgress(){
+  try { const l = JSON.parse(localStorage.getItem(lsKey()) || 'null'); if (l) P = Object.assign(P, l); } catch(e) {}
+  try {
+    const { data, error } = await sb.from('student_progress').select('course').eq('user_id', user.id).maybeSingle();
+    if (!error && data && data.course && Object.keys(data.course).length) {
+      const s = data.course, l = P;
+      // keep the most advanced copy (counts of completed cards)
+      if (Object.keys(s.done || {}).length >= Object.keys(l.done || {}).length) P = Object.assign({ done:{}, civ:{}, sim:{} }, s);
+    }
+  } catch(e) {}
+  P.done = P.done || {}; P.civ = P.civ || {}; P.sim = P.sim || {}; P.test = P.test === '100' ? '100' : '128'; P.state = P.state || 'Texas';
+}
+function saveProgress(){
+  try { localStorage.setItem(lsKey(), JSON.stringify(P)); } catch(e) {}
+  clearTimeout(saveTimer); setSave('Guardando…');
+  saveTimer = setTimeout(async () => {
+    try {
+      const { error } = await sb.from('student_progress').upsert({ user_id:user.id, course:P, updated_at:new Date().toISOString() }, { onConflict:'user_id' });
+      setSave(error ? '' : 'Guardado ✓');
+    } catch(e) { setSave(''); }
+  }, 1500);
+}
+
+// ===================================================== home
+function secProgress(id){
+  if (id === 'civica') { const n = civBlocks().length; return [Math.min(P.civ[P.test] || 0, n), n]; }
+  if (id === 'simulacro' || id === 'cambio') return null;
+  const s = SECTIONS[id]; return [s.cards.filter(c => P.done[c.id]).length, s.cards.length];
+}
+function totalPct(){
+  let d = 0, t = 0;
+  M.days.forEach(day => day.sections.forEach(id => { const p = secProgress(id); if (p) { d += p[0]; t += p[1]; } }));
+  return t ? Math.round(d / t * 100) : 0;
+}
+function renderHome(){
+  V.screen = 'home'; $('bottom').classList.add('hidden'); stopAudio();
+  const last = P.last && SECTIONS[P.last.sec] ? P.last : null;
+  const name = ((user.user_metadata || {}).full_name || '').split(' ')[0];
+  let h = '<h1>' + (name ? 'Hola, ' + esc(name) : 'Tu curso') + '</h1><p class="sub">Estudia a tu ritmo, en el orden que quieras. Tu avance se guarda en tu cuenta.</p>';
+  if (last) h += '<div class="cont"><div><b>Sigue donde te quedaste</b><small>' + esc(SECTIONS[last.sec].title) + '</small></div><button class="btn" id="contBtn">Continuar →</button></div>';
+  h += '<div class="setup">Tu examen de cívica: <select id="selTest"><option value="128"' + (P.test === '128' ? ' selected' : '') + '>128 preguntas (2025)</option><option value="100"' + (P.test === '100' ? ' selected' : '') + '>100 preguntas (2008)</option></select>' +
+    ' Estado: <select id="selState">' + STATES.map(s => '<option' + (s === P.state ? ' selected' : '') + '>' + esc(s) + '</option>').join('') + '</select></div>';
+  M.days.forEach(d => {
+    h += '<div class="week"><h2>Semana ' + d.n + ' · ' + esc(d.title) + '</h2>';
+    d.sections.forEach(id => {
+      const s = SECTIONS[id]; if (!s) return; const p = secProgress(id); const full = p && p[1] && p[0] >= p[1];
+      h += '<button class="sec' + (full ? ' full' : '') + '" data-sec="' + id + '"><span class="nm">' + esc(s.title) + '</span>' +
+        (p ? '<span class="bar"><i style="width:' + (p[1] ? Math.round(p[0] / p[1] * 100) : 0) + '%"></i></span><small>' + (full ? '✓ ' : '') + p[0] + '/' + p[1] + '</small>' : '<small>→</small>') + '</button>';
+    });
+    h += '</div>';
+  });
+  h += '<p class="sub" style="margin-top:18px">💡 Un buen ritmo: 15 minutos al día. Las respuestas modelo son una guía para decir tu verdad en inglés; siempre contesta con lo que es cierto y con lo que pusiste en tu N-400.</p>';
+  $('app').innerHTML = h;
+  $('pct').textContent = totalPct() + '%';
+  $('app').querySelectorAll('[data-sec]').forEach(b => b.onclick = () => openSection(b.dataset.sec));
+  if (last) $('contBtn').onclick = () => openSection(last.sec, last.idx);
+  $('selTest').onchange = async () => { P.test = $('selTest').value; await loadCivics(); saveProgress(); renderHome(); };
+  $('selState').onchange = async () => { P.state = $('selState').value; await loadCivics(); saveProgress(); renderHome(); };
+  window.scrollTo({ top:0 });
+}
+
+// ===================================================== study a section
+function openSection(id, idx){
+  stopAudio();
+  V = Object.assign(V, { screen:'study', sec:id, idx:idx || 0, step:1, reveal:false, askFor:null, trivia:null, typed:'', fb:null });
+  if (id === 'civica') V.idx = Math.min(P.civ[P.test] || 0, Math.max(civBlocks().length - 1, 0));
+  if (id === 'simulacro') newSim();
+  if (id === 'cambio') buildCambio();
+  if (V.sec !== 'civica' && V.sec !== 'simulacro' && V.idx >= list().length) V.idx = 0;
+  if (isMix()) V.step = 4;
+  P.last = { sec:id, idx:V.idx }; saveProgress();
+  render(); autoPlay();
+}
+function list(){ return V.sec === 'civica' ? civBlocks() : V.sec === 'simulacro' ? (V.sim ? V.sim.items : []) : SECTIONS[V.sec].cards; }
+function isMix(){ return V.sec === 'simulacro' || V.sec === 'cambio'; }
+function cur(){ const it = list()[V.idx]; if (V.sec === 'simulacro') return it ? (it.card || it.civ) : null; return it; }
+function kindOf(){ const s = SECTIONS[V.sec]; if (V.sec === 'simulacro') { const it = V.sim && V.sim.items[V.idx]; if (!it) return 'end'; return it.civ ? 'civ' : (it.kind || 'n400'); } return s.kind === 'read' ? 'read' : s.kind === 'write' ? 'write' : 'n400'; }
+function askText(c){
+  if (!c || !c.q || c.kind === 'rule') return c ? c.q : '';
+  if (V.step === 4 && !V.reveal) {
+    if (V.askFor !== c.id) { const all = [c.q].concat(c.v || []); V.askFor = c.id; V.askText = all[Math.floor(Math.random() * all.length)]; }
+    return V.askText;
+  }
+  return c.q;
+}
+function firstSpoken(c){ return (c.a || []).find(a => a.en && sayable(a.en)); }
+function autoPlay(){
+  setTimeout(() => {
+    if (V.screen !== 'study') return;
+    const k = kindOf(), c = cur(); if (!c || k === 'end') return;
+    if (V.sec === 'civica') return;
+    if (k === 'civ') { if (!V.reveal) speak(c.q); return; }
+    if (k === 'write') { if (!V.fb) speak(c.q, true); return; }
+    if (k === 'read' || c.kind === 'rule') return;
+    if (V.step === 1 || V.step === 4) speak(askText(c));
+    else if (V.step === 2) { const f = firstSpoken(c); if (f) speak(f.en, true); }
+  }, 250);
+}
+
+function fmtAnswer(en, mode){ return esc(en).replace(/\[([^\]]*)\]/g, (m, v) => mode === 'blank' ? '<span class="blank">&nbsp;</span>' : '<span class="fill">' + v + '</span>'); }
+function wordsHtml(a, mode){
+  const en = a.en.match(/\[[^\]]*\]\S*|\S+/g) || [], p = String(a.p || '').split(/\s+/).filter(Boolean);
+  if (a.spell || en.length !== p.length) return null;
+  return '<div class="wl">' + en.map((w, i) => '<span class="w"><b>' + fmtAnswer(w, mode) + '</b><i>' + esc(p[i] === '…' ? ' ' : p[i]) + '</i></span>').join('') + '</div>';
+}
+function naturalFor(a){
+  if (!a || !a.en) return [];
+  if (a.n) return a.n;
+  const l = (M.natural && M.natural[a.en]) ? M.natural[a.en].filter(n => !n.same) : null; if (l) return l;
+  if (/\bI am [a-z\[]/i.test(a.en) && /ái am /i.test(a.p || '')) return [{ en:a.en.replace(/\bI am (?=[a-z\[])/i, "I'm "), p:a.p.replace(/ái am /i, 'áim ') }];
+  const m = a.en.match(/\bI have (lived|worked|taken|been)\b/);
+  if (m && /ái jav /i.test(a.p || '')) return [{ en:a.en.replace('I have ' + m[1], "I've " + m[1]), p:a.p.replace(/ái jav /i, 'áiv ') }];
+  return [];
+}
+function answersHtml(c, mode, withPron){
+  return '<div class="answers">' + c.a.map((a, i) => {
+    if (a.act) return '<div class="ans act">🙋 ' + esc(a.act) + '</div>';
+    const words = withPron && a.p ? wordsHtml(a, mode) : null;
+    const nat = withPron && !c.term ? naturalFor(a) : [];
+    return '<div class="ans"><div class="txt">' + (a.ask ? '<div class="ask">' + esc(a.ask) + '</div>' : '') +
+      (words || '<div class="en">' + fmtAnswer(a.en, mode) + '</div>' + (withPron && a.p ? '<div class="p">Se pronuncia: ' + esc(a.p) + '</div>' : '')) +
+      (withPron && a.m ? '<div class="p">En español: ' + esc(a.m) + '</div>' : '') +
+      (nat.length ? '<div class="nat"><div class="lbl">💬 Como lo dice la gente (también está bien)</div>' + nat.map((n, j) => '<div style="display:flex;gap:8px;align-items:center;margin-top:4px"><div style="flex:1">' + (wordsHtml(n, 'show') || '<div class="en">' + fmtAnswer(n.en, 'show') + '</div>') + '</div><button class="mini" data-nat="' + i + ':' + j + '">🐢</button></div>').join('') + '</div>' : '') +
+      '</div><button class="mini" data-ans="' + i + '">🐢</button></div>';
+  }).join('') + '</div>';
+}
+function altsHtml(c){
+  if (!c.v || !c.v.length) return '';
+  return '<div class="alts"><div class="lbl">🔁 El oficial también puede preguntar así</div>' + c.v.map((t, i) => '<div class="alt"><span lang="en">' + esc(t) + '</span><button class="mini" data-alt="' + i + '">▶</button></div>').join('') + '</div>';
+}
+function stepsHtml(){
+  return '<div class="steps">' + [1,2,3,4].map(n => '<span class="' + (n <= V.step ? 'on' : '') + '"></span>').join('') + '</div>' +
+    '<div class="stepname">Paso ' + V.step + ' de 4 · ' + STEP_TXT[V.step - 1][0] + '</div><div class="stepdesc">' + STEP_TXT[V.step - 1][1] + '</div>';
+}
+function n400Html(c, mix){
+  const rule = c.kind === 'rule';
+  let h = '';
+  if (!rule && !mix) h += stepsHtml();
+  if (rule) {
+    h += '<div class="card"><div class="who">' + esc(c.title || 'La regla de oro') + '</div><p class="q">' + esc(c.q) + '</p><div class="es">' + esc(c.es) + '</div></div>' + answersHtml(c, 'show', true);
+    if (c.tip) h += '<div class="tip">💡 ' + esc(c.tip) + '</div>';
+    return h;
+  }
+  const hide = V.step === 4 && !V.reveal;
+  h += '<div class="card">';
+  if (hide) h += '<div class="who">El oficial pregunta' + (c.group ? ' · ' + esc(c.group) : '') + '</div><div class="hq">🎙️ Escucha y contesta en voz alta</div>';
+  else h += '<div class="who">' + (c.student ? 'Tú dices' : 'El oficial pregunta') + (c.group ? ' · ' + esc(c.group) : '') + '</div><p class="q">' + esc(c.q) + '</p>' +
+    (c.es && (V.step <= 2 || V.reveal) ? '<div class="es">' + esc(c.es) + '</div>' : '') +
+    (V.step === 4 && V.reveal && V.askFor === c.id && V.askText && V.askText !== c.q ? '<div class="asked">🎙️ Esta vez te lo preguntó así: “' + esc(V.askText) + '” <button class="mini" data-act="asked">▶</button></div>' : '');
+  h += '<div class="play"><button class="btn" data-act="q">▶ Oír</button><button class="btn alt" data-act="qs">🐢 Despacio</button>' +
+    (V.step >= 2 && firstSpoken(c) ? '<button class="btn gold" data-act="a">▶ Respuesta</button>' : '') + '</div></div>';
+  if (V.step <= 2 || V.reveal) h += altsHtml(c);
+  if (V.step === 2 || (V.step === 4 && V.reveal)) h += answersHtml(c, 'show', true);
+  else if (V.step === 3) h += answersHtml(c, 'blank', false);
+  if (c.term && (V.step === 2 || V.reveal)) {
+    const d = c.term;
+    h += '<div class="defbox"><b>' + esc(d.term) + '</b>' + (d.pron ? ' · se pronuncia <b>' + esc(d.pron) + '</b>' : '') + '<br>Definición oficial: ' + esc(d.official.en) + '<br><span style="color:var(--soft)">' + esc(d.official.es) + '</span></div>';
+  }
+  if (c.def && (V.step <= 2 || V.reveal)) { const d = defLookup(c.def); if (d) h += '<div class="defbox">📖 <b>' + esc(d.term) + '</b>' + (d.pron ? ' (' + esc(d.pron) + ')' : '') + ': ' + esc(d.short.es) + '</div>'; }
+  if (c.tip && V.step <= 3) h += '<div class="tip">💡 ' + esc(c.tip) + '</div>';
+  if (V.step === 3) h += '<div class="do">🗣️ Dilo en voz alta ahora, con tus datos. Cuando termines, toca "Siguiente paso".</div>';
+  if (V.step === 4) h += V.reveal
+    ? '<div class="self">' + (V.sec === 'simulacro' ? '<button class="btn ghost" data-act="bad">❌ No me salió</button>' : '<button class="btn ghost" data-act="again">🔁 Otra vez</button>') + '<button class="btn green" data-act="good">✅ Lo dije bien</button></div>'
+    : '<div class="do">🗣️ Contesta en voz alta y después toca "Revisar".</div>';
+  return h;
+}
+function readHtml(c){
+  return '<div class="banner blue">Prueba de lectura: lee la pregunta en voz alta. En la entrevista hay que leer bien 1 de hasta 3.</div>' +
+    '<div class="card"><div class="who">Lee en voz alta</div><p class="q">' + esc(c.q) + '</p><div class="play"><button class="btn" data-act="q">▶ Así se lee</button><button class="btn alt" data-act="qs">🐢 Despacio</button></div></div>' +
+    '<div class="tip">💡 Primero léela tú, después tócala para comparar. Who (jú), What (uát), Where (uér), When (uén), Why (uái), How (jáu).</div>' +
+    '<div class="self">' + (V.sec === 'simulacro' ? '<button class="btn ghost" data-act="bad">❌ No me salió</button>' : '<button class="btn ghost" data-act="again">🔁 Otra vez</button>') + '<button class="btn green" data-act="good">✅ La leí bien</button></div>';
+}
+// Writing grader: same rules as the writing practice (small typos allowed, capitals checked, 50 = fifty).
+function normalize(s){ return String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\b50\b/g,'fifty').replace(/\b100\b/g,'one hundred').toLowerCase().replace(/[.,!?;:'"-]/g,'').replace(/\s+/g,' ').trim(); }
+function lev(a,b){ const m=a.length,n=b.length; const dp=Array.from({length:m+1},(_,i)=>[i].concat(Array(n).fill(0))); for(let j=0;j<=n;j++)dp[0][j]=j;
+  for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]); return dp[m][n]; }
+function wordsMatch(t, c){ if (t === c) return true; const L = c.length, tol = L<=3 ? 0 : (L<=6 ? 1 : 2); return lev(t,c) <= tol; }
+function caseWords(s){ return String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\b50\b/g,'fifty').replace(/\b100\b/g,'one hundred').replace(/[.,!?;:'"-]/g,'').replace(/\s+/g,' ').trim().split(' ').filter(Boolean); }
+function gradeSentence(typed, correct){
+  const tw = normalize(typed).split(' ').filter(Boolean), cw = normalize(correct).split(' ').filter(Boolean);
+  if (tw.length !== cw.length || !tw.every((w,i) => wordsMatch(w, cw[i]))) return { result:'wrong', caseErrors:[] };
+  const tc = caseWords(typed), cc = caseWords(correct), ce = [];
+  if (tc.length === cc.length) cc.forEach((w,i) => { const a = tc[i].charAt(0), b = w.charAt(0); if (a !== b && a.toLowerCase() === b.toLowerCase()) ce.push(w); });
+  return { result: ce.length ? 'case' : 'ok', caseErrors: ce };
+}
+function writeHtml(c){
+  let h = '<div class="banner blue">Prueba de escritura: escucha la oración y escríbela. En la entrevista hay que escribir bien 1 de hasta 3.</div>' +
+    '<div class="card"><div class="who">Dictado</div>' + (V.fb ? '<p class="q">' + esc(c.q) + '</p>' : '<div class="hq">✍️ Escucha y escribe</div>') +
+    '<div class="play"><button class="btn" data-act="q">▶ Dictar</button><button class="btn alt" data-act="qs">🐢 Despacio</button></div>' +
+    '<textarea id="wIn" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Escribe aquí…"' + (V.fb ? ' disabled' : '') + '>' + esc(V.typed) + '</textarea>';
+  if (!V.fb) h += '<div class="play"><button class="btn green block" data-act="check">Revisar</button></div>';
+  else {
+    const f = V.fb;
+    h += f.result === 'ok' ? '<div class="fb ok">✅ ¡Muy bien! Está correcta.</div>'
+      : f.result === 'case' ? '<div class="fb mid">🟡 Las palabras están bien. Revisa las mayúsculas en: <b>' + esc(f.caseErrors.join(', ')) + '</b></div>'
+      : '<div class="fb bad">❌ No quedó igual. Compara con la oración de arriba y vuelve a intentarlo.</div>';
+    h += '<div class="self"><button class="btn ghost" data-act="again">🔁 Otra vez</button><button class="btn green" data-act="good">' + (f.result === 'wrong' ? 'Seguir →' : '✅ Siguiente') + '</button></div>';
+  }
+  return h + '</div><div class="tip">💡 Mayúscula al inicio y en nombres (Washington, Congress, President, July). Punto al final. "fifty" o "50" valen igual.</div>';
+}
+let civOpen = {};
+function civItem(q, key, opts){
+  const imgs = ((window.CIVICS_IMAGES && CIVICS_IMAGES.map && CIVICS_IMAGES.map[P.test] && CIVICS_IMAGES.map[P.test][q.n]) || []).slice(0, 2);
+  const ans = String(q.a || '').split(/;\s*/).filter(Boolean), hide = opts.hideQ && !opts.reveal;
+  return '<div class="cq' + (opts.trivia ? ' trivia' : '') + '"><div class="hd"><div class="num">' + q.n + '</div><div class="qq">' + (hide ? '<span style="color:#94a3b8">🎙️ Escucha la pregunta</span>' : esc(q.q)) + '</div></div>' +
+    (opts.reveal ? '<div class="aa">' + (ans.length > 1 ? '<ul>' + ans.map(a => '<li>' + esc(a) + '</li>').join('') + '</ul>' : esc(ans[0] || '')) + '</div>' +
+      (imgs.length ? '<div class="imgs">' + imgs.map(k => '<img src="/img/civics/' + esc(k) + '.webp" alt="" onerror="this.remove()">').join('') + '</div>' : '') : '') +
+    '<div class="play"><button class="btn sm" data-civ="' + key + '">▶ Pregunta</button><button class="btn sm alt" data-civs="' + key + '">🐢</button><button class="btn sm gold" data-civa="' + key + '">🔊 Respuesta</button></div></div>';
+}
+function civicsHtml(){
+  const B = civBlocks(); if (!B.length) return '<div class="card">Cargando las preguntas de cívica…</div>';
+  const k = Math.min(V.idx, B.length - 1), done = Math.min(P.civ[P.test] || 0, B.length);
+  let h = '<div class="banner blue">Examen de ' + P.test + ' preguntas · ' + esc(P.state) + ' · Bloque ' + (k + 1) + ' de ' + B.length + ' · Terminaste ' + done + '</div>';
+  if (V.trivia) {
+    const T = V.trivia, q = T.items[T.i];
+    h += '<div class="banner gold">🎲 Trivia de este bloque: ' + (T.i + 1) + ' de ' + T.items.length + '. Escucha y contesta sin mirar.</div>' + civItem(q, 't', { trivia:true, hideQ:true, reveal:T.reveal });
+    h += T.reveal ? '<div class="self"><button class="btn ghost" data-act="tAgain">🔁 No me salió</button><button class="btn green" data-act="tGood">✅ Me salió</button></div>'
+      : '<div class="play"><button class="btn block gold" data-act="tReveal">Ver la respuesta</button></div>';
+    return h;
+  }
+  h += B[k].map((q, i) => civItem(q, String(i), { reveal: !!civOpen[k + ':' + i] })).join('') +
+    '<div class="tip">💡 Escucha cada pregunta, repite la respuesta en voz alta y después haz la trivia del bloque.</div>' +
+    '<div class="play"><button class="btn gold block" data-act="trivia">🎲 Trivia de este bloque</button></div>';
+  return h;
+}
+function newSim(){
+  const pick = (arr, n) => shuffle(arr).slice(0, n);
+  const card = id => { for (const s of Object.values(SECTIONS)) { const c = (s.cards||[]).find(x => x.id === id); if (c) return c; } return null; };
+  const items = [];
+  ['s1','s3','s4','s5','s6','n1'].forEach(id => items.push({ part:'Saludo y juramento', card:card(id) }));
+  pick(CIV[P.test] || [], 6).forEach(q => items.push({ part:'Cívica', civ:q }));
+  pick(SECTIONS.lectura.cards, 1).forEach(c => items.push({ part:'Lectura', card:c, kind:'read' }));
+  pick(SECTIONS.escritura.cards, 1).forEach(c => items.push({ part:'Escritura', card:c, kind:'write' }));
+  pick(['nombre','datos','direccion','familia','trabajo','viajes','impuestos'].flatMap(id => SECTIONS[id].cards.filter(c => !c.student && c.id !== 'n2')), 7).forEach(c => items.push({ part:'Tu N-400', card:c }));
+  pick(SECTIONS.haveyouever.cards.concat(SECTIONS.haveyouever2.cards).filter(c => c.kind !== 'rule' && c.id !== 'c1'), 4).forEach(c => items.push({ part:'Have you ever…?', card:c }));
+  pick(SECTIONS.juramento.cards.filter(c => c.kind !== 'rule'), 2).forEach(c => items.push({ part:'Juramento', card:c }));
+  ['e1','e4'].forEach(id => items.push({ part:'Resultado', card:card(id) }));
+  V.sim = { items:items.filter(x => x.card || x.civ), good:0, miss:[] };
+}
+function buildCambio(){
+  const no = shuffle(SECTIONS.haveyouever.cards.concat(SECTIONS.haveyouever2.cards).filter(c => c.kind !== 'rule' && c.id !== 'h12' && c.id !== 'c1')).slice(0, 8);
+  const yes = shuffle(SECTIONS.juramento.cards.filter(c => c.kind !== 'rule')).slice(0, 5);
+  SECTIONS.cambio.cards = shuffle(no.concat(yes)).map(c => Object.assign({}, c, { id:'cx-' + c.id }));
+}
+function simEndHtml(){
+  const S = V.sim, n = S.items.length;
+  return '<div class="banner green">🎉 Terminaste el simulacro: te salieron bien <b>' + S.good + ' de ' + n + '</b>.</div>' +
+    (S.miss.length ? '<div class="card"><b>Para repasar:</b><ul>' + S.miss.map(t => '<li lang="en">' + esc(t) + '</li>').join('') + '</ul></div>' : '') +
+    '<div class="self"><button class="btn ghost" data-act="home">Volver al curso</button><button class="btn" data-act="newSim">Otro simulacro</button></div>';
+}
+
+function render(){
+  const s = SECTIONS[V.sec]; let h = '<div class="crumb"><b>' + esc(s.title) + '</b></div>';
+  const L = list(), bottom = $('bottom');
+  if (V.sec === 'simulacro' && V.idx >= L.length) { $('app').innerHTML = h + simEndHtml(); bottom.classList.add('hidden'); wire(); return; }
+  if (V.sec === 'civica') h += civicsHtml();
+  else if (V.sec === 'simulacro') {
+    const it = L[V.idx]; h += '<div class="banner blue">Simulacro · ' + esc(it.part) + ' · ' + (V.idx + 1) + ' de ' + L.length + '</div>';
+    if (it.civ) h += civItem(it.civ, 'sim', { hideQ:true, reveal:V.reveal }) + (V.reveal ? '<div class="self"><button class="btn ghost" data-act="bad">❌ No me salió</button><button class="btn green" data-act="good">✅ Me salió</button></div>' : '<div class="play"><button class="btn block gold" data-act="reveal">Revisar</button></div>');
+    else if (it.kind === 'read') h += readHtml(it.card);
+    else if (it.kind === 'write') h += writeHtml(it.card);
+    else h += n400Html(it.card, true);
+  }
+  else { const c = L[V.idx]; const k = kindOf(); h += k === 'read' ? readHtml(c) : k === 'write' ? writeHtml(c) : n400Html(c, isMix()); }
+  $('app').innerHTML = h;
+  // bottom bar
+  bottom.classList.remove('hidden');
+  $('bCnt').textContent = V.sec === 'civica' ? 'Bloque ' + (V.idx + 1) + '/' + L.length : (V.idx + 1) + '/' + L.length;
+  $('bPrev').disabled = V.idx === 0 && V.step === 1 && !V.trivia;
+  const c = cur(), k = kindOf();
+  const nb = $('bNext');
+  nb.classList.remove('hidden'); nb.disabled = false;
+  if (V.sec === 'civica') nb.textContent = V.trivia ? 'Salir de la trivia' : '✓ Terminé este bloque';
+  else if (k === 'n400' && c && c.kind !== 'rule' && V.step < 4 && !isMix()) nb.textContent = 'Siguiente paso →';
+  else if (k === 'n400' && c && c.kind !== 'rule' && V.step === 4 && !V.reveal) nb.textContent = 'Revisar';
+  else if (k === 'n400' && c && c.kind === 'rule') nb.textContent = 'Entendido →';
+  else nb.classList.add('hidden');
+  $('pct').textContent = totalPct() + '%';
+  wire();
+}
+function wire(){
+  const A = $('app');
+  A.querySelectorAll('[data-act]').forEach(b => b.onclick = () => act(b.dataset.act));
+  A.querySelectorAll('[data-ans]').forEach(b => b.onclick = () => { const c = cur(); speak(c.a[+b.dataset.ans].en, true); });
+  A.querySelectorAll('[data-nat]').forEach(b => b.onclick = () => { const c = cur(); const [i, j] = b.dataset.nat.split(':').map(Number); const n = naturalFor(c.a[i])[j]; if (n) speak(n.en, true); });
+  A.querySelectorAll('[data-alt]').forEach(b => b.onclick = () => { const c = cur(); speak(c.v[+b.dataset.alt]); });
+  const cq = k => k === 't' ? V.trivia.items[V.trivia.i] : k === 'sim' ? V.sim.items[V.idx].civ : civBlocks()[V.idx][+k];
+  A.querySelectorAll('[data-civ]').forEach(b => b.onclick = () => speak(cq(b.dataset.civ).q));
+  A.querySelectorAll('[data-civs]').forEach(b => b.onclick = () => speak(cq(b.dataset.civs).q, true));
+  A.querySelectorAll('[data-civa]').forEach(b => b.onclick = () => {
+    const k = b.dataset.civa, q = cq(k);
+    if (k === 't') V.trivia.reveal = true; else if (k === 'sim') V.reveal = true; else civOpen[V.idx + ':' + k] = true;
+    render(); speak(q.a);
+  });
+  const w = $('wIn'); if (w && !V.fb) { w.oninput = e => V.typed = e.target.value; }
+}
+function act(a){
+  const c = cur();
+  if (a === 'q' || a === 'qs') { if (c && c.q) speak(kindOf() === 'n400' ? askText(c) : c.q, a === 'qs'); return; }
+  if (a === 'a') { const f = c && firstSpoken(c); if (f) speak(f.en, true); return; }
+  if (a === 'asked') { speak(V.askText); return; }
+  if (a === 'reveal') { V.reveal = true; render(); if (V.sec === 'simulacro' && V.sim.items[V.idx].civ) speak(V.sim.items[V.idx].civ.a); return; }
+  if (a === 'good') return markAndNext(!(V.fb && V.fb.result === 'wrong'));
+  if (a === 'bad') return markAndNext(false);
+  if (a === 'again') { V.reveal = false; V.askFor = null; V.typed = ''; V.fb = null; if (kindOf() === 'n400') V.step = 4; render(); autoPlay(); return; }
+  if (a === 'check') { const t = ($('wIn') || {}).value || ''; if (!t.trim()) return; V.typed = t; V.fb = gradeSentence(t, c.q); render(); return; }
+  if (a === 'trivia') { const src = civBlocks()[V.idx] || []; let items = shuffle(src); for (let k = 0; k < 10 && items.length > 1 && items.every((q, i) => q === src[i]); k++) items = shuffle(src); V.trivia = { items, i:0, reveal:false }; render(); setTimeout(() => { if (V.trivia) speak(V.trivia.items[0].q); }, 200); return; }
+  if (a === 'tReveal') { V.trivia.reveal = true; render(); speak(V.trivia.items[V.trivia.i].a); return; }
+  if (a === 'tGood' || a === 'tAgain') {
+    const T = V.trivia;
+    if (a === 'tAgain') T.items.push(T.items[T.i]);   // comes back at the end
+    if (T.i < T.items.length - 1) { T.i++; T.reveal = false; render(); setTimeout(() => { if (V.trivia === T) speak(T.items[T.i].q); }, 200); }
+    else { V.trivia = null; P.civ[P.test] = Math.max(P.civ[P.test] || 0, V.idx + 1); saveProgress(); render(); }
+    return;
+  }
+  if (a === 'home') return renderHome();
+  if (a === 'newSim') { newSim(); V.idx = 0; V.reveal = false; V.step = 4; render(); autoPlay(); return; }
+}
+function markAndNext(ok){
+  const c = cur();
+  if (V.sec === 'simulacro') { if (ok) V.sim.good++; else V.sim.miss.push(c.q); }
+  else if (V.sec !== 'cambio' && c && c.id) P.done[c.id] = true;
+  goNext();
+}
+function goNext(){
+  stopAudio();
+  const L = list();
+  V.reveal = false; V.askFor = null; V.typed = ''; V.fb = null; V.trivia = null;
+  if (V.idx < L.length - 1 || V.sec === 'simulacro') {
+    V.idx++; V.step = isMix() ? 4 : 1;
+    if (V.sec === 'simulacro' && V.idx >= L.length) { P.sim[new Date().toISOString().slice(0,10)] = V.sim.good + '/' + L.length; saveProgress(); render(); return; }
+  } else {
+    const order = M.days.flatMap(d => d.sections), j = order.indexOf(V.sec);
+    if (j >= 0 && j < order.length - 1 && order[j + 1] !== 'simulacro') return openSection(order[j + 1]);
+    P.last = null; saveProgress(); return renderHome();
+  }
+  P.last = { sec:V.sec, idx:V.idx }; saveProgress(); render(); autoPlay(); window.scrollTo({ top:0 });
+}
+$('bNext').onclick = () => {
+  const c = cur(), k = kindOf();
+  if (V.sec === 'civica') {
+    if (V.trivia) { V.trivia = null; render(); return; }
+    P.civ[P.test] = Math.max(P.civ[P.test] || 0, V.idx + 1); saveProgress();
+    if (V.idx < civBlocks().length - 1) { V.idx++; civOpen = {}; P.last = { sec:'civica', idx:V.idx }; saveProgress(); render(); window.scrollTo({ top:0 }); } else renderHome();
+    return;
+  }
+  if (k === 'n400' && c && c.kind === 'rule') return markAndNext(true);
+  if (k === 'n400' && V.step < 4) { V.step++; render(); autoPlay(); window.scrollTo({ top:0 }); return; }
+  if (k === 'n400' && V.step === 4 && !V.reveal) { V.reveal = true; render(); const f = firstSpoken(c); if (f) speak(f.en, true); }
+};
+$('bPrev').onclick = () => {
+  stopAudio();
+  if (V.trivia) { V.trivia = null; render(); return; }
+  if (kindOf() === 'n400' && !isMix() && V.step > 1) { V.step--; V.reveal = false; render(); return; }
+  if (V.idx > 0) { V.idx--; V.step = isMix() ? 4 : 1; V.reveal = false; V.askFor = null; V.fb = null; V.typed = ''; render(); return; }
+  renderHome();
+};
+
+// ===================================================== access & start
+function locked(msg){
+  $('bottom').classList.add('hidden');
+  $('app').innerHTML = '<div class="center"><div class="card"><h1>🎓 Mi curso</h1><p class="sub">' + msg + '</p>' +
+    '<p><a class="btn block" href="curso.html" style="text-decoration:none">Ver el curso</a></p><p><a href="dashboard.html">Volver al Hub</a></p></div></div>';
+}
+async function hasAccess(){
+  const email = (user.email || '').toLowerCase();
+  if (TEACHERS.includes(email)) return true;
+  try {
+    const { data: enr } = await sb.from('course_enrollments').select('id').eq('user_id', user.id).limit(1);
+    if (!enr || !enr.length) return false;
+    const { data: pr } = await sb.from('profiles').select('plan, plan_expires_at').eq('id', user.id).single();
+    return !!(pr && pr.plan === 'premium' && (!pr.plan_expires_at || new Date(pr.plan_expires_at) > new Date()));
+  } catch(e) { return false; }
+}
+(async () => {
+  let session = null;
+  try { const { data } = await sb.auth.getSession(); session = data.session; } catch(e) {}
+  if (!session) { window.location.href = 'index.html'; return; }
+  user = session.user;
+  if (!(await hasAccess())) { locked('Esta parte es para los alumnos del curso. Aquí estudias a tu ritmo todo lo del curso: tu N-400 con pronunciación, cívica en bloques de 3, lectura, escritura y simulacros.'); return; }
+  buildSections();
+  await loadProgress();
+  await loadCivics();
+  renderHome();
+})();
+</script>
+<script src="/pw-eye.js" defer></script>
+</body>
+</html>

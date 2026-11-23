@@ -626,8 +626,9 @@
     if (enrolled) {
       document.getElementById('cbTag').textContent = 'ESTÁS INSCRITO · CURSO EN VIVO';
       document.getElementById('cbTitle').textContent = 'Tu primera clase es el sábado ' + first;
-      document.getElementById('cbSub').textContent = i.schedule + '. El enlace de Zoom te llega por correo antes de la clase.';
-      document.getElementById('cbBtn').textContent = 'Ver detalles →';
+      document.getElementById('cbSub').textContent = i.schedule + '. El enlace de Zoom te llega por correo. Entre clases, estudia en Mi curso.';
+      document.getElementById('cbBtn').textContent = 'Ir a mi curso →';
+      card.href = 'mi-curso.html';
       card.hidden = false;
     } else if (i.open) {
       if (i.countKnown) document.getElementById('cbSub').textContent = (i.founderLeft > 0 ? 'Quedan ' + i.founderLeft + ' lugares de fundador a $' + i.founderPrice : 'Quedan ' + i.seatsLeft + ' lugares') + '. Empieza el sábado ' + first + '. Premium y 16 entrevistas en vivo incluidas.';

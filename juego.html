@@ -441,7 +441,42 @@ function loadG(){
   try { const s = localStorage.getItem('game.sound'); g.sound = s === null ? true : s === '1'; } catch(e){ g.sound = true; }
   return g;
 }
-function saveG(){ try { localStorage.setItem(gKey(), JSON.stringify({xp:G.xp,stars:G.stars,streak:G.streak,test:G.test,state:G.state,masteredSeen:G.masteredSeen})); } catch(e){} }
+function gData(){ return {xp:G.xp,stars:G.stars,streak:G.streak,test:G.test,state:G.state,masteredSeen:G.masteredSeen}; }
+// Progress lives in this browser AND in the student's account (table student_progress), so it is not lost
+// when they change phone or clear the browser. Server writes are grouped (one every few seconds at most).
+let gSyncTimer = null;
+function saveG(){
+  try { localStorage.setItem(gKey(), JSON.stringify(gData())); } catch(e){}
+  if (uid === 'anon') return;
+  clearTimeout(gSyncTimer);
+  gSyncTimer = setTimeout(() => {
+    supabaseClient.from('student_progress').upsert({ user_id: uid, game: gData(), updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
+      .then(r => { if (r && r.error) console.warn('game sync', r.error.message); }, () => {});
+  }, 2500);
+}
+// Combine the copy in this browser with the one saved in the account: keep the best of each.
+function mergeG(a, b){
+  if (!b || typeof b !== 'object') return a;
+  const out = Object.assign({}, a);
+  out.xp = Math.max(a.xp || 0, b.xp || 0);
+  out.stars = Object.assign({}, b.stars || {});
+  Object.keys(a.stars || {}).forEach(k => { out.stars[k] = Math.max(out.stars[k] || 0, a.stars[k] || 0); });
+  const sa = a.streak || {last:0,count:0}, sb = b.streak || {last:0,count:0};
+  out.streak = (sb.last > sa.last || (sb.last === sa.last && sb.count > sa.count)) ? sb : sa;
+  out.masteredSeen = Math.max(a.masteredSeen || 0, b.masteredSeen || 0);
+  if (!a.xp && b.test) { out.test = b.test === '128' ? '128' : '100'; out.state = b.state || ''; }
+  return out;
+}
+async function syncG(){
+  try {
+    const { data } = await supabaseClient.from('student_progress').select('game').eq('user_id', uid).maybeSingle();
+    const merged = mergeG(G, data && data.game);
+    const changed = JSON.stringify(gData()) !== JSON.stringify({xp:merged.xp,stars:merged.stars,streak:merged.streak,test:merged.test,state:merged.state,masteredSeen:merged.masteredSeen});
+    G = Object.assign(G, merged);
+    saveG();
+    if (changed && screen === 'home') render();
+  } catch(e){}
+}
 function todayNum(){ return Math.floor((Date.now() - new Date().getTimezoneOffset()*60000) / 86400000); }
 function touchStreak(){
   const d = todayNum(), s = G.streak;
@@ -1102,6 +1137,7 @@ async function init(){
   userName = (md.full_name || md.name || '').split(' ')[0] || (session.user.email || '').split('@')[0];
   G = loadG();
   render();
+  syncG();
   // Load the civics bank in the background so level counts (and mastery) are exact; then refresh the home screen.
   loadCivics(G.test, G.state).then(() => { if (screen === 'home') render(); }).catch(() => {});
   document.getElementById('loadingOverlay').classList.add('hidden');
