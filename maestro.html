@@ -373,7 +373,7 @@ function natHtml(a, i){
 }
 function askText(c){
   if (!c || !c.q || c.kind === 'rule') return c ? c.q : '';
-  if (S.step === 4 || S.sec === 'simulacro') {
+  if ((S.step === 4 || S.sec === 'simulacro') && !S.reveal) {
     if (S.askFor !== c.id) { const all = [c.q].concat(c.v || []); S.askFor = c.id; S.askText = all[Math.floor(Math.random() * all.length)]; }
     return S.askText;
   }
@@ -401,7 +401,7 @@ function n400Card(c){
     (S.step === 4 && !rule ? '<button class="pbtn ghost" data-act="reveal">' + (S.reveal ? 'Ocultar' : 'Mostrar') + ' (R)</button>' : '') + '</div></div>';
   if (!rule && (S.step <= 2 || S.reveal)) h += altsHtml(c);
   if (!rule && S.step === 4 && S.reveal && S.askFor === c.id && S.askText && S.askText !== c.q)
-    h = h.replace('<div class="play">', '<div class="asked">🎙️ Esta vez el oficial lo preguntó así: “' + esc(S.askText) + '”</div><div class="play">');
+    h = h.replace('<div class="play">', '<div class="asked">🎙️ Esta vez el oficial lo preguntó así: “' + esc(S.askText) + '” <button class="mini" title="Oír cómo lo preguntó" data-act="asked">▶</button></div><div class="play">');
   if (rule) h += answersHtml(c, 'show', true);
   else if (S.step === 2) h += answersHtml(c, 'show', true);
   else if (S.step === 3) h += answersHtml(c, 'blank', false);
@@ -546,6 +546,7 @@ function act(a){
   }
   if ((a === 'short' || a === 'shortSlow') && c && c.term) { speak(c.term.short.en, a === 'shortSlow'); return; }
   if (a === 'a' && c && c.a) { const f = firstSpoken(c); if (f) speak(f.en, true); return; }
+  if (a === 'asked') { if (S.askText) speak(S.askText); return; }
   if (a === 'reveal') {
     S.reveal = !S.reveal; render();
     if (S.reveal) {
