@@ -170,6 +170,7 @@
                         </div>
                         <div class="dropdown-divider"></div>
                         <a class="btn-teacher" id="btnTeacher" href="maestro.html" hidden>🎓 Modo maestro</a>
+                        <a class="btn-teacher" id="btnStudentView" href="mi-curso.html" hidden>👩‍🎓 Mi curso (vista del alumno)</a>
                         <button class="btn-upgrade" id="btnUpgrade" onclick="startCheckout()">⭐ Upgrade to Professional</button>
                         <button class="btn-logout" onclick="handleLogout()">Log out</button>
                     </div>
@@ -600,7 +601,7 @@
   try {
     const { data: { session } } = await supabaseClient.auth.getSession();
     const email = session && session.user && (session.user.email || '').toLowerCase();
-    if (email && TEACHERS.includes(email)) document.getElementById('btnTeacher').hidden = false;
+    if (email && TEACHERS.includes(email)) { document.getElementById('btnTeacher').hidden = false; document.getElementById('btnStudentView').hidden = false; }
   } catch (e) {}
 })();
 </script>
