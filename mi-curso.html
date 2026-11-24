@@ -303,7 +303,14 @@ function renderHome(){
 // ===================================================== study a section
 function openSection(id, idx){
   stopAudio();
-  V = Object.assign(V, { screen:'study', sec:id, idx:idx || 0, step:1, reveal:false, askFor:null, trivia:null, typed:'', fb:null });
+  V = Object.assign(V, { screen:'study', sec:id, idx:idx || 0, step:1, reveal:false, askFor:null, trivia:null, typed:'', fb:null, shuf:null });
+  // Reading and dictation come in random order, like the officer picks them: first the ones not done yet.
+  const sk = SECTIONS[id] && SECTIONS[id].kind;
+  if (sk === 'read' || sk === 'write') {
+    const cards = SECTIONS[id].cards;
+    V.shuf = shuffle(cards.filter(c => !P.done[c.id])).concat(shuffle(cards.filter(c => P.done[c.id])));
+    V.idx = 0;
+  }
   if (id === 'civica') V.idx = Math.min(P.civ[P.test] || 0, Math.max(civBlocks().length - 1, 0));
   if (id === 'simulacro') newSim();
   if (id === 'cambio') buildCambio();
@@ -314,7 +321,7 @@ function openSection(id, idx){
   V.screen = 'study'; setTopBack();
   render(); autoPlay(); window.scrollTo({ top:0 });
 }
-function list(){ return V.sec === 'civica' ? civBlocks() : V.sec === 'simulacro' ? (V.sim ? V.sim.items : []) : SECTIONS[V.sec].cards; }
+function list(){ return V.sec === 'civica' ? civBlocks() : V.sec === 'simulacro' ? (V.sim ? V.sim.items : []) : (V.shuf || SECTIONS[V.sec].cards); }
 function isMix(){ return V.sec === 'simulacro' || V.sec === 'cambio'; }
 function cur(){ const it = list()[V.idx]; if (V.sec === 'simulacro') return it ? (it.card || it.civ) : null; return it; }
 function kindOf(){ const s = SECTIONS[V.sec]; if (V.sec === 'simulacro') { const it = V.sim && V.sim.items[V.idx]; if (!it) return 'end'; return it.civ ? 'civ' : (it.kind || 'n400'); } return s.kind === 'read' ? 'read' : s.kind === 'write' ? 'write' : 'n400'; }
