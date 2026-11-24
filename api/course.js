@@ -25,12 +25,33 @@ async function teacherFrom(req) {
   } catch (e) { return null; }
 }
 
+// The signed-in user (any student) from the login token, or null.
+async function userFrom(req) {
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const token = String((req.headers && (req.headers.authorization || req.headers.Authorization)) || '').replace(/^Bearer\s+/i, '');
+  if (!key || !token) return null;
+  try {
+    const r = await fetch(SUPABASE_URL + '/auth/v1/user', { headers: { apikey: key, Authorization: 'Bearer ' + token } });
+    return r.ok ? await r.json() : null;
+  } catch (e) { return null; }
+}
+
 function cleanGroup(v) { return String(v || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 40); }
 
 function clean(v, max) { return String(v == null ? '' : v).replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, max); }
 
 module.exports = async function handler(req, res) {
   try {
+    if (req.method === 'GET' && req.query && req.query.upgrade !== undefined) {
+      const u = await userFrom(req);
+      if (!u || !u.id) return res.status(401).json({ eligible: false });
+      const { upgradeInfo, SELF } = require('./_course.js');
+      const info = await upgradeInfo(u.id);
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(200).json({ eligible: info.eligible, reason: info.reason, amount: info.amountCents ? info.amountCents / 100 : null,
+        deadline: info.deadline || null, livePrice: info.livePrice || null, selfPrice: SELF.price });
+    }
+
     if (req.method === 'GET' && req.query && req.query.progress !== undefined) {
       const teacher = await teacherFrom(req);
       if (!teacher) return res.status(403).json({ error: 'Solo para el maestro.' });

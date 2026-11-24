@@ -27,6 +27,65 @@ module.exports = async function handler(req, res) {
     const userId = (body.userId || '').toString();
     const email = (body.email || '').toString();
 
+    const hostH = req.headers['x-forwarded-host'] || req.headers.host;
+    const protoH = (req.headers['x-forwarded-proto'] || 'https').split(',')[0];
+    const originH = req.headers.origin || (protoH + '://' + hostH);
+    async function stripeSession(p) {
+      const r = await fetch('https://api.stripe.com/v1/checkout/sessions', {
+        method: 'POST', headers: { 'Authorization': 'Bearer ' + secret, 'Content-Type': 'application/x-www-form-urlencoded' }, body: p.toString()
+      });
+      const d = await r.json();
+      if (!r.ok) { console.error('Stripe checkout error:', d && d.error); return res.status(502).json({ error: (d && d.error && d.error.message) || 'Stripe error.' }); }
+      return res.status(200).json({ url: d.url });
+    }
+
+    // ---- "Curso a tu ritmo" (self-paced, $59): 60 days of Premium + 10 live interviews + mi-curso.html ----
+    if (body.plan === 'self') {
+      if (!userId) return res.status(400).json({ error: 'Necesitas una cuenta para comprar el curso.' });
+      const selfPrice = process.env.STRIPE_PRICE_ID_SELF;
+      if (!selfPrice) return res.status(500).json({ error: 'Price is not configured for the self-paced course.' });
+      const sp = new URLSearchParams();
+      sp.append('mode', 'payment');
+      sp.append('line_items[0][price]', selfPrice);
+      sp.append('line_items[0][quantity]', '1');
+      sp.append('success_url', originH + '/mi-curso.html?comprado=1');
+      sp.append('cancel_url', originH + '/curso.html?cancelado=1');
+      sp.append('allow_promotion_codes', 'true');
+      sp.append('customer_creation', 'always');
+      if (email) sp.append('customer_email', email);
+      sp.append('client_reference_id', userId);
+      sp.append('metadata[userId]', userId);
+      sp.append('metadata[plan]', 'self');
+      return stripeSession(sp);
+    }
+
+    // ---- Move from the self-paced course to the live course, paying only the difference ----
+    if (body.plan === 'course_upgrade') {
+      if (!userId) return res.status(400).json({ error: 'Necesitas una cuenta.' });
+      const { upgradeInfo } = require('./_course.js');
+      const up = await upgradeInfo(userId);
+      if (!up.eligible) {
+        const why = { no_self: 'Esta opción es para quien compró el curso a tu ritmo.', expired: 'El plazo de 14 días para pasarte al curso en vivo ya terminó.',
+          enrolled: 'Ya estás inscrito en el curso en vivo.', closed: 'Las inscripciones del grupo en vivo ya cerraron.', full: 'El grupo en vivo ya está lleno.' };
+        return res.status(409).json({ error: why[up.reason] || 'No se pudo revisar tu pase. Inténtalo en un momento.' });
+      }
+      const up2 = new URLSearchParams();
+      up2.append('mode', 'payment');
+      up2.append('line_items[0][price_data][currency]', 'usd');
+      up2.append('line_items[0][price_data][unit_amount]', String(up.amountCents));
+      up2.append('line_items[0][price_data][product_data][name]', 'Pase al curso en vivo (diferencia)');
+      up2.append('line_items[0][quantity]', '1');
+      up2.append('success_url', originH + '/mi-curso.html?pase=1');
+      up2.append('cancel_url', originH + '/mi-curso.html');
+      up2.append('customer_creation', 'always');
+      if (email) up2.append('customer_email', email);
+      up2.append('client_reference_id', userId);
+      up2.append('metadata[userId]', userId);
+      up2.append('metadata[plan]', 'course_upgrade');
+      up2.append('metadata[cohort]', up.cohort);
+      return stripeSession(up2);
+    }
+
     // ---- Live Zoom course (curso.html): its own price, seats and return pages ----
     if (body.plan === 'course') {
       const { COURSE, soldSeats, alreadyEnrolled, publicInfo } = require('./_course.js');

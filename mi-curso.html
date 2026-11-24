@@ -120,6 +120,10 @@ textarea{width:100%;font-family:inherit;font-size:20px;padding:12px;border:2px s
 .fb.bad{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
 
 /* locked / loading */
+.upg{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid var(--gold);border-radius:18px;padding:16px 18px;margin-bottom:16px}
+.upg b{display:block;font-size:17px;margin-bottom:4px}
+.upg p{margin:0 0 10px;color:#78350f;font-size:15px}
+.welcome{background:var(--greenbg);border:2px solid #86efac;color:#166534;border-radius:16px;padding:14px 16px;margin-bottom:16px;font-weight:700}
 .center{min-height:70vh;display:flex;align-items:center;justify-content:center;text-align:center}
 .center .card{max-width:460px}
 </style>
@@ -157,7 +161,7 @@ const STEP_TXT = [
   ['Como el día real', 'El oficial pregunta (a veces con otras palabras). Contesta sin mirar y luego revisa.']
 ];
 
-let user = null, SECTIONS = {}, CIV = {}, STATES = [];
+let user = null, SECTIONS = {}, CIV = {}, STATES = [], UPG = null, WELCOME = '', TOKEN = '';
 let P = { done:{}, civ:{}, last:null, test:'128', state:'Texas', sim:{} };
 let V = { screen:'home', sec:null, idx:0, step:1, reveal:false, askFor:null, askText:'', trivia:null, typed:'', fb:null, sim:null };
 
@@ -257,6 +261,13 @@ function renderHome(){
   const last = P.last && SECTIONS[P.last.sec] ? P.last : null;
   const name = ((user.user_metadata || {}).full_name || '').split(' ')[0];
   let h = '<h1>' + (name ? 'Hola, ' + esc(name) : 'Tu curso') + '</h1><p class="sub">Estudia a tu ritmo, en el orden que quieras. Tu avance se guarda en tu cuenta.</p>';
+  if (WELCOME) h += '<div class="welcome">' + WELCOME + '</div>';
+  if (UPG && UPG.eligible) {
+    const dl = UPG.deadline ? new Date(UPG.deadline).toLocaleDateString('es-US', { day:'numeric', month:'long' }) : '';
+    h += '<div class="upg"><b>🎓 ¿Quieres clases con maestro?</b><p>Pásate al curso en vivo por Zoom pagando solo la diferencia: <b style="display:inline">$' + UPG.amount + '</b>' +
+      (dl ? ' (hasta el ' + esc(dl) + ')' : '') + '. Incluye las 4 clases, 90 días de Premium y tus entrevistas en vivo completas hasta 16.</p>' +
+      '<button class="btn gold block" id="upgBtn">Pasarme al curso en vivo · $' + UPG.amount + '</button><div id="upgMsg" style="margin-top:8px;font-size:14px"></div></div>';
+  }
   if (last) h += '<div class="cont"><div><b>Sigue donde te quedaste</b><small>' + esc(SECTIONS[last.sec].title) + '</small></div><button class="btn" id="contBtn">Continuar →</button></div>';
   h += '<div class="setup">Tu examen de cívica: <select id="selTest"><option value="128"' + (P.test === '128' ? ' selected' : '') + '>128 preguntas (2025)</option><option value="100"' + (P.test === '100' ? ' selected' : '') + '>100 preguntas (2008)</option></select>' +
     ' Estado: <select id="selState">' + STATES.map(s => '<option' + (s === P.state ? ' selected' : '') + '>' + esc(s) + '</option>').join('') + '</select></div>';
@@ -274,6 +285,7 @@ function renderHome(){
   $('pct').textContent = totalPct() + '%';
   $('app').querySelectorAll('[data-sec]').forEach(b => b.onclick = () => openSection(b.dataset.sec));
   if (last) $('contBtn').onclick = () => openSection(last.sec, last.idx);
+  if ($('upgBtn')) $('upgBtn').onclick = startUpgrade;
   $('selTest').onchange = async () => { P.test = $('selTest').value; await loadCivics(); saveProgress(); renderHome(); };
   $('selState').onchange = async () => { P.state = $('selState').value; await loadCivics(); saveProgress(); renderHome(); };
   window.scrollTo({ top:0 });
@@ -576,6 +588,21 @@ $('bPrev').onclick = () => {
   renderHome();
 };
 
+// ===================================================== move to the live course (pay the difference)
+async function loadUpgrade(){
+  try { const r = await fetch('/api/course?upgrade=1', { headers:{ Authorization:'Bearer ' + TOKEN }, cache:'no-store' }); UPG = r.ok ? await r.json() : null; } catch(e) { UPG = null; }
+}
+async function startUpgrade(){
+  const b = $('upgBtn'), m = $('upgMsg'); b.disabled = true; m.textContent = 'Te llevamos al pago…';
+  try {
+    const r = await fetch('/api/checkout', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ userId:user.id, email:user.email, plan:'course_upgrade' }) });
+    const d = await r.json();
+    if (d && d.url) { location.href = d.url; return; }
+    m.textContent = (d && d.error) || 'No se pudo abrir el pago. Inténtalo de nuevo.';
+  } catch(e) { m.textContent = 'No se pudo abrir el pago. Revisa tu conexión.'; }
+  b.disabled = false;
+}
+
 // ===================================================== access & start
 function locked(msg){
   $('bottom').classList.add('hidden');
@@ -596,11 +623,21 @@ async function hasAccess(){
   let session = null;
   try { const { data } = await sb.auth.getSession(); session = data.session; } catch(e) {}
   if (!session) { window.location.href = 'index.html'; return; }
-  user = session.user;
-  if (!(await hasAccess())) { locked('Esta parte es para los alumnos del curso. Aquí estudias a tu ritmo todo lo del curso: tu N-400 con pronunciación, cívica en bloques de 3, lectura, escritura y simulacros.'); return; }
+  user = session.user; TOKEN = session.access_token;
+  const q = new URLSearchParams(location.search);
+  // Just paid: Stripe tells our server a few seconds later, so wait a little for the access to appear.
+  if ((q.get('comprado') || q.get('pase')) && !(await hasAccess())) {
+    $('app').innerHTML = '<div class="center"><p>Activando tu curso… un momento ⏳</p></div>';
+    for (let i = 0; i < 10 && !(await hasAccess()); i++) await new Promise(r => setTimeout(r, 2000));
+  }
+  if (q.get('comprado')) WELCOME = '🎉 ¡Bienvenido al curso a tu ritmo! Ya tienes 60 días de Premium y 10 entrevistas en vivo. Empieza por la Semana 1.';
+  if (q.get('pase')) WELCOME = '🎉 ¡Listo! Ya estás inscrito en el curso en vivo. Te enviaremos el enlace de Zoom por correo antes de la primera clase.';
+  if (q.get('comprado') || q.get('pase')) history.replaceState(null, '', 'mi-curso.html');
+  if (!(await hasAccess())) { locked('Esta parte es para los alumnos del curso. Aquí estudias a tu ritmo todo lo del curso: tu N-400 con pronunciación, cívica en bloques de 3, lectura, escritura y simulacros. Puedes comprar el curso a tu ritmo por $59 o inscribirte al curso en vivo.'); return; }
   buildSections();
   await loadProgress();
   await loadCivics();
+  await loadUpgrade();
   renderHome();
 })();
 </script>

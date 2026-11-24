@@ -613,12 +613,13 @@
     const i = r.ok ? await r.json() : null;
     if (!i) return;
     const card = document.getElementById('courseBanner');
-    let enrolled = false;
+    let enrolled = false, selfPaced = false;
     try {
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (session) {
-        const { data } = await supabaseClient.from('course_enrollments').select('id').eq('user_id', session.user.id).eq('cohort', i.cohort).limit(1);
-        enrolled = !!(data && data.length);
+        const { data } = await supabaseClient.from('course_enrollments').select('cohort').eq('user_id', session.user.id);
+        enrolled = !!(data && data.some(r => r.cohort === i.cohort));
+        selfPaced = !!(data && data.some(r => r.cohort === 'self'));
       }
     } catch (e) {}
     const M = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
@@ -628,6 +629,13 @@
       document.getElementById('cbTag').textContent = 'ESTÁS INSCRITO · CURSO EN VIVO';
       document.getElementById('cbTitle').textContent = 'Tu primera clase es el sábado ' + first;
       document.getElementById('cbSub').textContent = i.schedule + '. El enlace de Zoom te llega por correo. Entre clases, estudia en Mi curso.';
+      document.getElementById('cbBtn').textContent = 'Ir a mi curso →';
+      card.href = 'mi-curso.html';
+      card.hidden = false;
+    } else if (selfPaced) {
+      document.getElementById('cbTag').textContent = 'TU CURSO A TU RITMO';
+      document.getElementById('cbTitle').textContent = 'Sigue estudiando tu curso';
+      document.getElementById('cbSub').textContent = 'Tu N-400 con pronunciación, cívica en bloques de 3, lectura, dictado y simulacros, con tu avance guardado.';
       document.getElementById('cbBtn').textContent = 'Ir a mi curso →';
       card.href = 'mi-curso.html';
       card.hidden = false;

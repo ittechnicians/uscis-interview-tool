@@ -82,6 +82,13 @@ h2{font-size:clamp(26px,3.4vw,38px);line-height:1.15;font-weight:900;letter-spac
 .inc{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:24px}
 .inc div{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 18px}
 .inc .ic{font-size:24px;line-height:1}
+.self{margin-top:28px;background:#fff;border:2px solid #bfdbfe;border-radius:20px;padding:24px;display:grid;grid-template-columns:1.4fr 1fr;gap:20px;align-items:center}
+.self h3{margin:0 0 6px;font-size:22px}
+.self ul{margin:8px 0 0;padding-left:1.2em;color:var(--muted)}
+.self .pr{font-size:40px;font-weight:800;color:#1e40af;line-height:1}
+.self .pr small{font-size:15px;color:var(--muted);font-weight:600;display:block;margin-top:4px}
+.self .btn2{display:block;width:100%;border:0;border-radius:14px;padding:14px;background:#1e40af;color:#fff;font-weight:800;font-size:17px;margin-top:14px;cursor:pointer}
+@media (max-width:760px){.self{grid-template-columns:1fr}}
 .inc b{display:block}
 .inc span{color:var(--muted);font-size:15px}
 .rules{margin-top:20px;display:flex;flex-direction:column;gap:10px}
@@ -192,6 +199,24 @@ footer{padding:28px 0;color:var(--muted);font-size:14px;text-align:center}
     <div><span class="ic">🎮</span><p><b>El juego y la práctica diaria</b><span>Cívica con fotos, Repaso de hoy, definiciones y escritura.</span></p></div>
   </div>
   <p class="lead" id="haveMsg">Si ya tienes Premium, no pierdes nada: se suman los días y las entrevistas que te queden.</p>
+  <div class="self" id="selfBox">
+    <div>
+      <p class="eyebrow" style="margin:0 0 6px">¿No puedes los sábados o prefieres algo más económico?</p>
+      <h3>Curso a tu ritmo</h3>
+      <p style="margin:0;color:var(--muted)">El mismo programa del curso, sin clases en vivo: estudias cuando quieras desde tu celular, con la voz del oficial.</p>
+      <ul>
+        <li>Tu N-400 con significado, respuesta modelo y pronunciación</li>
+        <li>Cívica en bloques de 3 con trivia, lectura, dictado y simulacros</li>
+        <li>60 días de Premium y 10 entrevistas en vivo con oficial de IA</li>
+        <li>¿Después quieres maestro? Te pasas al curso en vivo pagando solo la diferencia (dentro de 14 días, si hay lugar)</li>
+      </ul>
+    </div>
+    <div>
+      <div class="pr">$59<small>Pago único · sin suscripción</small></div>
+      <button class="btn2" type="button" onclick="buySelf()">Comprar curso a tu ritmo</button>
+      <div class="msg" id="selfMsg"></div>
+    </div>
+  </div>
 </div></section>
 
 <section class="block"><div class="wrap">
@@ -317,14 +342,21 @@ async function checkSession(){
 async function goCheckout(userId, email, msgEl){
   show(msgEl, 'ok', 'Te llevamos al pago…');
   try {
-    const r = await fetch('/api/checkout', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ userId, email, plan:'course' }) });
+    const r = await fetch('/api/checkout', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ userId, email, plan: buyPlan }) });
     const d = await r.json();
     if (d && d.url) { window.location.href = d.url; return; }
     show(msgEl, 'err', (d && d.error) || 'No se pudo abrir el pago. Inténtalo de nuevo.');
   } catch(e) { show(msgEl, 'err', 'No se pudo abrir el pago. Revisa tu conexión e inténtalo de nuevo.'); }
 }
 
+let buyPlan = 'course';   // 'course' = live course; 'self' = curso a tu ritmo
+function buySelf(){
+  buyPlan = 'self';
+  if (session) { goCheckout(session.user.id, session.user.email, $('selfMsg')); return; }
+  intent = 'buy'; setMode('signup'); $('authTitle').textContent = 'Crea tu cuenta para comprar'; $('authModal').classList.add('on'); setTimeout(() => $('aName').focus(), 50);
+}
 function enroll(){
+  buyPlan = 'course';
   if (enrolled) return;
   if (INFO && !INFO.open) { $('wSched').value = 'sabado'; $('waitForm').scrollIntoView({behavior:'smooth', block:'center'}); $('wName').focus({preventScroll:true}); return; }
   if (session) { window.scrollTo({top:0, behavior:'smooth'}); goCheckout(session.user.id, session.user.email, $('buyMsg')); return; }

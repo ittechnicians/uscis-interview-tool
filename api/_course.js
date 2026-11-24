@@ -23,6 +23,16 @@ const COURSE = {
   nightGroup: 'Una noche entre semana, de 7:30 a 9:00 p. m. (hora del centro)'
 };
 
+// "Curso a tu ritmo" (self-paced): one payment, 60 days of Premium, 10 live interviews and the student course (mi-curso.html).
+// Its purchases are saved in course_enrollments with cohort 'self' (they do not use seats of the live groups).
+const SELF = {
+  cohort: 'self',
+  price: 59,
+  days: 60,
+  liveInterviews: 10,
+  upgradeWindowDays: 14            // they can move to the live course paying the difference within 14 days
+};
+
 // How many paid enrollments this group has. Returns null if it cannot be read.
 async function soldSeats(cohort) {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -49,6 +59,38 @@ async function alreadyEnrolled(userId, cohort) {
     const rows = await r.json();
     return Array.isArray(rows) && rows.length > 0;
   } catch (e) { return false; }
+}
+
+// The latest self-paced purchase of this user: { created_at, amount_cents } or null.
+async function selfPurchase(userId) {
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!key || !userId) return null;
+  try {
+    const url = SUPABASE_URL + '/rest/v1/course_enrollments?cohort=eq.' + SELF.cohort + '&user_id=eq.' + encodeURIComponent(userId) +
+      '&select=created_at,amount_cents&order=created_at.desc&limit=1';
+    const r = await fetch(url, { headers: { apikey: key, Authorization: 'Bearer ' + key } });
+    if (!r.ok) return null;
+    const rows = await r.json();
+    return Array.isArray(rows) && rows.length ? rows[0] : null;
+  } catch (e) { return null; }
+}
+
+// Can this user move from the self-paced course to the live course now, and for how much?
+// The price is the live course price TODAY minus what they actually paid for the self-paced course.
+async function upgradeInfo(userId) {
+  const self = await selfPurchase(userId);
+  if (!self) return { eligible: false, reason: 'no_self' };
+  const deadline = new Date(new Date(self.created_at).getTime() + SELF.upgradeWindowDays * 86400000);
+  if (Date.now() > deadline.getTime()) return { eligible: false, reason: 'expired', deadline };
+  if (await alreadyEnrolled(userId, COURSE.cohort)) return { eligible: false, reason: 'enrolled' };
+  const sold = await soldSeats(COURSE.cohort);
+  if (sold === null) return { eligible: false, reason: 'unknown' };
+  const info = publicInfo(sold);
+  if (info.closed) return { eligible: false, reason: 'closed' };
+  if (info.full) return { eligible: false, reason: 'full' };
+  const paid = typeof self.amount_cents === 'number' ? self.amount_cents : SELF.price * 100;
+  const amountCents = Math.max(0, info.price * 100 - Math.min(paid, SELF.price * 100));
+  return { eligible: amountCents > 0, reason: amountCents > 0 ? 'ok' : 'free', amountCents, livePrice: info.price, deadline, cohort: COURSE.cohort, firstPurchase: self.created_at };
 }
 
 function isOpen(now) {
@@ -82,4 +124,4 @@ function publicInfo(sold) {
   };
 }
 
-module.exports = { COURSE, SUPABASE_URL, soldSeats, alreadyEnrolled, publicInfo, isOpen, lastClassEnd };
+module.exports = { COURSE, SELF, SUPABASE_URL, soldSeats, alreadyEnrolled, publicInfo, isOpen, lastClassEnd, selfPurchase, upgradeInfo };
