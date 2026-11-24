@@ -53,7 +53,8 @@ h1{font-size:24px;margin:6px 0 4px}
 .setup select{font-family:inherit;font-size:14px;padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:#fff}
 
 /* study */
-.crumb{font-size:13px;color:var(--soft);font-weight:700;margin-bottom:10px}
+.crumb{font-size:13px;color:var(--soft);font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.crumb .home{border:1px solid #bfdbfe;background:#eff6ff;color:var(--blue);border-radius:999px;padding:6px 12px;font-weight:800;font-size:13px}
 .crumb b{color:var(--blue)}
 .steps{display:flex;gap:6px;margin-bottom:6px}
 .steps span{flex:1;height:6px;border-radius:6px;background:var(--line)}
@@ -130,8 +131,8 @@ textarea{width:100%;font-family:inherit;font-size:20px;padding:12px;border:2px s
 </head>
 <body>
 <div class="top">
-  <a class="back" href="dashboard.html">← Hub</a>
-  <div class="ttl">Mi curso · <span>Camino a la Ciudadanía</span></div>
+  <a class="back" id="topBack" href="dashboard.html">← Hub</a>
+  <div class="ttl" id="topTtl">Mi curso · <span>Camino a la Ciudadanía</span></div>
   <div id="save"></div>
   <div class="pct" id="pct"></div>
 </div>
@@ -256,8 +257,16 @@ function totalPct(){
   M.days.forEach(day => day.sections.forEach(id => { const p = secProgress(id); if (p) { d += p[0]; t += p[1]; } }));
   return t ? Math.round(d / t * 100) : 0;
 }
+function setTopBack(){
+  const a = $('topBack');
+  if (V.screen === 'study') { a.textContent = '← Mi curso'; a.href = '#'; a.onclick = e => { e.preventDefault(); goHome(); }; $('topTtl').textContent = SECTIONS[V.sec] ? SECTIONS[V.sec].title : ''; }
+  else { a.textContent = '← Hub'; a.href = 'dashboard.html'; a.onclick = null; $('topTtl').innerHTML = 'Mi curso · <span>Camino a la Ciudadanía</span>'; }
+}
+// Back to the list of all sections. Also used by the phone's back button (see popstate below).
+function goHome(){ if (history.state && history.state.mc === 'study') history.back(); else renderHome(); }
+window.addEventListener('popstate', () => { if (V.screen === 'study') renderHome(); });
 function renderHome(){
-  V.screen = 'home'; $('bottom').classList.add('hidden'); stopAudio();
+  V.screen = 'home'; $('bottom').classList.add('hidden'); stopAudio(); setTopBack();
   const last = P.last && SECTIONS[P.last.sec] ? P.last : null;
   const name = ((user.user_metadata || {}).full_name || '').split(' ')[0];
   let h = '<h1>' + (name ? 'Hola, ' + esc(name) : 'Tu curso') + '</h1><p class="sub">Estudia a tu ritmo, en el orden que quieras. Tu avance se guarda en tu cuenta.</p>';
@@ -301,7 +310,9 @@ function openSection(id, idx){
   if (V.sec !== 'civica' && V.sec !== 'simulacro' && V.idx >= list().length) V.idx = 0;
   if (isMix()) V.step = 4;
   P.last = { sec:id, idx:V.idx }; saveProgress();
-  render(); autoPlay();
+  if (!(history.state && history.state.mc === 'study')) history.pushState({ mc:'study' }, '', '#estudiar');
+  V.screen = 'study'; setTopBack();
+  render(); autoPlay(); window.scrollTo({ top:0 });
 }
 function list(){ return V.sec === 'civica' ? civBlocks() : V.sec === 'simulacro' ? (V.sim ? V.sim.items : []) : SECTIONS[V.sec].cards; }
 function isMix(){ return V.sec === 'simulacro' || V.sec === 'cambio'; }
@@ -482,7 +493,7 @@ function simEndHtml(){
 }
 
 function render(){
-  const s = SECTIONS[V.sec]; let h = '<div class="crumb"><b>' + esc(s.title) + '</b></div>';
+  const s = SECTIONS[V.sec]; let h = '<div class="crumb"><button class="home" data-act="home">☰ Todas las secciones</button><b>' + esc(s.title) + '</b></div>';
   const L = list(), bottom = $('bottom');
   if (V.sec === 'simulacro' && V.idx >= L.length) { $('app').innerHTML = h + simEndHtml(); bottom.classList.add('hidden'); wire(); return; }
   if (V.sec === 'civica') h += civicsHtml();
@@ -498,7 +509,7 @@ function render(){
   // bottom bar
   bottom.classList.remove('hidden');
   $('bCnt').textContent = V.sec === 'civica' ? 'Bloque ' + (V.idx + 1) + '/' + L.length : (V.idx + 1) + '/' + L.length;
-  $('bPrev').disabled = V.idx === 0 && V.step === 1 && !V.trivia;
+  $('bPrev').disabled = false;   // on the first card it goes back to the course home
   const c = cur(), k = kindOf();
   const nb = $('bNext');
   nb.classList.remove('hidden'); nb.disabled = false;
@@ -545,7 +556,7 @@ function act(a){
     else { V.trivia = null; P.civ[P.test] = Math.max(P.civ[P.test] || 0, V.idx + 1); saveProgress(); render(); }
     return;
   }
-  if (a === 'home') return renderHome();
+  if (a === 'home') return goHome();
   if (a === 'newSim') { newSim(); V.idx = 0; V.reveal = false; V.step = 4; render(); autoPlay(); return; }
 }
 function markAndNext(ok){
@@ -564,7 +575,7 @@ function goNext(){
   } else {
     const order = M.days.flatMap(d => d.sections), j = order.indexOf(V.sec);
     if (j >= 0 && j < order.length - 1 && order[j + 1] !== 'simulacro') return openSection(order[j + 1]);
-    P.last = null; saveProgress(); return renderHome();
+    P.last = null; saveProgress(); return goHome();
   }
   P.last = { sec:V.sec, idx:V.idx }; saveProgress(); render(); autoPlay(); window.scrollTo({ top:0 });
 }
@@ -573,7 +584,7 @@ $('bNext').onclick = () => {
   if (V.sec === 'civica') {
     if (V.trivia) { V.trivia = null; render(); return; }
     P.civ[P.test] = Math.max(P.civ[P.test] || 0, V.idx + 1); saveProgress();
-    if (V.idx < civBlocks().length - 1) { V.idx++; civOpen = {}; P.last = { sec:'civica', idx:V.idx }; saveProgress(); render(); window.scrollTo({ top:0 }); } else renderHome();
+    if (V.idx < civBlocks().length - 1) { V.idx++; civOpen = {}; P.last = { sec:'civica', idx:V.idx }; saveProgress(); render(); window.scrollTo({ top:0 }); } else goHome();
     return;
   }
   if (k === 'n400' && c && c.kind === 'rule') return markAndNext(true);
@@ -585,7 +596,7 @@ $('bPrev').onclick = () => {
   if (V.trivia) { V.trivia = null; render(); return; }
   if (kindOf() === 'n400' && !isMix() && V.step > 1) { V.step--; V.reveal = false; render(); return; }
   if (V.idx > 0) { V.idx--; V.step = isMix() ? 4 : 1; V.reveal = false; V.askFor = null; V.fb = null; V.typed = ''; render(); return; }
-  renderHome();
+  goHome();
 };
 
 // ===================================================== move to the live course (pay the difference)
@@ -624,6 +635,7 @@ async function hasAccess(){
   try { const { data } = await sb.auth.getSession(); session = data.session; } catch(e) {}
   if (!session) { window.location.href = 'index.html'; return; }
   user = session.user; TOKEN = session.access_token;
+  if (location.hash === '#estudiar' || (history.state && history.state.mc)) history.replaceState(null, '', 'mi-curso.html' + location.search);
   const q = new URLSearchParams(location.search);
   // Just paid: Stripe tells our server a few seconds later, so wait a little for the access to appear.
   if ((q.get('comprado') || q.get('pase')) && !(await hasAccess())) {
