@@ -222,12 +222,22 @@ function bestVoice(){
 }
 function stopAudio(){ if (curAudio) { try { curAudio.pause(); } catch(e) {} curAudio = null; } try { speechSynthesis.cancel(); } catch(e) {} }
 function sayable(t){ return String(t||'').replace(/\[([A-Z])(-[A-Z])+\]/g, m => m.slice(1, -1).split('-').join(', ')).replace(/\[|\]/g,'').replace(/\([^)]*\)/g,'').replace(/\s+\/\s+/g,'. ').replace(/\s+/g,' ').trim(); }
+// Recordings already downloaded stay in memory, so playing them again is instant;
+// the next ones are downloaded ahead of time (preloadTexts) while the student reads.
+const audioCache = new Map();
+function fileFor(text){ const raw = String(text || '').trim(), t = sayable(text); return manifest && (manifest['en|' + raw] || manifest['en|' + t]); }
+function audioEl(file){
+  let a = audioCache.get(file);
+  if (!a) { a = new Audio('/audio/' + file); a.preload = 'auto'; audioCache.set(file, a); if (audioCache.size > 80) audioCache.delete(audioCache.keys().next().value); }
+  return a;
+}
+function preloadTexts(list){ if (!manifest) return; (list || []).forEach(t => { const f = fileFor(t); if (f) audioEl(f); }); }
 function speak(text, slow){
   const raw = String(text || '').trim(), t = sayable(text); if (!t) return;
   stopAudio();
   const file = manifest && (manifest['en|' + raw] || manifest['en|' + t]);
   if (file) {
-    const a = new Audio('/audio/' + file); curAudio = a; a.playbackRate = slow ? 0.72 : 1;
+    const a = audioEl(file); curAudio = a; try { a.currentTime = 0; } catch(e) {} a.playbackRate = slow ? 0.72 : 1;
     a.play().catch(() => tts(t, slow)); return;
   }
   tts(t, slow);
@@ -514,6 +524,13 @@ function render(){
   const list = curList();
   $('count').textContent = S.sec === 'civica' ? 'Bloque ' + (S.idx + 1) + ' de ' + list.length : (S.idx + 1) + ' de ' + list.length;
   $('prevBtn').disabled = S.idx === 0 && !trivia;
+  try {
+    const out = [], add = c => { if (!c) return; if (c.q) out.push(c.q); (c.v || []).forEach(x => out.push(x)); (c.a || []).forEach(a => { if (a.en) out.push(a.en); (a.n || []).forEach(n => out.push(n.en)); }); };
+    if (S.sec === 'civica') [list[S.idx], list[S.idx + 1]].forEach(b => (b || []).forEach(q => { out.push(q.q); out.push(q.a); }));
+    else if (S.sec === 'simulacro') [list[S.idx], list[S.idx + 1]].forEach(it => { if (!it) return; if (it.civ) { out.push(it.civ.q); out.push(it.civ.a); } else add(it.card); });
+    else { add(list[S.idx]); add(list[S.idx + 1]); }
+    preloadTexts(out);
+  } catch(e) {}
   $('nextBtn').textContent = S.idx >= list.length - 1 ? 'Terminar sección ✓' : (S.sec === 'civica' ? 'Siguiente bloque →' : 'Siguiente →');
   wire();
 }

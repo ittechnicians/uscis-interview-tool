@@ -139,6 +139,9 @@
         .course-banner .cb-tag{font-size:.75rem;font-weight:800;letter-spacing:.08em;color:#fde68a;margin:0}
         .course-banner h3{font-size:1.25rem;font-weight:800;margin:.15rem 0;color:#fff}
         .course-banner p{margin:0;color:#dbeafe;font-size:.95rem}
+        .course-live-link{display:block;margin:-1.4rem 0 2rem;padding:.6rem 1rem;color:#1e3a8a;font-size:.92rem;text-decoration:none;text-align:center}
+        .course-live-link b{text-decoration:underline}
+        .course-live-link[hidden]{display:none}
         .course-banner .cb-btn{background:#fff;color:#1e40af;font-weight:800;padding:.7rem 1.2rem;border-radius:.7rem;white-space:nowrap}
     </style>
 </head>
@@ -186,10 +189,11 @@
             <p id="welcomeSub">Choose how you want to practice today.</p>
         </div>
 
-        <a class="course-banner" id="courseBanner" href="curso.html" hidden>
-            <div class="cb-main"><span class="cb-ic">🎙️</span><div><p class="cb-tag" id="cbTag">NUEVO · CURSO EN VIVO POR ZOOM</p><h3 id="cbTitle">Aprende a contestar tu entrevista en inglés, con maestro</h3><p id="cbSub">4 sábados de práctica hablando. Premium y 16 entrevistas en vivo incluidas.</p></div></div>
+        <a class="course-banner" id="courseBanner" href="curso.html#selfBox" hidden>
+            <div class="cb-main"><span class="cb-ic">📱</span><div><p class="cb-tag" id="cbTag">NUEVO · CURSO A TU RITMO · $59</p><h3 id="cbTitle">Tu entrevista dividida en 4 partes, para practicar mejor</h3><p id="cbSub">Cívica, Definiciones, Escritura y Entrevista con oficiales de IA. Estudia cada parte en tu celular, a tu ritmo. 60 días de Premium y 10 entrevistas en vivo incluidas.</p></div></div>
             <span class="cb-btn" id="cbBtn">Ver el curso →</span>
         </a>
+        <a class="course-live-link" id="courseLiveLink" href="curso.html" hidden>🎙️ ¿Prefieres clases en vivo con maestro? <b>Curso por Zoom</b><span id="cllSeats"></span> →</a>
 
         <div class="stats-grid">
             <div class="stat-card"><div class="icon">🎤</div><div class="value" id="statSessions">0</div><div class="label">Practice sessions</div></div>
@@ -606,43 +610,43 @@
 })();
 </script>
 <script>
-// Hub: live course card. Enrolled students see their first class; others see the offer while the group is open.
+// Hub: course card. Buyers go to Mi curso; everyone else sees the self-paced course first, with the live course as a second option while its group is open.
 (async function(){
   try {
-    const r = await fetch('/api/course', {cache:'no-store'});
-    const i = r.ok ? await r.json() : null;
-    if (!i) return;
+    let i = null;
+    try { const r = await fetch('/api/course', {cache:'no-store'}); i = r.ok ? await r.json() : null; } catch (e) {}
     const card = document.getElementById('courseBanner');
+    const live = document.getElementById('courseLiveLink');
     let enrolled = false, selfPaced = false;
     try {
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (session) {
         const { data } = await supabaseClient.from('course_enrollments').select('cohort').eq('user_id', session.user.id);
-        enrolled = !!(data && data.some(r => r.cohort === i.cohort));
+        enrolled = !!(i && data && data.some(r => r.cohort === i.cohort));
         selfPaced = !!(data && data.some(r => r.cohort === 'self'));
       }
     } catch (e) {}
     const M = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-    const d = (i.dates && i.dates[0]) ? i.dates[0].split('-').map(Number) : null;
+    const d = (i && i.dates && i.dates[0]) ? i.dates[0].split('-').map(Number) : null;
     const first = d ? d[2] + ' de ' + M[d[1]-1] : '';
     if (enrolled) {
+      card.querySelector('.cb-ic').textContent = '🎙️';
       document.getElementById('cbTag').textContent = 'ESTÁS INSCRITO · CURSO EN VIVO';
       document.getElementById('cbTitle').textContent = 'Tu primera clase es el sábado ' + first;
       document.getElementById('cbSub').textContent = i.schedule + '. El enlace de Zoom te llega por correo. Entre clases, estudia en Mi curso.';
       document.getElementById('cbBtn').textContent = 'Ir a mi curso →';
       card.href = 'mi-curso.html';
-      card.hidden = false;
     } else if (selfPaced) {
       document.getElementById('cbTag').textContent = 'TU CURSO A TU RITMO';
       document.getElementById('cbTitle').textContent = 'Sigue estudiando tu curso';
-      document.getElementById('cbSub').textContent = 'Tu N-400 con pronunciación, cívica en bloques de 3, lectura, dictado y simulacros, con tu avance guardado.';
+      document.getElementById('cbSub').textContent = 'Las 4 partes de tu entrevista: Cívica, Definiciones, Escritura y Entrevista con oficiales de IA, con tu avance guardado.';
       document.getElementById('cbBtn').textContent = 'Ir a mi curso →';
       card.href = 'mi-curso.html';
-      card.hidden = false;
-    } else if (i.open) {
-      if (i.countKnown) document.getElementById('cbSub').textContent = (i.founderLeft > 0 ? 'Quedan ' + i.founderLeft + ' lugares de fundador a $' + i.founderPrice : 'Quedan ' + i.seatsLeft + ' lugares') + '. Empieza el sábado ' + first + '. Premium y 16 entrevistas en vivo incluidas.';
-      card.hidden = false;
+    } else if (i && i.open) {
+      if (i.countKnown) document.getElementById('cllSeats').textContent = ' · ' + (i.founderLeft > 0 ? 'quedan ' + i.founderLeft + ' lugares de fundador a $' + i.founderPrice : 'quedan ' + i.seatsLeft + ' lugares') + (first ? ', empieza el ' + first : '');
+      live.hidden = false;
     }
+    card.hidden = false;
   } catch (e) {}
 })();
 </script>
