@@ -215,7 +215,7 @@ footer{padding:28px 0;color:var(--muted);font-size:14px;text-align:center}
     </div>
     <div>
       <div class="pr">$59<small>Pago único · sin suscripción</small></div>
-      <button class="btn2" type="button" onclick="buySelf()">Comprar curso a tu ritmo</button>
+      <button class="btn2" type="button" onclick="buySelf()">Empieza hoy por $59 →</button>
       <div class="msg" id="selfMsg"></div>
     </div>
   </div>
@@ -319,7 +319,7 @@ function paint(){
   btns.forEach(b => {
     if (enrolled) { b.disabled = true; b.textContent = '✓ Ya estás inscrito'; }
     else if (!INFO.open) { b.disabled = false; b.textContent = 'Avísame del próximo grupo'; }
-    else { b.disabled = false; b.textContent = 'Inscribirme por $' + INFO.price; }
+    else { b.disabled = false; b.textContent = 'Reservar mi lugar por $' + INFO.price + ' →'; }
   });
 }
 
