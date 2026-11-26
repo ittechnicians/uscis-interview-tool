@@ -120,6 +120,7 @@ footer{padding:28px 0;color:var(--muted);font-size:14px;text-align:center}
 
 @media (max-width:900px){ .hero .wrap{grid-template-columns:1fr} .grid3,.grid4,.demo,.inc,.wait{grid-template-columns:1fr} }
 @media (min-width:600px) and (max-width:900px){ .grid4{grid-template-columns:1fr 1fr} }
+.bf-bar{background:#0b0b0f;color:#fff;text-align:center;padding:.6rem 1rem;font-size:.95rem;line-height:1.8}.bf-bar[hidden]{display:none}.bf-code{background:#facc15;color:#111;font-weight:900;letter-spacing:.05em;padding:.2rem .6rem;border-radius:.4rem;border:0;cursor:pointer;font-size:.95rem}
 </style>
 </head>
 <body>
@@ -128,6 +129,7 @@ footer{padding:28px 0;color:var(--muted);font-size:14px;text-align:center}
   <a class="navbtn" id="navBtn" href="/dashboard.html" onclick="return navEnter()">Entrar</a>
 </div></nav>
 
+<div class="bf-bar" data-bf hidden>🖤 <b>Black Friday:</b> 15% en los dos cursos con el código <button class="bf-code" data-bf-copy title="Copiar">BLACKFRIDAY15</button> · hasta el lunes 30 de noviembre</div>
 <header class="hero"><div class="wrap">
   <div>
     <span class="badge">🎙️ Nuevo · Curso en vivo por Zoom</span>
@@ -430,5 +432,6 @@ $('waitForm').addEventListener('submit', async e => {
 })();
 </script>
 <script src="/pw-eye.js" defer></script>
+<script src="/bf.js" defer></script>
 </body>
 </html>

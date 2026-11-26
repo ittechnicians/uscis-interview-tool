@@ -433,7 +433,7 @@ function n400Card(c){
 }
 function readCard(c){
   return '<div class="banner blue">Prueba de lectura: el alumno lee la oración en voz alta. Hay que leer bien 1 de hasta 3.</div>' +
-    '<div class="card"><div class="who">Lee en voz alta</div><p class="q">' + esc(c.q) + '</p>' +
+    '<div class="card"><div class="who">Lee en voz alta</div><p class="q">' + esc(c.q) + '</p>' + (c.p ? '<div class="p">Se pronuncia: ' + esc(c.p) + '</div>' : '') +
     '<div class="play"><button class="pbtn" data-act="q">▶ Modelo</button><button class="pbtn alt" data-act="qs">🐢 Despacio</button></div></div>' +
     '<div class="tip">💡 Leer por grupos de palabras, no letra por letra. Las palabras de pregunta: Who (jú), What (uát), Where (uér), When (uén), Why (uái), How (jáu).</div>';
 }

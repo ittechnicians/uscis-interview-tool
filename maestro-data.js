@@ -221,21 +221,21 @@ window.MAESTRO = {
 
     // ---------------------------------------------------------------- SÁBADO 4
     { id: 'lectura', day: 4, title: 'Prueba de lectura', kind: 'read', cards: [
-      { id: 'r1', q: 'Who was the first President?' },
-      { id: 'r2', q: 'Where does the President live?' },
-      { id: 'r3', q: 'What is the capital of the United States?' },
-      { id: 'r4', q: 'Who can vote?' },
-      { id: 'r5', q: 'When is Flag Day?' },
-      { id: 'r6', q: 'What is the largest state?' },
-      { id: 'r7', q: 'Who is the Father of Our Country?' },
-      { id: 'r8', q: 'What country is north of the United States?' },
-      { id: 'r9', q: 'How many senators does Congress have?' },
-      { id: 'r10', q: 'When do we celebrate Independence Day?' },
-      { id: 'r11', q: 'Why do people come to America?' },
-      { id: 'r12', q: 'What do we pay to the government?' },
-      { id: 'r13', q: 'When is Thanksgiving?' },
-      { id: 'r14', q: 'Who lived here first?' },
-      { id: 'r15', q: 'What is one right in the Bill of Rights?' }
+      { id: 'r1', q: 'Who was the first President?', p: 'jú uas de FERST PRÉ-si-dent?' },
+      { id: 'r2', q: 'Where does the President live?', p: 'uér das de PRÉ-si-dent LIV?' },
+      { id: 'r3', q: 'What is the capital of the United States?', p: 'uát is de KÁ-pi-tal ov de iu-NÁI-ted STÉITS?' },
+      { id: 'r4', q: 'Who can vote?', p: 'jú ken VÓUT?' },
+      { id: 'r5', q: 'When is Flag Day?', p: 'uén is FLÁG déi?' },
+      { id: 'r6', q: 'What is the largest state?', p: 'uát is de LÁR-yest STÉIT?' },
+      { id: 'r7', q: 'Who is the Father of Our Country?', p: 'jú is de FÁ-der ov áur KÁN-tri?' },
+      { id: 'r8', q: 'What country is north of the United States?', p: 'uát KÁN-tri is NORTH ov de iu-NÁI-ted STÉITS?' },
+      { id: 'r9', q: 'How many senators does Congress have?', p: 'jáu MÉ-ni SÉ-na-ters das KÓN-gres JAV?' },
+      { id: 'r10', q: 'When do we celebrate Independence Day?', p: 'uén du uí SÉ-le-breit in-de-PÉN-dens déi?' },
+      { id: 'r11', q: 'Why do people come to America?', p: 'uái du PÍ-pol KAM tu a-MÉ-ri-ka?' },
+      { id: 'r12', q: 'What do we pay to the government?', p: 'uát du uí PÉI tu de GÁ-vern-ment?' },
+      { id: 'r13', q: 'When is Thanksgiving?', p: 'uén is thenks-GÍ-ving?' },
+      { id: 'r14', q: 'Who lived here first?', p: 'jú LIVD jír FERST?' },
+      { id: 'r15', q: 'What is one right in the Bill of Rights?', p: 'uát is uán RÁIT in de BIL ov RÁITS?' }
     ]},
     { id: 'escritura', day: 4, title: 'Prueba de escritura (dictado)', kind: 'write', cards: [
       'Citizens can vote.',

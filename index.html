@@ -858,6 +858,12 @@
 
         /* Live course promo (curso.html) */
         .course-strip{display:block;margin:-0.75rem 0 0.75rem;background:linear-gradient(90deg,#1e40af,#dc2626);color:#fff;text-align:center;font-weight:700;font-size:.95rem;padding:.55rem 1rem;text-decoration:none;line-height:1.35}
+        .bf-box{max-width:1100px;margin:0 auto 1.5rem;background:#0b0b0f;color:#fff;border-radius:1rem;padding:1.1rem 1.4rem;display:flex;gap:1rem;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 12px 28px rgba(0,0,0,.25)}
+        .bf-box[hidden]{display:none}
+        .bf-box h4{margin:0;font-size:1.15rem;font-weight:800;color:#fff}
+        .bf-box p{margin:.2rem 0 0;color:#d4d4d8;font-size:.95rem}
+        .bf-code{background:#facc15;color:#111;font-weight:900;letter-spacing:.06em;padding:.6rem 1rem;border-radius:.6rem;border:0;cursor:pointer;font-size:1rem;white-space:nowrap}
+        .marq .bfm[hidden]{display:none}
         .course-strip b{text-decoration:underline}
         .course-strip[hidden],.course-cta[hidden]{display:none}
         .course-strip{overflow:hidden;white-space:nowrap;text-align:left;padding-left:0;padding-right:0}
@@ -878,7 +884,7 @@
 </head>
 <body>
 <nav class="nav">
-<a class="course-strip" id="courseStrip" href="/curso.html#selfBox"><span class="marq"><span data-en="📱 New: Self-paced course · $59 · Your interview split into its 4 parts: Civics, Definitions, Writing and Interview with AI officers, to practice better · " data-es="📱 Nuevo: Curso a tu ritmo · $59 · Tu entrevista dividida en sus 4 partes: Cívica, Definiciones, Escritura y Entrevista con oficiales de IA, para practicar mejor · ">📱 New: Self-paced course · $59 · Your interview split into its 4 parts: Civics, Definitions, Writing and Interview with AI officers, to practice better · </span><b data-en="See the course" data-es="Ver el curso">See the course</b> →</span></a>
+<a class="course-strip" id="courseStrip" href="/curso.html#selfBox"><span class="marq"><span class="bfm" data-bf hidden data-en="🖤 BLACK FRIDAY: 15% off all plans with code BLACKFRIDAY15 · " data-es="🖤 BLACK FRIDAY: 15% en todos los planes con el código BLACKFRIDAY15 · ">🖤 BLACK FRIDAY: 15% off all plans with code BLACKFRIDAY15 · </span><span data-en="📱 New: Self-paced course · $59 · Your interview split into its 4 parts: Civics, Definitions, Writing and Interview with AI officers, to practice better · " data-es="📱 Nuevo: Curso a tu ritmo · $59 · Tu entrevista dividida en sus 4 partes: Cívica, Definiciones, Escritura y Entrevista con oficiales de IA, para practicar mejor · ">📱 New: Self-paced course · $59 · Your interview split into its 4 parts: Civics, Definitions, Writing and Interview with AI officers, to practice better · </span><b data-en="See the course" data-es="Ver el curso">See the course</b> →</span></a>
 <div class="nav-container">
 <a class="logo" href="#">
 <img alt="Immigration Interviews" class="logo-img" src="immigrationinterviews_logo.png"/>
@@ -1030,6 +1036,7 @@
 <h2 class="section-title" id="pricingTitle">Pay $19. Practice for 30 Days. Renew If You Need More.</h2>
 <p class="section-subtitle" id="pricingSubtitle">No subscriptions, no automatic charges. Pay $19 and get 30 days of unlimited practice. Need more time? Just pay again — simple as that.</p>
 </div>
+<div class="bf-box" data-bf hidden><div><h4 data-en="🖤 Black Friday: 15% off all plans" data-es="🖤 Black Friday: 15% en todos los planes">🖤 Black Friday: 15% off all plans</h4><p data-en="Professional, Premium, top-ups and both courses. Use the code at checkout, valid through Monday, November 30." data-es="Professional, Premium, recargas y los dos cursos. Usa el código al pagar, válido hasta el lunes 30 de noviembre.">Professional, Premium, top-ups and both courses. Use the code at checkout, valid through Monday, November 30.</p></div><button class="bf-code" data-bf-copy title="Copy">BLACKFRIDAY15</button></div>
 <div class="founders-banner">
 <h3 id="founderTitle">🔥 Founding-Member Launch Pricing</h3>
 <p id="founderDesc">Early supporters get <strong>Professional for $19/month</strong> (regular $29) and <strong>Premium for $39</strong> (regular $49). Pay month to month — no subscription, no automatic charges.</p>
@@ -1603,5 +1610,6 @@
 })();
 </script>
 <script src="/pw-eye.js" defer></script>
+<script src="/bf.js" defer></script>
 </body>
 </html>

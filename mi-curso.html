@@ -425,10 +425,15 @@ function n400Html(c, mix){
   return h;
 }
 function readHtml(c){
-  return '<div class="banner blue">Prueba de lectura: lee la pregunta en voz alta. En la entrevista hay que leer bien 1 de hasta 3.</div>' +
-    '<div class="card"><div class="who">Lee en voz alta</div><p class="q">' + esc(c.q) + '</p><div class="play"><button class="btn" data-act="q">▶ Así se lee</button><button class="btn alt" data-act="qs">🐢 Despacio</button></div></div>' +
-    '<div class="tip">💡 Primero léela tú, después tócala para comparar. Who (jú), What (uát), Where (uér), When (uén), Why (uái), How (jáu).</div>' +
-    '<div class="self">' + (V.sec === 'simulacro' ? '<button class="btn ghost" data-act="bad">❌ No me salió</button>' : '<button class="btn ghost" data-act="again">🔁 Otra vez</button>') + '<button class="btn green" data-act="good">✅ La leí bien</button></div>';
+  const sim = V.sec === 'simulacro';
+  let h = '<div class="banner blue">Prueba de lectura: el oficial te muestra una pregunta y tú la lees en voz alta. Tienes hasta 3 oportunidades y basta con leer bien 1.</div>' +
+    '<div class="card"><div class="who">Lee en voz alta</div><p class="q">' + esc(c.q) + '</p>' +
+    (V.reveal && c.p ? '<div class="p">Se pronuncia: ' + esc(c.p) + '</div>' : '') +
+    '<div class="play"><button class="btn" data-act="q">▶ Así se lee</button><button class="btn alt" data-act="qs">🐢 Despacio</button>' +
+    (!sim && c.p ? '<button class="btn gold" data-act="pron">' + (V.reveal ? 'Ocultar pronunciación' : '👀 Cómo se pronuncia') + '</button>' : '') + '</div></div>';
+  if (!sim) h += '<div class="tip"><b>Cómo practicar:</b><br>1. Léela tú en voz alta, sin ayuda, como en la entrevista.<br>2. Toca <b>▶ Así se lee</b> y compara con lo que dijiste.<br>3. Si alguna palabra te costó, toca <b>👀 Cómo se pronuncia</b> y repítela.<br>4. Cuando te salga bien, toca <b>✅ La leí bien</b>.</div>';
+  else h += '<div class="do">🗣️ Léela en voz alta como si estuvieras frente al oficial. Después toca "Así se lee" para comparar.</div>';
+  return h + '<div class="self">' + (sim ? '<button class="btn ghost" data-act="bad">❌ No me salió</button>' : '<button class="btn ghost" data-act="again">🔁 Otra vez</button>') + '<button class="btn green" data-act="good">✅ La leí bien</button></div>';
 }
 // Writing grader: same rules as the writing practice (small typos allowed, capitals checked, 50 = fifty).
 function normalize(s){ return String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\b50\b/g,'fifty').replace(/\b100\b/g,'one hundred').toLowerCase().replace(/[.,!?;:'"-]/g,'').replace(/\s+/g,' ').trim(); }
@@ -570,6 +575,7 @@ function act(a){
   if (a === 'q' || a === 'qs') { if (c && c.q) speak(kindOf() === 'n400' ? askText(c) : c.q, a === 'qs'); return; }
   if (a === 'a') { const f = c && firstSpoken(c); if (f) speak(f.en, true); return; }
   if (a === 'asked') { speak(V.askText); return; }
+  if (a === 'pron') { V.reveal = !V.reveal; render(); return; }
   if (a === 'reveal') { V.reveal = true; render(); if (V.sec === 'simulacro' && V.sim.items[V.idx].civ) speak(V.sim.items[V.idx].civ.a); return; }
   if (a === 'good') return markAndNext(!(V.fb && V.fb.result === 'wrong'));
   if (a === 'bad') return markAndNext(false);

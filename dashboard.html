@@ -139,6 +139,12 @@
         .course-banner .cb-tag{font-size:.75rem;font-weight:800;letter-spacing:.08em;color:#fde68a;margin:0}
         .course-banner h3{font-size:1.25rem;font-weight:800;margin:.15rem 0;color:#fff}
         .course-banner p{margin:0;color:#dbeafe;font-size:.95rem}
+        .bf-box{margin:0 0 1.25rem;background:#0b0b0f;color:#fff;border-radius:1rem;padding:1.1rem 1.4rem;display:flex;gap:1rem;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 12px 28px rgba(0,0,0,.25)}
+        .bf-box[hidden]{display:none}
+        .bf-box h4{margin:0;font-size:1.15rem;font-weight:800;color:#fff}
+        .bf-box p{margin:.2rem 0 0;color:#d4d4d8;font-size:.95rem}
+        .bf-code{background:#facc15;color:#111;font-weight:900;letter-spacing:.06em;padding:.6rem 1rem;border-radius:.6rem;border:0;cursor:pointer;font-size:1rem;white-space:nowrap}
+        .marq .bfm[hidden]{display:none}
         .course-live-link{display:block;margin:-1.4rem 0 2rem;padding:.6rem 1rem;color:#1e3a8a;font-size:.92rem;text-decoration:none;text-align:center}
         .course-live-link b{text-decoration:underline}
         .course-live-link[hidden]{display:none}
@@ -189,6 +195,7 @@
             <p id="welcomeSub">Choose how you want to practice today.</p>
         </div>
 
+        <div class="bf-box" data-bf hidden><div><h4>🖤 Black Friday: 15% en todos los planes</h4><p>Premium, Professional, recargas y los dos cursos. Usa el código al pagar, válido hasta el lunes 30 de noviembre.</p></div><button class="bf-code" data-bf-copy title="Copiar">BLACKFRIDAY15</button></div>
         <a class="course-banner" id="courseBanner" href="curso.html#selfBox" hidden>
             <div class="cb-main"><span class="cb-ic">📱</span><div><p class="cb-tag" id="cbTag">NUEVO · CURSO A TU RITMO · $59</p><h3 id="cbTitle">Tu entrevista dividida en 4 partes, para practicar mejor</h3><p id="cbSub">Cívica, Definiciones, Escritura y Entrevista con oficiales de IA. Estudia cada parte en tu celular, a tu ritmo. 60 días de Premium y 10 entrevistas en vivo incluidas.</p></div></div>
             <span class="cb-btn" id="cbBtn">Ver el curso →</span>
@@ -650,5 +657,6 @@
   } catch (e) {}
 })();
 </script>
+<script src="/bf.js" defer></script>
 </body>
 </html>
